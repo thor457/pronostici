@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795125945;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795127593;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -474,14 +474,21 @@ const FMD = {};
 E.fotmobDay = async function (d) { const k = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
   if (FMD[k] && Date.now() - FMD[k].t < 300000) return FMD[k].L;
   const day = await E.fetchAny('https://www.fotmob.com/api/data/matches?date=' + k, 20000), L = [];
-  (day.leagues || []).forEach(l => (l.matches || []).forEach(x => L.push({ id: x.id, lg: l.name || '', home: (x.home || {}).name || '', away: (x.away || {}).name || '', hs: (x.home || {}).score, as: (x.away || {}).score, t: x.status && x.status.utcTime ? new Date(x.status.utcTime).getTime() : 0, started: !!(x.status || {}).started, finished: !!(x.status || {}).finished })));
+  (day.leagues || []).forEach(l => (l.matches || []).forEach(x => L.push({ id: x.id, lg: l.name || '', hid: (x.home || {}).id, aid: (x.away || {}).id, home: (x.home || {}).name || '', away: (x.away || {}).name || '', hs: (x.home || {}).score, as: (x.away || {}).score, t: x.status && x.status.utcTime ? new Date(x.status.utcTime).getTime() : 0, started: !!(x.status || {}).started, finished: !!(x.status || {}).finished })));
   FMD[k] = { t: Date.now(), L }; return L; };
 E.fotmobId = async function (ev) { const d = new Date(ev.date), t = d.getTime(); let L = [];
   try { L = await E.fotmobDay(d); } catch (e) { L = []; }
   if (!L.length) return null;
   const m = L.find(x => Math.abs((x.t || t) - t) < 4 * 3600e3 && (sameTeam(x.home, ev.home) && sameTeam(x.away, ev.away) || sameTeam(x.home, ev.away) && sameTeam(x.away, ev.home)));
-  return m ? m.id : null; };
+  if (m) { ev.fmHid = m.hid; ev.fmAid = m.aid; } return m ? m.id : null; };
 const FMPOS = { 11: 'G', 12: 'D', 13: 'M', 14: 'F' };
+E.fmRole = x => { const u = x.usualPlayingPositionId, L = x.horizontalLayout || {}, y = L.y, wide = typeof y === 'number' && (y < 0.24 || y > 0.76);
+  const line = u != null ? u : (x.positionId === 11 ? 0 : null);
+  if (line === 0 || x.positionId === 11) return 'G';
+  if (line === 1) return wide ? 'LB' : 'CD';
+  if (line === 2) return wide ? 'LM' : 'CM';
+  if (line === 3) return 'F';
+  return 'M'; };
 const FMOUT = { injury: 'infortunio', suspension: 'squalifica', national: 'nazionale', personal: 'motivi personali', other: 'indisponibile', doubtful: 'in dubbio' };
 const FMEV = { Goal: 'Gol', AttemptSaved: 'Tiro parato', Card: 'Cartellino', Substitution: 'Cambio', Penalty: 'Rigore', VAR: 'VAR', MissedPenalty: 'Rigore sbagliato', OwnGoal: 'Autogol' };
 // scheda completa FotMob: la fonte che il telefono raggiunge sempre
@@ -489,7 +496,7 @@ E.fotmobFull = async function (idOrEv) { const id = typeof idOrEv === 'object' ?
   const d = await E.fetchAny('https://www.fotmob.com/api/data/matchDetails?matchId=' + id, 20000); if (!d || !d.general) return null;
   const c = d.content || {}, mf = c.matchFacts || {}, ib = mf.infoBox || {}, lu = c.lineup || {}, g = d.general, hdr = d.header || {};
   const side = T => { T = T || {}; return { name: T.name || '', formation: T.formation || '', coach: ((T.coach || {}).name) || (Array.isArray(T.coach) && T.coach[0] ? T.coach[0].name : '') || '',
-      pl: (T.starters || []).map(x => ({ name: x.name, n: x.shirtNumber, pos: FMPOS[x.positionId] || '', x: x.horizontalLayout ? x.horizontalLayout.x : null, y: x.horizontalLayout ? x.horizontalLayout.y : null, xy: x.horizontalLayout ? 1 : 0, start: true })).concat((T.subs || []).map(x => ({ name: x.name, n: x.shirtNumber, pos: FMPOS[x.positionId] || '', start: false }))),
+      pl: (T.starters || []).map(x => ({ name: x.name, n: x.shirtNumber, pos: E.fmRole(x), id: x.id, x: x.horizontalLayout ? x.horizontalLayout.x : null, y: x.horizontalLayout ? x.horizontalLayout.y : null, xy: x.horizontalLayout ? 1 : 0, start: true })).concat((T.subs || []).map(x => ({ name: x.name, n: x.shirtNumber, pos: E.fmRole(x), id: x.id, start: false }))),
       out: (T.unavailable || []).map(x => { const u = x.unavailability || {}; return { name: x.name, why: FMOUT[(u.type || '').toLowerCase()] || u.type || 'indisponibile', ret: u.expectedReturn === 'Doubtful' ? 'in dubbio' : (u.expectedReturn || '') }; }) }; };
   const stats = {}; const per = ((c.stats || {}).Periods) || {};
   Object.keys(per).forEach(pk => { const o = {}; ((per[pk] || {}).stats || []).forEach(gr => (gr.stats || []).forEach(st => { if (!st.title || !st.stats || st.type === 'title') return; o[st.title] = { h: st.stats[0], a: st.stats[1], g: gr.title || '' }; })); stats[pk] = o; });
@@ -506,6 +513,13 @@ E.fotmobFull = async function (idOrEv) { const id = typeof idOrEv === 'object' ?
       let v = null; a.forEach(gr => (gr.stats || []).forEach(x => { if (!v && /Expected goals \(xG\)/i.test(x.title || '') && x.stats && x.stats[0] != null) v = { h: parseFloat(x.stats[0]), a: parseFloat(x.stats[1]) }; })); return v && !isNaN(v.h) ? v : null; })(),
     shots: (() => { const sm = (c.shotmap && c.shotmap.shots) || [], hid = (g.homeTeam || {}).id;
       return sm.map(x => ({ name: x.playerName || '', side: x.isHome === true ? 'h' : x.isHome === false ? 'a' : (x.teamId === hid ? 'h' : 'a'), xg: +x.expectedGoals || 0, type: x.eventType || '', min: x.min })).filter(x => x.name); })(),
+    ids: { h: (g.homeTeam || {}).id, a: (g.awayTeam || {}).id }, fin: !!g.finished,
+    pstats: (() => { const ps = c.playerStats || {}, hid = (g.homeTeam || {}).id, rol = {}, sta = {};
+      ['homeTeam', 'awayTeam'].forEach(sd => { const T = lu[sd] || {}; (T.starters || []).forEach(x => { rol[x.id] = E.fmRole(x); sta[x.id] = 1; }); (T.subs || []).forEach(x => { if (!rol[x.id]) rol[x.id] = E.fmRole(x); }); });
+      return Object.keys(ps).map(pid => { const p = ps[pid], st = {}; (p.stats || []).forEach(gr => Object.keys(gr.stats || {}).forEach(k => { st[k] = ((gr.stats[k] || {}).stat || {}).value; }));
+        const u = p.usualPosition; return { id: +pid, name: p.name, side: p.teamId === hid ? 'h' : 'a', min: +st['Minutes played'] || 0, goals: +st['Goals'] || 0, shots: +st['Total shots'] || 0, sot: +st['Shots on target'] || 0,
+          fouls: +st['Fouls committed'] || 0, fouled: +st['Was fouled'] || 0, xg: +st['Expected goals (xG)'] || 0, start: !!sta[pid], pos: rol[pid] || (u === 0 ? 'G' : u === 1 ? 'CD' : u === 2 ? 'CM' : u === 3 ? 'F' : 'M') }; }).filter(x => x.min > 0); })(),
+    cardsBy: (() => { const o = {}; (((mf.events || {}).events) || []).forEach(e => { if (e.type === 'Card' && e.player && e.player.name) { const k = norm(e.player.name); o[k] = (o[k] || 0) + (/red/i.test(e.card || '') ? 1 : 1); } }); return o; })(),
     events: evs, h2h: c.h2h && c.h2h.summary ? { hw: c.h2h.summary[0], dr: c.h2h.summary[1], aw: c.h2h.summary[2] } : null,
     form: mf.teamForm || null, insights: (mf.insights || []).map(x => x.text || x.title || '').filter(Boolean).slice(0, 6), top: mf.topPlayers || null }; };
 // centro partita da FotMob, nella stessa forma di 365Scores/SofaScore
@@ -801,6 +815,19 @@ E.xgGlobal = function (S) { const X = S.xg || {}; let n = 0, f = 0; Object.keys(
 E.pxgAdd = function (S, name, xg, shots) { if (!name) return; S.pxg = S.pxg || {}; const k = E.keyName(name), v = S.pxg[k] || [0, 0, 0];
   const d = 0.97; v[0] = v[0] * d + 1; v[1] = v[1] * d + (xg || 0); v[2] = v[2] * d + (shots || 0); S.pxg[k] = v; };
 E.pxgOf = function (S, name) { const v = (S.pxg || {})[E.keyName(name)]; return v && v[0] >= 3 ? { n: v[0], xg: v[1] / v[0], sh: v[2] / v[0] } : null; };
+E.fmIngest = function (S, f, nameH, nameA) { if (!f || !f.pstats || !f.pstats.length) return 0; S.fmIng = S.fmIng || {}; if (S.fmIng[f.id]) return 0; S.fmIng[f.id] = Date.now();
+  const tH = nameH || f.home, tA = nameA || f.away; let n = 0, yh = 0, ya = 0;
+  f.pstats.forEach(p => { const k = norm(p.name); let a = S.players[k]; if (!a) a = S.players[k] = [0, 0, 0, 0, 0, 0, 0, '', '', '', p.name, 0, 0, 0, []];
+    while (a.length < 15) a.push(0); if (!Array.isArray(a[14])) a[14] = []; a[14].push([p.goals, p.shots]); if (a[14].length > 5) a[14].shift();
+    const yc = (f.cardsBy || {})[k] || 0; if (p.side === 'h') yh += yc; else ya += yc;
+    a[0]++; a[1] += p.start ? 1 : 0; a[2] += p.fouls; a[3] += yc; a[4] += p.goals; a[5] += p.shots; a[6] += p.sot;
+    a[7] = p.side === 'h' ? tH : tA; if (p.pos) a[8] = p.pos; if (p.xg) E.pxgAdd(S, p.name, p.xg, p.shots); n++; });
+  if (f.xg) { E.xgAdd(S, tH, f.xg.h, f.xg.a); E.xgAdd(S, tA, f.xg.a, f.xg.h); }
+  E.tcAdd(S, tH, yh); E.tcAdd(S, tA, ya); return n; };
+// ultime partite finite di una squadra (pagina squadra FotMob)
+E.fmTeamRecent = async function (teamId, k) { const d = await E.fetchAny('https://www.fotmob.com/api/data/teams?id=' + teamId, 20000);
+  const L = (((d || {}).fixtures || {}).allFixtures || {}).fixtures || [];
+  return L.filter(m => (m.status || {}).finished && !(m.status || {}).cancelled).slice(-(k || 5)).map(m => m.id); };
 E.tcAdd = function (S, team, y) { if (!team || !(y >= 0)) return; S.tc = S.tc || {}; const k = E.keyName(team); const v = S.tc[k] || [0, 0]; v[0]++; v[1] += y; S.tc[k] = v; };
 E.tcAvg = function (S, team) { const v = (S.tc || {})[E.keyName(team)]; if (!v || v[0] < 3) return null; return { n: v[0], y: v[1] / v[0] }; };
 E.teamHeat = function (S, rosters, team) { let y = 0, f = 0, k = 0; const pool = rosters && rosters[team] ? rosters[team].filter(x => x.starter).map(x => norm(x.name)) : []; const ck = E.keyName(team);
@@ -1121,7 +1148,7 @@ async function vMatch(ev) { root.dataset.cen = '';
     try { const ad = P.absAdj(S, ev.home, ev.away, fmf.lh.out, fmf.la.out);
       if (Math.abs(ad.h - 1) > 0.01 || Math.abs(ad.a - 1) > 0.01) { const lam2 = P.lambdas(S, SEED, ev, ad);
         ev.lam = lam2; ev.mk = P.markets(lam2.lh, lam2.la); ev.list = P.marketList(S, ev.mk, lam2.lh, lam2.la, SEED, ev); ev.favHome = lam2.lh >= lam2.la; ev.absAdj = ad; } } catch (e) { } }
-  const rosEsp = ros; if (!ros && ros365) ros = ros365;
+  const rosEsp = ros; if (!ros && ros365) ros = ros365; if (!ros && fmf) { const rf = fmRoster(ev, fmf); if (rf) { ros = rf; ev.fmRos = true; } }
   const srcs = []; if (g365) srcs.push({ name: '365Scores', teams: g365.teams.map(t => ({ name: t.name, official: t.status === 'Confirmed', xi: t.xi })) });
   if (summ) srcs.push({ name: 'ESPN', teams: (summ.rosters || []).map(r => ({ name: r.team, official: r.players.filter(p => p.starter).length >= 11, xi: r.players.filter(p => p.starter) })) });
   if (fm) srcs.push({ name: 'FotMob', teams: fm.teams });
@@ -1617,7 +1644,7 @@ function vImp() {
   $('#ex').onclick = () => { const b = new Blob([JSON.stringify(S)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'pronostici_stato.json'; a.click(); };
   $('#rs').onclick = () => { if (confirm('Cancello tutto l\'addestramento?')) { localStorage.removeItem(KEY); location.reload(); } };
 }
-window.__S=()=>S;window.__T={ preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
+window.__S=()=>S;window.__T={ squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
 // auto-addestramento all'apertura se ultimo > 6 ore
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').catch(() => { });
 
@@ -1983,7 +2010,8 @@ async function trainLoop() {
   for (;;) {
     try {
       if (document.hidden || training) { await zz(15000); continue; }
-      if ((events || []).filter(e => e.done && !(S.fmSeen || {})[e.id]).length >= 3 && Date.now() - (TL.xgT || 0) > 90000) { TL.step = 'xG delle partite finite'; TL.xgT = Date.now(); await xgStep(); }
+      if ((events || []).some(e => !e.done && !e.sqDone && new Date(e.date) - Date.now() < 72 * 3600e3 && new Date(e.date) - Date.now() > -2 * 3600e3) && Date.now() - (TL.sqT || 0) > 8000) { TL.step = 'dati delle partite in arrivo'; TL.sqT = Date.now(); await squadStep(3); }
+      else if ((events || []).filter(e => e.done && !(S.fmSeen || {})[e.id]).length >= 3 && Date.now() - (TL.xgT || 0) > 90000) { TL.step = 'xG delle partite finite'; TL.xgT = Date.now(); await xgStep(); }
       else if (!S.lastTrain || Date.now() - S.lastTrain > 6 * 3600 * 1000) { TL.step = 'recupero ultimi giorni'; await train(S.lastTrain ? 3 : 14, 40); TL.today = Date.now(); }
       else if ((!S.hist || !S.hist.intl || Date.now() - S.hist.intl.t > 864e5) && Date.now() - (TL.intlFail || 0) > 30 * 60000) { TL.step = 'storico nazionali'; try { await importIntl(m => TL.msg = m); } catch (e) { TL.intlFail = Date.now(); log('Storico nazionali non raggiungibile ora: riprovo tra 30 minuti, intanto continuo con il resto.'); } }
       else if (Date.now() - TL.today > 4 * 60000) { TL.step = 'partite appena finite e audit'; await train(0, 40); TL.today = Date.now(); }
@@ -2007,15 +2035,44 @@ async function refDayList(d) { const k = 'rl' + ymd(d); if (cache[k] && Date.now
   const l = (j.games || []).filter(g => g.statusGroup === 4).map(g => ({ id: g.id, comp: g.competitionDisplayName || '', home: g.homeCompetitor.name, away: g.awayCompetitor.name, start: g.startTime })); cache[k] = { t: Date.now(), l }; return l; }
 // arbitro designato per le partite in arrivo (365Scores), poche per volta
 // raccoglie xG di squadra e xG per giocatore dalle partite finite (FotMob)
+// rosa (probabile o ufficiale) da FotMob nel formato delle altre fonti, con il verso giusto casa/trasferta
+function fmRoster(ev, f) { if (!f || !f.lh || !f.la) return null; const sw = !sameT(f.home, ev.home) && sameT(f.home, ev.away);
+  const H = sw ? f.la : f.lh, A = sw ? f.lh : f.la, mk = x => x.pl.map(p => ({ name: p.name, pos: p.pos, starter: !!p.start }));
+  if (H.pl.filter(p => p.start).length < 11 || A.pl.filter(p => p.start).length < 11) return null;
+  const r = {}; r[ev.home] = mk(H); r[ev.away] = mk(A); return r; }
+// rifa il pronostico registrato di una partita in arrivo con i dati appena raccolti
+async function refreshSnap(ev, f) { if (ev.done || !(new Date(ev.date) > Date.now())) return false;
+  try { if (!f) { const id = ev.fmid || await P.fotmobId(ev); if (id) { ev.fmid = id; f = await P.fotmobFull(id); } } } catch (e) { f = null; }
+  const ros = fmRoster(ev, f); prepEv(ev); const ab = {}, ref = (f && f.ref) || ((S.refOf || {})[ev.id] || {}).r || null;
+  try { const cards = P.pickCards(S, SEED, ev, ros, ev.lam, ab), sc = P.pickScorers(S, ev, ros, ev.lam, ab), cf = P.cardsForecast(S, ev, ev.lam, ros, ref, null);
+    snapMatch(ev, cards, sc, cf, ref, !!(f && f.official)); if (ref) { S.refOf = S.refOf || {}; S.refOf[ev.id] = { r: ref, t: Date.now() }; } ev.fmRos = !!ros; return true; } catch (e) { log('Pronostico ' + ev.home + '-' + ev.away + ': ' + e.message); return false; } }
+// per ogni partita in arrivo: ultime 5 partite di entrambe le squadre (giocatori, falli, cartellini, tiri, xG), poi pronostico rifatto
+const SQ = { busy: 0 };
+async function squadStep(maxM) { if (SQ.busy) return 0; SQ.busy = 1; S.fmTeamT = S.fmTeamT || {}; let done = 0;
+  try { const now = Date.now();
+    const L = (events || []).filter(e => !e.done && e.state !== 'post' && new Date(e.date) - now < 72 * 3600e3 && new Date(e.date) - now > -2 * 3600e3 && !e.sqDone).sort((a, b) => new Date(a.date) - new Date(b.date));
+    for (const ev of L) { if (done >= (maxM || 3)) break;
+      let id = null; try { id = ev.fmid || await P.fotmobId(ev); } catch (e) { } if (!id) { ev.sqDone = 1; continue; } ev.fmid = id;
+      for (const [nm, tid] of [[ev.home, ev.fmHid], [ev.away, ev.fmAid]]) { if (!tid || (S.fmTeamT[tid] && now - S.fmTeamT[tid] < 30 * 3600e3)) continue;
+        let ids = []; try { ids = await P.fmTeamRecent(tid, 5); } catch (e) { }
+        for (const mid of ids) { if (S.fmIng && S.fmIng[mid]) continue; if (busy()) await zz(500);
+          try { const f = await P.fotmobFull(mid); if (f) P.fmIngest(S, f, f.ids.h === tid ? nm : null, f.ids.a === tid ? nm : null); } catch (e) { } await zz(250); }
+        S.fmTeamT[tid] = Date.now(); P.pidxClear && P.pidxClear(); }
+      await refreshSnap(ev); ev.sqDone = 1; done++;
+      log('Dati raccolti per ' + ev.home + '-' + ev.away + ': rose ' + P.teamPool(S, ev.home).length + '/' + P.teamPool(S, ev.away).length + ' giocatori' + (ev.fmRos ? ', formazione FotMob' : '')); }
+    if (done) { save(); if (tab === 'oggi' || tab === 'quadro') fillPreds(); }
+  } finally { SQ.busy = 0; } return done; }
 async function xgStep() { S.fmSeen = S.fmSeen || {};
   const L = (events || []).filter(e => e.done && !S.fmSeen[e.id]).slice(0, 10);
   if (!L.length) { await zz(15000); return; } let n = 0;
   for (const ev of L) { if (busy()) await zz(500);
     try { const id = ev.fmid || await P.fotmobId(ev); if (!id) { S.fmSeen[ev.id] = 1; continue; } ev.fmid = id;
       const f = await P.fotmobFull(id); if (!f) { S.fmSeen[ev.id] = 1; continue; }
-      if (f.xg) { P.xgAdd(S, ev.home, f.xg.h, f.xg.a); P.xgAdd(S, ev.away, f.xg.a, f.xg.h); n++; }
-      if (f.shots && f.shots.length) { const agg = {}; f.shots.forEach(x => { const k = x.name; agg[k] = agg[k] || [0, 0]; agg[k][0] += x.xg || 0; agg[k][1]++; });
-        Object.keys(agg).forEach(k => P.pxgAdd(S, k, agg[k][0], agg[k][1])); }
+      const sw = !sameT(f.home, ev.home) && sameT(f.home, ev.away);
+      if (f.pstats && f.pstats.length) { if (P.fmIngest(S, f, sw ? ev.away : ev.home, sw ? ev.home : ev.away)) n++; }
+      else { if (f.xg) { P.xgAdd(S, ev.home, f.xg.h, f.xg.a); P.xgAdd(S, ev.away, f.xg.a, f.xg.h); n++; }
+        if (f.shots && f.shots.length) { const agg = {}; f.shots.forEach(x => { const k = x.name; agg[k] = agg[k] || [0, 0]; agg[k][0] += x.xg || 0; agg[k][1]++; });
+          Object.keys(agg).forEach(k => P.pxgAdd(S, k, agg[k][0], agg[k][1])); } }
       S.fmSeen[ev.id] = 1; } catch (e) { S.fmSeen[ev.id] = 1; }
     await zz(300); }
   if (n) { save(); log('xG raccolti da FotMob: ' + n + ' partite · squadre con xG ' + Object.keys(S.xg || {}).length + ', giocatori ' + Object.keys(S.pxg || {}).length); } }
