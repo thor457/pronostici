@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795110761;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795111431;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -908,7 +908,11 @@ function predLine(ev) { if (ev.done) return verLine(ev); const d = predData(ev);
 function fillPreds() { if (document.hidden) return; const H = innerHeight || 800;
   document.querySelectorAll('.pl[data-e]').forEach(x => { const r = x.getBoundingClientRect(); if (r.bottom < -200 || r.top > H + 400) return;
     const ev = (events || []).find(e => String(e.id) === x.dataset.e); if (ev) { const h = predLine(ev); if (x.innerHTML !== h) x.innerHTML = h; } }); }
-setInterval(fillPreds, 6000); setTimeout(() => updCheck(), 60000); setInterval(() => updCheck(), 6 * 3600e3); addEventListener('scroll', () => { clearTimeout(fillPreds.s); fillPreds.s = setTimeout(fillPreds, 180); }, { passive: true });
+setInterval(fillPreds, 6000); setTimeout(() => updCheck(), 20000); setInterval(() => updCheck(), 2 * 3600e3);
+// se l'app torna in primo piano dopo una pausa e c'e' gia' la versione nuova, riparte da sola
+let updHid = 0;
+document.addEventListener('visibilitychange', () => { if (document.hidden) { updHid = Date.now(); return; }
+  updCheck(); if (updReady && Date.now() - updHid > 5 * 60000) location.reload(); }); addEventListener('scroll', () => { clearTimeout(fillPreds.s); fillPreds.s = setTimeout(fillPreds, 180); }, { passive: true });
 function mcard(ev, i) { const sf = safest(ev), D = ev.mk.dirp;
   return '<div class="mc" data-i="' + i + '"><div class="mc-h"><span>' + esc(LG(ev)) + (ev.lam.known ? '' : ' · <span class="warn">squadra non in archivio</span>') + '</span>' + chip(stOf(ev), ev.state === 'in' ? 'g' : '') + '</div>' +
     '<div class="mc-t">' + av(ev.home) + '<b>' + esc(ev.home) + '</b></div><div class="mc-t">' + av(ev.away) + '<b>' + esc(ev.away) + '</b></div>' + bar3(ev.mk) +
@@ -1915,29 +1919,31 @@ const FSRC = [
   { k: 'ghub', n: 'GitHub (storico nazionali)', d: 'risultati storici delle nazionali', f: async () => { const r = await fetch('https://raw.githubusercontent.com/martj42/international_results/master/results.csv', { method: 'GET' }); if (!r.ok) throw new Error('HTTP ' + r.status); const t = await r.text(); return t; }, ok: r => Math.round(String(r).length / 1024) + ' KB di storico' }];
 const FST = {};
 // controllo automatico: se c'e' una versione nuova all'indirizzo impostato, la scarica e avvisa
-async function updCheck(force) { const u = (S.settings && S.settings.updUrl) || ''; if (!u) return;
-  if (!force && S.settings.updT && Date.now() - S.settings.updT < 6 * 3600e3) return;
+const UPDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/index.html';
+let updReady = 0;
+async function updCheck(force) { S.settings = S.settings || {}; const u = (S.settings.updUrl || '').trim() || UPDURL;
+  if (!force && S.settings.updT && Date.now() - S.settings.updT < 2 * 3600e3) return;
   S.settings.updT = Date.now();
   try { const r = await fetch(u + (u.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return; const t = await r.text();
     const m = t.match(/__BUILT=(\d+)/); if (!m) return; const ver = +m[1];
     if (ver <= BUILT || t.length < 50000 || t.indexOf('window.SEED=') < 0) return;
-    await idbSet('bundle', { ver, html: t, t: Date.now() }); save();
+    await idbSet('bundle', { ver, html: t, t: Date.now() }); updReady = ver; save();
     const d = document.createElement('div'); d.className = 'updb'; d.innerHTML = 'Nuova versione pronta (' + new Date(ver * 1000).toLocaleString('it-IT') + ') <button class="btn" id="updgo">Riavvia ora</button>';
     document.body.appendChild(d); const g = document.getElementById('updgo'); if (g) g.onclick = () => location.reload();
   } catch (e) { } }
 function vUpd() {
-  const u = (S.settings && S.settings.updUrl) || '';
-  root.innerHTML = head('Aggiorna l\'app', 'Nuove versioni senza reinstallare l\'APK') +
+  const u = ((S.settings && S.settings.updUrl) || '').trim() || UPDURL;
+  root.innerHTML = head('Aggiorna l\'app', 'Automatico: non devi fare nulla') +
     '<div class="card"><div class="kv"><span>Versione in uso</span><div>' + new Date(BUILT * 1000).toLocaleString('it-IT') + (window.__FROMUPD ? ' (aggiornata dentro l\'app)' : ' (versione installata)') + '</div></div>' +
-    '<div class="kv"><span>Indirizzo aggiornamenti</span><div><input id="uu" class="inp" placeholder="https://… indirizzo del file index.html" value="' + esc(u) + '"></div></div></div>' +
+    '<div class="kv"><span>Aggiornamento</span><div class="ok">automatico: l\'app controlla da sola all\'avvio e ogni due ore</div></div>' + '<div class="kv"><span>Indirizzo (già impostato)</span><div><input id="uu" class="inp" value="' + esc(u || UPDURL) + '"></div></div></div>' +
     '<button class="pri" id="uchk" style="width:100%">Controlla e aggiorna adesso</button><button class="btn" id="uauto" style="width:100%;margin-top:8px">Controllo silenzioso ora</button>' +
     '<div id="uout"></div>' +
-    '<div class="card"><div class="sm">Come funziona: l\'app scarica il file della nuova versione dall\'indirizzo che metti qui, lo tiene dentro di sé e lo usa al prossimo avvio. L\'archivio dell\'addestramento resta dov\'è: non si perde nulla. Serve un indirizzo pubblico raggiungibile dal telefono (per esempio un file index.html su GitHub, in versione "raw").</div></div>' +
+    '<div class="card"><div class="sm">Come funziona: l\'app controlla da sola se c\'è una versione nuova (all\'avvio, ogni due ore e quando la riapri), la scarica in silenzio e la usa al riavvio successivo. L\'archivio dell\'addestramento non si tocca. L\'indirizzo è già impostato: cambialo solo se te lo chiedo io.</div></div>' +
     '<button class="btn" id="ureset" style="width:100%;margin-top:8px">Torna alla versione installata con l\'APK</button>';
   $('#uu').onchange = e => { S.settings = S.settings || {}; S.settings.updUrl = e.target.value.trim(); save(); };
   $('#ureset').onclick = async () => { try { await idbSet('bundle', null); } catch (e) { } $('#uout').innerHTML = '<div class="card"><div class="ok">Fatto: al prossimo avvio parte la versione installata.</div></div>'; };
   $('#uauto').onclick = () => updCheck(true).then(() => toast('Controllo fatto'));
-  $('#uchk').onclick = async () => { const url = ($('#uu').value || '').trim(); const out = $('#uout');
+  $('#uchk').onclick = async () => { const url = (($('#uu').value || '').trim() || UPDURL); const out = $('#uout');
     if (!/^https?:\/\//.test(url)) { out.innerHTML = '<div class="card"><div class="warn">Metti prima l\'indirizzo del file.</div></div>'; return; }
     S.settings = S.settings || {}; S.settings.updUrl = url; save();
     out.innerHTML = '<div class="card"><div class="sm">Sto scaricando…</div></div>';
