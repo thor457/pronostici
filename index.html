@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795109684;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795109756;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -1913,7 +1913,7 @@ const FST = {};
 async function updCheck(force) { const u = (S.settings && S.settings.updUrl) || ''; if (!u) return;
   if (!force && S.settings.updT && Date.now() - S.settings.updT < 6 * 3600e3) return;
   S.settings.updT = Date.now();
-  try { const r = await fetch(u, { cache: 'no-store' }); if (!r.ok) return; const t = await r.text();
+  try { const r = await fetch(u + (u.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return; const t = await r.text();
     const m = t.match(/__BUILT=(\d+)/); if (!m) return; const ver = +m[1];
     if (ver <= BUILT || t.length < 50000 || t.indexOf('window.SEED=') < 0) return;
     await idbSet('bundle', { ver, html: t, t: Date.now() }); save();
@@ -1936,7 +1936,7 @@ function vUpd() {
     if (!/^https?:\/\//.test(url)) { out.innerHTML = '<div class="card"><div class="warn">Metti prima l\'indirizzo del file.</div></div>'; return; }
     S.settings = S.settings || {}; S.settings.updUrl = url; save();
     out.innerHTML = '<div class="card"><div class="sm">Sto scaricando…</div></div>';
-    try { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status);
+    try { const r = await fetch(url + (url.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now(), { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status);
       const t = await r.text(); const m = t.match(/__BUILT=(\d+)/); if (!m || t.indexOf('window.SEED=') < 0 || t.indexOf('id="app"') < 0) throw new Error('il file non sembra una versione di Pronostici Pro');
       const ver = +m[1]; if (ver <= BUILT) { out.innerHTML = '<div class="card"><div class="ok">Sei già alla versione più recente (' + new Date(ver * 1000).toLocaleString('it-IT') + ').</div></div>'; return; }
       if (t.length < 50000) throw new Error('file incompleto');
