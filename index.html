@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795111431;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795115145;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -153,13 +153,26 @@ E.strength = function (S, seed, team, lg) {
   else { const v = seed.elo_cl_idx[ck]; if (v !== undefined) return { r: v, known: true }; }
   return { r: 1500, known: false };
 };
+E.lgKey = ev => E.keyName(String(ev.lgName || ev.league || '')).slice(0, 28);
+E.lgLearn = function (S, ev) { const k = E.lgKey(ev); if (!k || !(ev.hs >= 0) || !(ev.as >= 0)) return;
+  S.lg = S.lg || {}; const v = S.lg[k] || [0, 0, 0]; v[0]++; v[1] += ev.hs + ev.as; v[2] += ev.hs; S.lg[k] = v; };
+// quanto quella competizione segna rispetto alla media generale, con restringimento sui pochi dati
+E.lgFactor = function (S, ev) { const v = (S.lg || {})[E.lgKey(ev)]; if (!v || v[0] < 8) return null;
+  let tot = 0, n = 0; Object.keys(S.lg).forEach(k => { const x = S.lg[k]; if (x[0] >= 8) { tot += x[1]; n += x[0]; } });
+  const glob = n ? tot / n : 2.7, mine = v[1] / v[0], w = v[0] / (v[0] + 30);
+  const f = (mine * w + glob * (1 - w)) / (glob || 2.7);
+  const hs = v[2] / Math.max(1, v[1]), hw = v[0] / (v[0] + 40);
+  return { f: Math.max(0.78, Math.min(1.28, f)), n: v[0], avg: mine, glob, hShare: hs * hw + 0.545 * (1 - hw) }; };
 E.lambdas = function (S, seed, ev, adj) {
   const nat = E.isNation(ev.league), p = nat ? S.pNT : S.pCL;
   const h = E.strength(S, seed, ev.home, ev.league), a = E.strength(S, seed, ev.away, ev.league);
   const d = (h.r - a.r) / 400, hm = ev.neutral ? 0 : 1;
   let lh = Math.exp(p[0] + p[1] * d + p[2] * hm), la = Math.exp(p[0] - p[1] * d);
+  const LF = E.lgFactor(S, ev);
+  if (LF) { const tot = (lh + la) * LF.f, cur = lh / Math.max(1e-6, lh + la), sh = cur * 0.75 + LF.hShare * 0.25;
+    lh = tot * sh; la = tot * (1 - sh); }
   if (adj) { lh *= adj.h || 1; la *= adj.a || 1; }
-  return { lh, la, dElo: h.r - a.r + (hm ? 70 : 0), known: h.known && a.known, hr: h.r, ar: a.r };
+  return { lh, la, dElo: h.r - a.r + (hm ? 70 : 0), known: h.known && a.known, hr: h.r, ar: a.r, lg: LF ? { n: LF.n, f: LF.f, avg: LF.avg } : null };
 };
 
 // ---------- calibrazione per mercato (il sistema si corregge con i risultati reali) ----------
@@ -168,8 +181,13 @@ E.calibrate = function (S, key, p) {
   const t = S.tracker[key]; p = Math.min(0.995, Math.max(0.005, p));
   if (!t || t.n < 10) return p;
   const obs = (t.hits + 0.5) / (t.n + 1), pr = Math.min(0.99, Math.max(0.01, (t.sumP + 0.5) / (t.n + 1)));
-  const shift = (logit(obs) - logit(pr)) * t.n / (t.n + 40);
-  return sig(logit(p) + shift);
+  let shift = (logit(obs) - logit(pr)) * t.n / (t.n + 40);
+  // correzione anche per fascia: la sovrastima non è uguale sulle quote alte e su quelle basse
+  const v = t.bd && t.bd[E.band(p)];
+  if (v && v[0] >= 40) { const bo = (v[1] + 0.5) / (v[0] + 1), bp = Math.min(0.99, Math.max(0.01, (v[2] + 0.5) / (v[0] + 1)));
+    const bs = (logit(bo) - logit(bp)) * v[0] / (v[0] + 60), w = v[0] / (v[0] + 120);
+    shift = shift * (1 - w) + bs * w; }
+  return sig(logit(p) + Math.max(-1.2, Math.min(1.2, shift)));
 };
 E.HT = 0.447; // quota dei gol nel 1T, misurata su 923 gare ESPN
 E.firstHalf = function (lh, la) { const M = E.matrix(lh * E.HT, la * E.HT); return { o05: sum(M, (i, j) => i + j >= 1), o15: sum(M, (i, j) => i + j >= 2), hs: sum(M, (i, j) => i >= 1), as: sum(M, (i, j) => j >= 1) }; };
@@ -183,7 +201,7 @@ E.cornersModel = function (SEED, home, away) {
   return { mean, n: Math.min(h ? h[0] : 0, a ? a[0] : 0), o75: over(7.5), o85: over(8.5), o95: over(9.5), o105: over(10.5), o115: over(11.5), u115: 1 - over(11.5) };
 };
 E.reasonUnder = function (mk, lh, la) { const t = lh + la; return 'Gol attesi totali ' + t.toFixed(2) + ' (' + lh.toFixed(2) + ' + ' + la.toFixed(2) + '); 0 gol ' + E.fmtP(mk.M[0][0]) + ', massimo 1 gol ' + E.fmtP(mk['under1.5']) + ', massimo 2 gol ' + E.fmtP(mk['under2.5']) + '. Da giocare solo se la partita è chiusa: controlla assenze offensive, ritmo e rischio di espulsioni.'; };
-E.unreliable = function (S, key) { const t = S.tracker[key]; if (!t || t.n < 30 || t.n >= 300) return false; return (t.hits / t.n) < (t.sumP / t.n) - 0.07; };
+E.unreliable = function (S, key) { const c = S.tracker['C_' + key]; if (c && c.n >= 60) return (c.hits / c.n) < (c.sumP / c.n) - 0.06; const t = S.tracker[key]; if (!t || t.n < 30 || t.n >= 300) return false; return (t.hits / t.n) < (t.sumP / t.n) - 0.07; };
 E.marketList = function (S, mk, lh, la, SEED, ev) {
   // mercati candidati con chiave per il tracker; fav = squadra con piu gol attesi
   const fav = lh >= la ? 'home' : 'away', favL = Math.max(lh, la);
@@ -334,8 +352,11 @@ E.addPlayerStats = function (S, summ, isNat) { summ = summ || {};
 };
 
 // ---------- tracker ----------
+E.band = p => p < 0.25 ? 0 : p < 0.5 ? 1 : p < 0.75 ? 2 : 3;
 E.record = function (S, key, p, hit) {
   const t = S.tracker[key] || (S.tracker[key] = { n: 0, hits: 0, sumP: 0 }); t.n++; t.hits += hit ? 1 : 0; t.sumP += p; t.br = (t.br || 0) + (p - (hit ? 1 : 0)) * (p - (hit ? 1 : 0));
+  const b = E.band(p); t.bd = t.bd || [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+  const v = t.bd[b]; v[0]++; v[1] += hit ? 1 : 0; v[2] += p;
 };
 E.resolveMarket = function (key, ev, sc) { // sc: {hs, as}
   const h = sc.hs, a = sc.as, tot = h + a, favHome = ev.favHome;
@@ -377,7 +398,7 @@ E.fetchSummary = async function (lg, id) {
   try { const ss = (d.seasonseries || [])[0]; out.h2h = ss ? { txt: ss.summary, ev: (ss.events || []).slice(0, 3).map(e => { const c = e.competitors || []; return c.map(x => x.team.displayName + ' ' + x.score).join(' - ') + ' (' + String(e.date).slice(0, 10) + ')'; }) } : null; } catch (e) { out.h2h = null; }
   try { out.form = {}; (d.lastFiveGames || []).forEach(t => { out.form[t.team.displayName] = (t.events || []).map(e => e.gameResult || '?').join(''); }); } catch (e) { out.form = {}; }
   try { const cp = d.header.competitions[0].competitors, hh = cp.find(x => x.homeAway === 'home') || cp[0], aa = cp.find(x => x.homeAway === 'away') || cp[1];
-    if (hh.linescores && hh.linescores.length >= 2 && aa.linescores && aa.linescores.length >= 2) out.ht = [parseFloat(hh.linescores[0].displayValue) + parseFloat(aa.linescores[0].displayValue), parseFloat(hh.linescores[1].displayValue) + parseFloat(aa.linescores[1].displayValue)];
+    if (hh.linescores && hh.linescores.length >= 2 && aa.linescores && aa.linescores.length >= 2) out.ht = [parseFloat(hh.linescores[0].displayValue), parseFloat(aa.linescores[0].displayValue)];
     const cs = (d.boxscore.teams || []).map(t => { const x = (t.statistics || []).find(z => z.name === 'wonCorners'); return x ? parseFloat(x.displayValue) : NaN; }); if (cs.length === 2 && cs.every(v => v === v)) out.cor = cs[0] + cs[1]; } catch (e) { }
   return out;
 };
@@ -693,7 +714,7 @@ E.audit = function (S, ev, summ, e365, snap) { summ = summ || {};
     const sb = ((summ && summ.events) || []).find(e => /Substitution/i.test(e.type) && e.who[1] && norm(e.who[1]) === n); if (sb) { const c2 = T.cards.find(x => norm(x.who) === norm(sb.who[0])); if (c2) return { ok: true, how: 'sostituto ' + sb.who[0] + ' ' + c2.min + '\'' }; } return { ok: false, how: '' }; };
   const pl = name => { let f = null; (summ.rosters || []).forEach(r => r.players.forEach(p => { if (norm(p.name) === norm(name)) f = Object.assign({ team: r.team }, p); })); return f; };
   const ca = (snap.cards && snap.cards.all) || [], picks = (snap.cards && snap.cards.items) || [];
-  ca.forEach((c, i) => { const ok = own(c.n).ok, pr = c.pR != null ? c.pR : c.p / 100; E.record(S, 'CG_' + c.g, pr, ok); FEAT(S, 'c_all', ok); FEAT(S, 'c_duel:' + c.duel, ok); FEAT(S, 'c_st:' + c.st, ok); FEAT(S, 'c_y:' + (c.gp >= 4 ? (c.ypg >= 0.34 ? 'alto' : c.ypg >= 0.2 ? 'medio' : 'basso') : 'nd'), ok); FEAT(S, 'c_pick:' + (picks.indexOf(c.n) >= 0 ? 1 : 0), ok); });
+  ca.forEach((c, i) => { const ok = own(c.n).ok, pr = c.pR != null ? c.pR : c.p / 100; E.record(S, 'CG_' + c.g, pr, ok); E.record(S, 'C_CG_' + c.g, (c.p != null ? (c.p > 1 ? c.p / 100 : c.p) : pr), ok); FEAT(S, 'c_all', ok); FEAT(S, 'c_duel:' + c.duel, ok); FEAT(S, 'c_st:' + c.st, ok); FEAT(S, 'c_y:' + (c.gp >= 4 ? (c.ypg >= 0.34 ? 'alto' : c.ypg >= 0.2 ? 'medio' : 'basso') : 'nd'), ok); FEAT(S, 'c_pick:' + (picks.indexOf(c.n) >= 0 ? 1 : 0), ok); });
   picks.forEach(n => { const r = own(n); E.record(S, 'CARD_TOP', (ca.find(c => c.n === n) || { p: 20 }).pR || 0.2, r.ok);
     if (r.ok) L.push('✅ Ammonito scelto ' + n + ': ' + r.how + '.');
     else { const p = pl(n), c = ca.find(x => x.n === n); let w; if (!p || (!p.starter && !p.subIn)) w = 'non ha giocato: la formazione reale era diversa dal previsto'; else if (p.subOut) w = 'è uscito per un cambio (' + p.fouls + ' falli)'; else w = p.fouls ? 'ha commesso ' + p.fouls + ' falli senza ammonizione (arbitro tollerante con lui)' : 'nessun fallo commesso'; const oth = T.cards.filter(x => c && sameTeam(x.team, c.t)).filter((x, i, ar) => ar.findIndex(y => norm(y.who) === norm(x.who)) === i).map(x => x.who + ' ' + x.min + '\''); L.push('❌ Ammonito scelto ' + n + ' (' + (c ? c.p.toFixed(0) + '%' : '?') + ') non preso: ' + w + (oth.length ? '. La sua squadra ha avuto cartellini su altri: ' + oth.join(', ') : '. La sua squadra non ha avuto cartellini') + '.'); fail('CARD_TOP'); } });
@@ -704,7 +725,7 @@ E.audit = function (S, ev, summ, e365, snap) { summ = summ || {};
     else L.push('🔎 ' + (c.red ? 'Rosso' : 'Giallo') + ' a ' + c.who + ' (' + c.min + '\') non era nel nostro elenco: ' + (p ? (p.subIn ? 'subentrato' : 'titolare') + ', ruolo ' + ((S.players[norm(c.who)] && S.players[norm(c.who)][8] !== 'SUB' ? S.players[norm(c.who)][8] : p.pos === 'SUB' ? 'panchina' : p.pos)) + ', ' + p.fouls + ' falli' : 'giocatore non trovato nelle formazioni') + '; ' + st + '.'); });
   // ---- marcatori
   const sg = T.goals.filter(g => !g.own), sr = snap.sc || {};
-  ['home', 'away'].forEach(side => (sr[side] || []).forEach((r, i) => { const ok = sg.some(g => norm(g.who) === norm(r.n)); E.record(S, 'SG_' + r.g, r.pR, ok); FEAT(S, 's_all', ok); FEAT(S, 's_form:' + (r.recG >= 2 ? 1 : 0), ok); FEAT(S, 's_shots:' + (r.spg >= 2 ? 1 : 0), ok); FEAT(S, 's_pen:' + (r.pen ? 1 : 0), ok); FEAT(S, 's_top:' + (i < 2 ? 1 : 0), ok); if (i < 2) E.record(S, 'SCORER', r.pR, ok); }));
+  ['home', 'away'].forEach(side => (sr[side] || []).forEach((r, i) => { const ok = sg.some(g => norm(g.who) === norm(r.n)); E.record(S, 'SG_' + r.g, r.pR, ok); E.record(S, 'C_SG_' + r.g, (r.pc != null ? r.pc : r.pR), ok); FEAT(S, 's_all', ok); FEAT(S, 's_form:' + (r.recG >= 2 ? 1 : 0), ok); FEAT(S, 's_shots:' + (r.spg >= 2 ? 1 : 0), ok); FEAT(S, 's_pen:' + (r.pen ? 1 : 0), ok); FEAT(S, 's_top:' + (i < 2 ? 1 : 0), ok); if (i < 2) E.record(S, 'SCORER', r.pR, ok); }));
   ['home', 'away'].forEach(side => { const tn = side === 'home' ? ev.home : ev.away, tg = side === 'home' ? hs : as, lt = side === 'home' ? snap.lh : snap.la, rows = sr[side] || [];
     rows.slice(0, 2).forEach(r => { const ok = sg.some(g => norm(g.who) === norm(r.n)); if (ok) { const g = sg.find(x => norm(x.who) === norm(r.n)); L.push('✅ Marcatore scelto ' + r.n + ' (' + tn + ', ' + (r.p * 100).toFixed(0) + '%): gol al ' + g.min + '\'' + (g.pen ? ' su rigore' : '') + '.'); }
       else { const p = pl(r.n); let w; if (!p || (!p.starter && !p.subIn)) w = 'non ha giocato (formazione diversa dal previsto)'; else if (p.sot || p.shots) w = 'ha tirato ' + p.shots + ' volte (' + p.sot + ' in porta) senza segnare'; else w = 'non ha tirato' + (p.subOut ? ' ed è uscito per un cambio' : ''); const who = sg.filter(g => sameTeam(g.team, tn)).map(g => g.who + ' ' + g.min + '\''); L.push('❌ Marcatore scelto ' + r.n + ' (' + tn + ', ' + (r.p * 100).toFixed(0) + '%) non ha segnato: ' + w + '. La squadra ha segnato ' + tg + ' (attesi ' + lt.toFixed(2) + ')' + (who.length ? ' con ' + who.join(', ') : '') + '.'); fail('SCORER_TOP'); } });
@@ -825,6 +846,8 @@ if (!S || S.seedBuilt === undefined) S = P.defaultState(SEED);
 else if (S.seedBuilt < SEED.built) { const old = S; S = P.defaultState(SEED); S.elo = old.elo; S.pNT = old.pNT; S.pCL = old.pCL; S.rowsNT = old.rowsNT; S.rowsCL = old.rowsCL; S.seen = old.seen; S.tracker = old.tracker; S.picks = old.picks; S.settings = old.settings; S.log = old.log; S.trainCount = old.trainCount; S.lastTrain = old.lastTrain; Object.keys(old.players).forEach(k => { if (!S.players[k] || old.players[k][0] > S.players[k][0]) S.players[k] = old.players[k]; }); }
 if (Array.isArray(S.picks)) S.picks = {};
 S.store = IDB.ok ? 'IndexedDB' : 'memoria locale';
+// correzione 19/11/2026: i mercati del primo tempo erano risolti con i gol di tutta la partita
+if (!S.fix1T) { ['O05_1T', 'O15_1T', 'C_O05_1T', 'C_O15_1T', 'PRE_O05_1T', 'PRE_O15_1T'].forEach(k => { if (S.tracker) delete S.tracker[k]; }); S.fix1T = 1; }
 function prune() { const big = IDB.ok !== false;
   if (S.seen) { const ks = Object.keys(S.seen); const lim = big ? 60000 : 12000; if (ks.length > lim) ks.slice(0, ks.length - lim).forEach(k => delete S.seen[k]); }
   if (S.tcSeen) { const ks = Object.keys(S.tcSeen); const lim = big ? 40000 : 8000; if (ks.length > lim) ks.slice(0, ks.length - lim).forEach(k => delete S.tcSeen[k]); }
@@ -1350,7 +1373,13 @@ const lblK = k => /^PRE_/.test(k) ? 'Prima della gara · ' + (MLBL[k.slice(4)] |
 // --- rapporto compatto sull'addestramento, da incollare in chat ---
 function rapporto() {
   const d = new Date(), f2 = x => (x * 100).toFixed(0) + '%';
-  const keys = Object.keys(S.tracker || {}), ok = [], bad = [], few = [];
+  const L0 = [];
+  const keys = Object.keys(S.tracker || {}).filter(k => k.indexOf('C_') !== 0), ok = [], bad = [], few = [];
+  { const C = Object.keys(S.tracker).filter(k => k.indexOf('C_') === 0 && S.tracker[k].n >= 40);
+    if (C.length) { let num = 0, den = 0, g = 0; C.forEach(k => { const t = S.tracker[k]; num += t.br || 0; den += t.n; g += Math.abs(t.hits / t.n - t.sumP / t.n) * t.n; });
+      L0.push('QUELLO CHE VEDI (dopo correzione): scarto medio ' + (g / den * 100).toFixed(2) + ' punti su ' + den + ' casi, Brier ' + (num / den).toFixed(4));
+      C.sort((x, y) => Math.abs(S.tracker[y].hits / S.tracker[y].n - S.tracker[y].sumP / S.tracker[y].n) - Math.abs(S.tracker[x].hits / S.tracker[x].n - S.tracker[x].sumP / S.tracker[x].n));
+      C.slice(0, 5).forEach(k => { const t = S.tracker[k]; L0.push(' ' + lblK(k.slice(2)) + ' ' + f2(t.sumP / t.n) + '→' + f2(t.hits / t.n) + ' n=' + t.n); }); } }
   keys.forEach(k => { const t = S.tracker[k], obs = t.hits / t.n, pr = t.sumP / t.n;
     const line = lblK(k) + ' ' + f2(pr) + '→' + f2(obs) + ' n=' + t.n;
     if (t.n < 20) few.push(lblK(k) + ' n=' + t.n); else if (P.unreliable(S, k)) bad.push(line + ' NON AFFIDABILE'); else ok.push(line + (Math.abs(obs - pr) <= .05 ? '' : obs < pr ? ' sovrastima' : ' sottostima')); });
@@ -1363,7 +1392,8 @@ function rapporto() {
   L.push('giocatori ' + Object.keys(S.players || {}).length + ' · squadre cartellini ' + Object.keys(S.tc || {}).length + ' · arbitri ' + Object.keys(S.refs || {}).length + ' · elo squadre ' + Object.keys(S.elo || {}).length);
   L.push('pronostici registrati ' + Object.keys(S.snap || {}).length + ' · partite verificate ' + ver.length + ' · voci giuste ' + vo + ' sbagliate ' + vk + (vo + vk ? ' (' + f2(vo / (vo + vk)) + ')' : ''));
   if (mu && mu.n) L.push('multiple registrate ' + mu.n + ' · entrate ' + mu.w);
-  L.push('MERCATI AFFIDABILI (' + ok.length + '):'); ok.slice(0, 26).forEach(x => L.push(' ' + x));
+  L0.forEach(x => L.push(x));
+  L.push('MODELLO GREZZO, prima della correzione (' + ok.length + '):'); ok.slice(0, 26).forEach(x => L.push(' ' + x));
   if (bad.length) { L.push('NON AFFIDABILI (' + bad.length + '):'); bad.slice(0, 10).forEach(x => L.push(' ' + x)); }
   if (few.length) L.push('POCHI DATI (' + few.length + '): ' + few.slice(0, 12).join(', '));
   const err = (S.log || []).filter(l => /Cannot read|not a function|non riuscito|undefined/.test(l)).slice(0, 4);
@@ -1415,9 +1445,9 @@ function queueRebuild(ev) { if (!ev || !ev.done || RQ.seen[ev.id]) return; RQ.se
 function tcRec(ev, sm) { if (!sm || !sm.events || !sm.events.length) return; S.tcSeen = S.tcSeen || {}; if (S.tcSeen[ev.id]) return;
   const hasC = sm.events.some(e => /Yellow|Red Card/i.test(e.type)); if (!hasC && sm.events.length < 6) return; S.tcSeen[ev.id] = 1;
   P.tcAdd(S, ev.home, sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length); P.tcAdd(S, ev.away, sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length); }
-function learnEvent(ev, sm) { if (sm && sm.events && sm.events.length) { const yh = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length, ya = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length;
+function learnEvent(ev, sm) { P.lgLearn(S, ev); if (sm && sm.events && sm.events.length) { const yh = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length, ya = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length;
   if (sm.events.some(e => /Yellow|Red Card/i.test(e.type)) || sm.events.length > 6) { P.tcAdd(S, ev.home, yh); P.tcAdd(S, ev.away, ya); } } if (ev.done && !(S.snap && S.snap[ev.id]) && !S.seen[ev.id]) rebuildSnap(ev, sm, 'pre'); const lam = P.lambdas(S, SEED, ev), mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), fav = lam.lh >= lam.la;
-  if (lam.known) lst.forEach(x => { const hit = P.resolveMarket(x.key, { favHome: fav }, { hs: ev.hs, as: ev.as, ht: sm ? sm.ht : null, cor: sm ? sm.cor : null }); if (hit !== null) P.record(S, x.key, x.pRaw, hit); });
+  if (lam.known) lst.forEach(x => { const hit = P.resolveMarket(x.key, { favHome: fav }, { hs: ev.hs, as: ev.as, ht: sm ? sm.ht : null, cor: sm ? sm.cor : null }); if (hit !== null) { P.record(S, x.key, x.pRaw, hit); P.record(S, 'C_' + x.key, x.p, hit); } });
   if (lam.known) { const top = mk.exact[0][0], t3 = mk.exact.slice(0, 3).map(x => x[0]), res = ev.hs + '-' + ev.as; P.record(S, 'EX1', mk.exact[0][1], res === top); P.record(S, 'EX3', mk.ex3, t3.indexOf(res) >= 0); }
   P.updateElo(S, SEED, ev); S.seen[ev.id] = 1; S.hist = S.hist || {}; const dd = String(ev.date || '').slice(0, 16); if (!S.hist.lastMatch || dd > S.hist.lastMatch) S.hist.lastMatch = dd; }
 // ---- storico: tutte le partite internazionali dal 2024 (archivio pubblico GitHub, CORS aperto) ----
@@ -1505,7 +1535,7 @@ function vImp() {
   $('#ex').onclick = () => { const b = new Blob([JSON.stringify(S)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'pronostici_stato.json'; a.click(); };
   $('#rs').onclick = () => { if (confirm('Cancello tutto l\'addestramento?')) { localStorage.removeItem(KEY); location.reload(); } };
 }
-window.__S=()=>S;window.__T={ SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
+window.__S=()=>S;window.__T={ rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
 // auto-addestramento all'apertura se ultimo > 6 ore
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').catch(() => { });
 
