@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795118150;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795119336;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -368,6 +368,7 @@ E.addPlayerStats = function (S, summ, isNat) { summ = summ || {};
 // ---------- tracker ----------
 E.band = p => p < 0.25 ? 0 : p < 0.5 ? 1 : p < 0.75 ? 2 : 3;
 E.record = function (S, key, p, hit) {
+  if (S.__noPl && /^(C_)?(CG_|SG_)|^CARD_TOP$|^SCORER/.test(key)) return;
   const t = S.tracker[key] || (S.tracker[key] = { n: 0, hits: 0, sumP: 0 }); t.n++; t.hits += hit ? 1 : 0; t.sumP += p; t.br = (t.br || 0) + (p - (hit ? 1 : 0)) * (p - (hit ? 1 : 0));
   const b = E.band(p); t.bd = t.bd || [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
   const v = t.bd[b]; v[0]++; v[1] += hit ? 1 : 0; v[2] += p;
@@ -696,7 +697,7 @@ E.truth = function (summ, e365) { summ = summ || {};
     mrg(cards, e365.cards, 'cartellino a'); mrg(goals, e365.goals, 'gol di'); }
   return { cards: cards.sort((a, b) => a.min - b.min), goals: goals.sort((a, b) => a.min - b.min), diff, two: !!e365 };
 };
-const FEAT = (S, k, hit) => { S.feat = S.feat || {}; const f = S.feat[k] || (S.feat[k] = [0, 0]); f[0]++; if (hit) f[1]++; };
+const FEAT = (S, k, hit) => { if (S.__noPl) return; S.feat = S.feat || {}; const f = S.feat[k] || (S.feat[k] = [0, 0]); f[0]++; if (hit) f[1]++; };
 E.gradePicks = function (S, ev, summ) { summ = summ || {}; const pk = (S.picks || {})[ev.id]; if (!pk || !pk.pr || pk.graded) return 0; const res = { hs: ev.hs, as: ev.as, ht: summ && summ.ht || null, cor: summ && summ.cor || null }; let n = 0;
   Object.keys(pk.pr).forEach(k => { const hit = E.resolveMarket(k, { favHome: pk.favHome }, res); if (hit === null) return; E.record(S, 'PRE_' + k, pk.pr[k], hit); n++; }); pk.graded = 1; return n; };
 E.audit = function (S, ev, summ, e365, snap) { summ = summ || {};
@@ -886,8 +887,10 @@ else if (S.seedBuilt < SEED.built) { const old = S; S = P.defaultState(SEED); S.
 if (Array.isArray(S.picks)) S.picks = {};
 S.store = IDB.ok ? 'IndexedDB' : 'memoria locale';
 // correzione 19/11/2026: i mercati del primo tempo erano risolti con i gol di tutta la partita
+if (!S.fixLate) { let n = 0; Object.keys(S.ver || {}).forEach(k => { const v = S.ver[k], sn = S.snap && S.snap[k]; if (v && v.rec === 'late' && Date.now() - (v.t || 0) < 6 * 864e5) { delete S.ver[k]; if (S.snap) delete S.snap[k]; n++; } }); S.fixLate = 1; if (n) S.__fixLateN = n; }
 if (!S.fix1T) { ['O05_1T', 'O15_1T', 'C_O05_1T', 'C_O15_1T', 'PRE_O05_1T', 'PRE_O15_1T'].forEach(k => { if (S.tracker) delete S.tracker[k]; }); S.fix1T = 1; }
 function prune() { const big = IDB.ok !== false;
+  if (S.preLam) { const lim = Date.now() - 6 * 864e5; Object.keys(S.preLam).forEach(k => { if ((S.preLam[k][2] || 0) < lim) delete S.preLam[k]; }); }
   if (S.seen) { const ks = Object.keys(S.seen); const lim = big ? 60000 : 12000; if (ks.length > lim) ks.slice(0, ks.length - lim).forEach(k => delete S.seen[k]); }
   if (S.tcSeen) { const ks = Object.keys(S.tcSeen); const lim = big ? 40000 : 8000; if (ks.length > lim) ks.slice(0, ks.length - lim).forEach(k => delete S.tcSeen[k]); }
   if (S.ver) { const ks = Object.keys(S.ver); const lim = big ? 2000 : 300; if (ks.length > lim) ks.sort((a, b) => (S.ver[a].t || 0) - (S.ver[b].t || 0)).slice(0, ks.length - lim).forEach(k => delete S.ver[k]); }
@@ -1241,7 +1244,7 @@ function snapMatch(ev, cards, sc, cf, refName, official, rec) {
 async function auditMatch(ev, summ) {
   const sn = S.snap && S.snap[ev.id]; if (!sn || sn.audited || !ev.done) return null;
   let e365 = null; try { const d = new Date(ev.date), k = '365_' + ymd(d); if (!cache[k]) cache[k] = await P.fetch365Day(d); const m = P.match365(cache[k], ev); if (m) e365 = await P.fetch365Events(m.id); } catch (e) { log('365 eventi: ' + e.message); }
-  const rep = P.audit(S, ev, summ, e365, sn); sn.audited = true; if (S.cp && S.cp[ev.id]) S.cp[ev.id].done = true; log('Audit ' + ev.home + '-' + ev.away + ': ' + rep.lines.filter(l => l[0] === '❌').length + ' errori analizzati'); save(); return rep;
+  if (sn.plLeak) S.__noPl = true; let rep; try { rep = P.audit(S, ev, summ, e365, sn); } finally { delete S.__noPl; } sn.audited = true; if (S.cp && S.cp[ev.id]) S.cp[ev.id].done = true; log('Audit ' + ev.home + '-' + ev.away + ': ' + rep.lines.filter(l => l[0] === '❌').length + ' errori analizzati'); save(); return rep;
 }
 // audit automatico dei pick di cartellini e marcatori
 function resolveCP(ev, summ) {
@@ -1484,14 +1487,25 @@ function vPrec() {
 // ---------- addestramento ----------
 let training = false;
 // pronostico completo ricostruito per una partita finita: stesso motore, stessi mercati. 'pre' = fatto prima che il modello impari il risultato (nessuna fuga di dati, usato per l'addestramento); 'late' = rating gia' aggiornati, solo visibile e non usato per addestrare
+function preLamUndo(ev) { const kh = P.keyName(ev.home), ka = P.keyName(ev.away);
+  if (!S.elo || S.elo[kh] == null || S.elo[ka] == null || !(ev.hs >= 0) || !(ev.as >= 0)) return null;
+  const nat = P.isNation(ev.league), adv = ev.neutral ? 0 : 70, sc = ev.hs > ev.as ? 1 : ev.hs === ev.as ? 0.5 : 0, g = Math.abs(ev.hs - ev.as), m = g <= 1 ? 1 : g === 2 ? 1.5 : (11 + g) / 8, K = (nat ? 30 : 25) * m;
+  const H1 = S.elo[kh], A1 = S.elo[ka]; let d = 0;
+  for (let i = 0; i < 8; i++) { const x = (H1 - d) - (A1 + d), e = 1 / (1 + Math.pow(10, -(x + adv) / 400)); d = K * (sc - e); }
+  S.elo[kh] = H1 - d; S.elo[ka] = A1 + d;
+  // toglie la partita anche dal livello gol della sua competizione
+  const lk = P.lgKey(ev), lv = S.lg && S.lg[lk], keep = lv ? lv.slice() : null;
+  if (lv && lv[0] > 0) { lv[0]--; lv[1] -= ev.hs + ev.as; lv[2] -= ev.hs; }
+  try { const l = P.lambdas(S, SEED, ev); return [l.lh, l.la]; } finally { S.elo[kh] = H1; S.elo[ka] = A1; if (keep) S.lg[lk] = keep; } }
 function rebuildSnap(ev, sm, kind) {
   if (!ev || !ev.done || (S.snap && S.snap[ev.id])) return false;
-  const lam = P.lambdas(S, SEED, ev), mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), keep = [ev.lam, ev.mk, ev.list, ev.favHome];
+  const PL0 = kind === 'prelam' ? (S.preLam && S.preLam[ev.id]) : kind === 'undo' ? preLamUndo(ev) : null; if (kind === 'undo' && !PL0) kind = 'late';
+  const lam = PL0 ? Object.assign(P.lambdas(S, SEED, ev), { lh: PL0[0], la: PL0[1] }) : P.lambdas(S, SEED, ev), mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), keep = [ev.lam, ev.mk, ev.list, ev.favHome];
   ev.lam = lam; ev.mk = mk; ev.list = lst; ev.favHome = lam.lh >= lam.la;
   try { const ros = sm ? P.rostersMap(sm) : null, ref = sm && sm.referee || null, ab = {}, cards = P.pickCards(S, SEED, ev, ros, lam, ab), sc = P.pickScorers(S, ev, ros, lam, ab), cf = P.cardsForecast(S, ev, lam, ros, ref, null);
-    snapMatch(ev, cards, sc, cf, ref, !!ros, kind || 'pre'); const sn = S.snap && S.snap[ev.id]; if (sn && kind === 'late') sn.audited = true; return !!sn;
+    snapMatch(ev, cards, sc, cf, ref, !!ros, kind || 'pre'); const sn = S.snap && S.snap[ev.id]; if (sn && kind === 'late') sn.audited = true; if (sn && (kind === 'prelam' || kind === 'undo')) sn.plLeak = 1; return !!sn;
   } catch (e) { log('Ricostruzione ' + ev.home + '-' + ev.away + ': ' + e.message); return false; }
-  finally { if (kind === 'late') { ev.lam = keep[0] || lam; ev.mk = keep[1] || mk; ev.list = keep[2] || lst; ev.favHome = keep[3] != null ? keep[3] : lam.lh >= lam.la; } }
+  finally { if (kind === 'late' || kind === 'prelam' || kind === 'undo') { ev.lam = keep[0] || lam; ev.mk = keep[1] || mk; ev.list = keep[2] || lst; ev.favHome = keep[3] != null ? keep[3] : lam.lh >= lam.la; } }
 }
 addEventListener('error', e => { try { log('Errore: ' + (e.message || '') + ' @riga ' + (e.lineno || '?') + (e.error && e.error.stack ? ' · ' + String(e.error.stack).split('\n')[1].trim().slice(0, 90) : '')); } catch (x) { } });
 addEventListener('unhandledrejection', e => { try { const r = e.reason; log('Errore non gestito: ' + ((r && r.message) || r) + (r && r.stack ? ' · ' + String(r.stack).split('\n')[1].trim().slice(0, 90) : '')); } catch (x) { } });
@@ -1508,11 +1522,12 @@ async function preSnapAll() { if (PSN.run) return; PSN.run = 1;
   } finally { PSN.run = 0; } }
 const RQ = { seen: {} };
 function queueRebuild(ev) { if (!ev || !ev.done || RQ.seen[ev.id]) return; RQ.seen[ev.id] = 1; (async () => { let sm = null; if (!/^(s365_|sof_)/.test(String(ev.id))) { try { sm = await P.fetchSummary(ev.league || 'all', ev.id); } catch (e) { try { sm = await P.fetchSummary('all', ev.id); } catch (e2) { } } }
-  if (!(S.snap && S.snap[ev.id])) rebuildSnap(ev, sm, S.seen[ev.id] ? 'late' : 'pre'); if (S.snap && S.snap[ev.id]) { save(); queueVerify(ev, 1); if (typeof fillPreds === 'function') fillPreds(); } else delete RQ.seen[ev.id]; })().catch(e => { delete RQ.seen[ev.id]; log('Ricostruzione ' + ev.home + ': ' + e.message); }); }
+  if (!(S.snap && S.snap[ev.id])) rebuildSnap(ev, sm, S.seen[ev.id] ? (S.preLam && S.preLam[ev.id] ? 'prelam' : 'undo') : 'pre'); if (S.snap && S.snap[ev.id]) { save(); queueVerify(ev, 1); if (typeof fillPreds === 'function') fillPreds(); } else delete RQ.seen[ev.id]; })().catch(e => { delete RQ.seen[ev.id]; log('Ricostruzione ' + ev.home + ': ' + e.message); }); }
 function tcRec(ev, sm) { if (!sm || !sm.events || !sm.events.length) return; S.tcSeen = S.tcSeen || {}; if (S.tcSeen[ev.id]) return;
   const hasC = sm.events.some(e => /Yellow|Red Card/i.test(e.type)); if (!hasC && sm.events.length < 6) return; S.tcSeen[ev.id] = 1;
   P.tcAdd(S, ev.home, sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length); P.tcAdd(S, ev.away, sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length); }
-function learnEvent(ev, sm) { P.lgLearn(S, ev); if (sm && sm.events && sm.events.length) { const yh = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length, ya = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length;
+function learnEvent(ev, sm) { P.lgLearn(S, ev);
+  { const age = Date.now() - new Date(ev.date).getTime(); if (age < 5 * 864e5) { const l0 = P.lambdas(S, SEED, ev); S.preLam = S.preLam || {}; S.preLam[ev.id] = [+l0.lh.toFixed(4), +l0.la.toFixed(4), new Date(ev.date).getTime()]; } } if (sm && sm.events && sm.events.length) { const yh = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length, ya = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length;
   if (sm.events.some(e => /Yellow|Red Card/i.test(e.type)) || sm.events.length > 6) { P.tcAdd(S, ev.home, yh); P.tcAdd(S, ev.away, ya); } } if (ev.done && !(S.snap && S.snap[ev.id]) && !S.seen[ev.id]) rebuildSnap(ev, sm, 'pre'); const lam = P.lambdas(S, SEED, ev), mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), fav = lam.lh >= lam.la;
   if (lam.known) lst.forEach(x => { const hit = P.resolveMarket(x.key, { favHome: fav }, { hs: ev.hs, as: ev.as, ht: sm ? sm.ht : null, cor: sm ? sm.cor : null }); if (hit !== null) { P.record(S, x.key, x.pRaw, hit); P.record(S, 'C_' + x.key, x.p, hit); P.ctrAdd(S, ev, x.key, x.pRaw, hit); } });
   if (lam.known) { const top = mk.exact[0][0], t3 = mk.exact.slice(0, 3).map(x => x[0]), res = ev.hs + '-' + ev.as; P.record(S, 'EX1', mk.exact[0][1], res === top); P.record(S, 'EX3', mk.ex3, t3.indexOf(res) >= 0); }
@@ -1602,7 +1617,7 @@ function vImp() {
   $('#ex').onclick = () => { const b = new Blob([JSON.stringify(S)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'pronostici_stato.json'; a.click(); };
   $('#rs').onclick = () => { if (confirm('Cancello tutto l\'addestramento?')) { localStorage.removeItem(KEY); location.reload(); } };
 }
-window.__S=()=>S;window.__T={ lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
+window.__S=()=>S;window.__T={ preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
 // auto-addestramento all'apertura se ultimo > 6 ore
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').catch(() => { });
 
@@ -2150,7 +2165,7 @@ async function verifyMatch(ev) {
   const vk = Object.keys(S.ver); if (vk.length > 600) vk.sort((a, b) => S.ver[a].t - S.ver[b].t).slice(0, vk.length - 600).forEach(k => delete S.ver[k]);
   delete VQ.seen[ev.id]; save(); log('Verificata ' + ev.home + '-' + ev.away + ' ' + hs + '-' + as + ': ' + S.ver[ev.id].ok + ' giusti, ' + S.ver[ev.id].ko + ' errati, taratura aggiornata (' + S.ver[ev.id].upd + ' controlli)'); if (typeof fillPreds === 'function') fillPreds(); }
 function verLine(ev) { const v = S.ver && S.ver[ev.id]; if (!v) return S.snap && S.snap[ev.id] ? (queueVerify(ev, 1), '<div class="sm mut">Verifica dei pronostici in corso…</div>') : (queueRebuild(ev), '<div class="sm mut">Ricostruzione del pronostico pre-partita in corso…</div>');
-  return '<div class="ver"><div class="ver-h"><b class="ok">✅ ' + v.ok + ' giusti</b> · <b class="bad">❌ ' + v.ko + ' errati</b> · ' + (v.rec === 'pre' ? 'ricostruita col modello di prima del risultato' : v.rec === 'late' ? 'ricostruita (rating già aggiornati, non usata per addestrare)' : v.official ? 'previsione con formazioni ufficiali' : 'previsione pre-formazioni') + '</div>' + v.items.map(x => '<div class="ver-i ' + (x[1] === true ? 'g' : x[1] === false ? 'b' : '') + '">' + (x[1] === true ? '✅' : x[1] === false ? '❌' : '•') + ' ' + esc(x[0]) + (x[2] ? ' <span class="mut">' + esc(x[2]) + '</span>' : '') + '</div>').join('') +
+  return '<div class="ver"><div class="ver-h"><b class="ok">✅ ' + v.ok + ' giusti</b> · <b class="bad">❌ ' + v.ko + ' errati</b> · ' + (v.rec === 'pre' ? 'ricostruita col modello di prima del risultato · usata per l\'addestramento' : v.rec === 'prelam' ? 'ricostruita con la forza di prima della partita · usata per l\'addestramento' : v.rec === 'undo' ? 'ricostruita togliendo dalla forza l\'effetto della partita stessa · usata per l\'addestramento' : v.rec === 'late' ? 'ricostruita a partita già imparata: dati insufficienti per riavere la forza di prima' : v.official ? 'previsione con formazioni ufficiali' : 'previsione pre-formazioni') + '</div>' + v.items.map(x => '<div class="ver-i ' + (x[1] === true ? 'g' : x[1] === false ? 'b' : '') + '">' + (x[1] === true ? '✅' : x[1] === false ? '❌' : '•') + ' ' + esc(x[0]) + (x[2] ? ' <span class="mut">' + esc(x[2]) + '</span>' : '') + '</div>').join('') +
     (v.booked.length ? '<div class="sm mut">Ammoniti reali (' + v.booked.length + ' cartellini): ' + esc([...new Set(v.booked)].map(n => n + (v.booked.filter(x => x === n).length > 1 ? ' ×2' : '')).join(', ')) + '</div>' : '') + (v.scorers.length ? '<div class="sm mut">Marcatori reali: ' + esc(v.scorers.join(', ')) + '</div>' : '') +
     (v.audit.length ? '<details class="why"><summary>Perché ha sbagliato (audit)</summary>' + v.audit.map(l => '<div class="sm">' + esc(l) + '</div>').join('') + '</details>' : '') + '<div class="sm ok">' + (v.upd ? 'Metodo aggiornato subito: ' + v.upd + ' controlli aggiunti alla taratura dei mercati, dei cartellini e dei marcatori.' : 'Esiti già inclusi nella taratura del metodo.') + '</div></div>'; }
 
