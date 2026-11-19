@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795109756;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795110761;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -948,7 +948,10 @@ async function dayEvents(date) { const ds = ymd(date), ls = LGSEL(); let out = [
   extra.forEach(L => L.forEach(x => { const m = out.find(e => near(e, x)); if (m) { if (!m.lgName && x.lgName) m.lgName = x.lgName; if (x.g365id) m.g365id = m.g365id || x.g365id; if (x.sid) m.sid = m.sid || x.sid; if (!m.venue && x.venue) m.venue = x.venue; } else out.push(x); }));
   out.sort((a, b) => a.date.localeCompare(b.date)); return out; }
 function prepEv(ev) { if (ev.lam) return ev; const lam = P.lambdas(S, SEED, ev); ev.lam = lam; ev.mk = P.markets(lam.lh, lam.la); ev.list = P.marketList(S, ev.mk, lam.lh, lam.la, SEED, ev); ev.list.forEach(x => { if (!MLBL[x.key]) MLBL[x.key] = x.label; }); ev.favHome = lam.lh >= lam.la; return ev; }
-async function loadDay() {
+let DAYT = { key: '', t: 0 };
+async function loadDay(force) { const dk = ymd(curDate) + '|' + LGSEL().join(',');
+  if (!force && DAYT.key === dk && events.length && Date.now() - DAYT.t < 150000) { return; }
+  DAYT = { key: dk, t: Date.now() };
   const ds = ymd(curDate), ls = LGSEL(); events = [];
   const res = await Promise.all(ls.map(l => P.fetchDay(l, ds).catch(e => { log('Feed ' + l + ': ' + e.message); return []; })));
   res.forEach(r => events = events.concat(r)); { const seen = new Set(); events = events.filter(e => seen.has(e.id) ? false : (seen.add(e.id), true)); }
@@ -1225,15 +1228,16 @@ async function vQuadro() {
   if (!ms.length) { el.innerHTML = '<div class="empty">Nessuna partita non ancora iniziata oggi nei campionati scelti.<br><span class="sm">Vai in Partite per cambiare giorno, o in Altro › Impostazioni per i campionati.</span></div>'; return; }
   const pfp = prefetchAll(); let first = true;
   let qShown = 20;
-  const draw = () => { const openS = [...el.querySelectorAll('details[open] summary')].map(s => s.textContent), y = window.scrollY; const out = events.map(e => { const a = AN[e.id]; if (a) { a.ev.state = e.state; a.ev.done = e.done; a.ev.hs = e.hs; a.ev.as = e.as; a.ev.min = e.min; } return a; }).filter(a => a && !a.ev.done); if (!out.length) { return; } setTimeout(() => { el.querySelectorAll('details summary').forEach(s => { if (openS.indexOf(s.textContent) >= 0) s.parentNode.open = true; }); window.scrollTo(0, y); }, 0);
+  const draw = () => { const openS = [...el.querySelectorAll('details[open] summary')].map(s => s.textContent), y = window.scrollY; const out = events.map(e => { const a = AN[e.id]; if (a) { a.ev.state = e.state; a.ev.done = e.done; a.ev.hs = e.hs; a.ev.as = e.as; a.ev.min = e.min; } return a; }).filter(a => a && !a.ev.done);
+    const pend = events.filter(e => !e.done && e.state !== 'post' && !AN[e.id]); setTimeout(() => { el.querySelectorAll('details summary').forEach(s => { if (openS.indexOf(s.textContent) >= 0) s.parentNode.open = true; }); window.scrollTo(0, y); }, 0);
   save();
   const label = x => esc(x.ev.home) + ' – ' + esc(x.ev.away) + (x.ev.state === 'in' ? ' <b class="warn">' + esc(stOf(x.ev)) + '</b>' : '');
   const sub = x => label(x) + ' · ' + esc(x.dt.src);
   const nOff = out.filter(x => /XI ESPN|confermata/.test(x.dt.src)).length;
-  let h = '<div class="tiles"><div class="tile"><span>Partite</span><b>' + out.length + '</b></div><div class="tile"><span>XI ufficiali</span><b>' + nOff + '</b></div><div class="tile"><span>Aggiornato</span><b>' + new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + '</b></div></div>';
+  let h = '<div class="tiles"><div class="tile"><span>Partite</span><b>' + (out.length + pend.length) + '</b></div><div class="tile"><span>Analisi completa</span><b>' + out.length + '</b></div><div class="tile"><span>XI ufficiali</span><b>' + nOff + '</b></div><div class="tile"><span>Aggiornato</span><b>' + new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + '</b></div></div>';
   const al = out.filter(x => x.alertTxt); if (al.length) h += '<div class="alert"><b>Cambi di formazione</b>' + al.map(x => '<div class="sm">' + esc(x.ev.home) + '–' + esc(x.ev.away) + ': ' + esc(x.alertTxt) + '</div>').join('') + '</div>';
-  h += sect('Panoramica di ogni partita', 'Tocca una partita per leggere direzione, gol, assenze, forma, precedenti e quando la lettura sbaglia.', '<div id="ovl">' + (() => { const srt = out.slice().sort((p, q) => new Date(p.ev.date) - new Date(q.ev.date)), part = srt.slice(0, qShown);
-    return part.map(x => overview(x).replace('data-i="OV"', 'data-ov="' + out.indexOf(x) + '"')).join('') + (srt.length > part.length ? '<button class="btn" id="qmore" style="width:100%;margin-top:8px">Mostra altre ' + Math.min(20, srt.length - part.length) + ' partite (restano ' + (srt.length - part.length) + ')</button>' : ''); })() + '</div>');
+  h += sect('Panoramica di ogni partita', 'Tocca una partita per leggere direzione, gol, assenze, forma, precedenti e quando la lettura sbaglia.', '<div id="ovl">' + (() => { const mix = out.map(x => ({ a: x, d: new Date(x.ev.date) })).concat(pend.map(e => ({ e, d: new Date(e.date) }))).sort((p, q) => p.d - q.d), part = mix.slice(0, qShown);
+    return part.map(x => x.a ? overview(x.a).replace('data-i="OV"', 'data-ov="' + out.indexOf(x.a) + '"') : mcard(x.e, events.indexOf(x.e))).join('') + (mix.length > part.length ? '<button class="btn" id="qmore" style="width:100%;margin-top:8px">Mostra altre ' + Math.min(20, mix.length - part.length) + ' partite (restano ' + (mix.length - part.length) + ')</button>' : ''); })() + '</div>');
   const sfs = out.map(x => ({ x, s: safest(x.ev) })).filter(z => z.s.top).sort((p, q) => q.s.top.p - p.s.top.p);
   h += sect('Pronostico più sicuro per partita', 'Mai la doppia chance: è quasi sempre la più probabile e non dice nulla. Ogni riga ha la quota giusta (1 diviso la probabilità).', sfs.map(n => irow(out.indexOf(n.x), label(n.x), esc(n.s.top.label) + ' · quota giusta ' + fq(n.s.top.p), pc0(n.s.top.p), n.s.alt ? 'Alternativa: ' + esc(n.s.alt.label) + ' ' + fp(n.s.alt.p) + ' · q. ' + fq(n.s.alt.p) : '')).join(''));
   const ex = out.map(x => ({ x, e: [x.ev.mk.dirp.score, x.ev.mk.dirp.scoreP], D: x.ev.mk.dirp })).sort((p, q) => q.e[1] - p.e[1]);
@@ -1246,6 +1250,7 @@ async function vQuadro() {
   h += sect('Partite più calde per cartellini', '', hot.length ? hot.map(x => { const ra = P.refAvg(S, x.dt.ref); return irow(out.indexOf(x), label(x), 'gialli attesi dalle rose ' + x.heat.toFixed(1) + ' · arbitro ' + (x.dt.ref ? esc(x.dt.ref) + (ra ? ' ' + ra.avg.toFixed(1) + ' gialli/gara su ' + ra.n : '') : 'da verificare'), x.heat.toFixed(1)); }).join('') : '<div class="empty">Dati giocatore insufficienti per classificare.</div>');
   h += '<div class="sm mt"><b>Autoapprendimento:</b> il Quadro registra qui, prima del calcio d\'inizio, tutte le previsioni (direzione, esatti, cartellini scelti e scartati, marcatori). A fine gara l\'app le verifica da sola su ESPN e 365Scores e spiega perché hanno funzionato o no (Precisione › Cosa ha imparato). Apri l\'app prima delle partite e riaprila dopo.</div>' + '<div class="sm mt">Non leggibile dall\'app: interviste, rigorista, notizie dell\'ultima ora (link nel dettaglio partita › Fonti).</div>';
   if (pf.run) h = '<div class="sm warn">Analisi in corso: ' + pf.done + ' di ' + pf.total + ' partite (le altre compaiono man mano).</div>' + h; el.innerHTML = h; el.querySelectorAll('.ir[data-i]').forEach(r => r.onclick = () => openMatch(out[+r.dataset.i].ev)); el.querySelectorAll('button[data-ov]').forEach(b => b.onclick = () => openMatch(out[+b.dataset.ov].ev)); { const qm = el.querySelector('#qmore'); if (qm) qm.onclick = () => { qShown += 20; draw(); }; }
+    el.querySelectorAll('[data-i]').forEach(x => { x.onclick = () => { const e = events[+x.dataset.i]; if (e) { prepEv(e); openMatch(e); } }; });
   };
   draw(); let ticks = 0; const iv = setInterval(async () => { if (tab !== 'quadro' || !document.querySelector('#qq')) { clearInterval(iv); return; } ticks++; if (pf.run || ticks % 5 === 0) { if (ticks % 5 === 0) { await refreshLive(); if (ticks % 30 === 0) { const sc = curDate; curDate = new Date(); try { await loadDay(); await refreshLive(); } catch (e) { } curDate = sc; } } draw(); } }, 6000);
   await pfp; draw();
