@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795119336;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795125945;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -1835,7 +1835,7 @@ const TRK = (() => { let st = null;
     const fd = document.getElementById('tfeed'); if (fd) { fd.insertAdjacentHTML('afterbegin', '<div class="trk-i" style="border-left-color:' + (side === 'h' ? st.hc : side === 'a' ? st.ac : '#888') + '"><b>' + esc(p.min) + '</b> ' + ICO(p) + ' ' + esc(ptyIt(p)) + (p.who[0] ? ' · ' + esc(p.who[0]) : '') + '</div>'); while (fd.children.length > 10) fd.lastChild.remove(); } }
   function shots(XL) { const g = document.getElementById('tshots'); if (!g || !XL || !XL.shots) return; g.innerHTML = XL.shots.filter(s => s.x != null && s.y != null).map(s => { const x = s.side === 'h' ? s.x : 100 - s.x, y = s.side === 'h' ? s.y : 100 - s.y, q = { x: 6 + x / 100 * 188, y: 6 + y / 100 * 118 }, gl = s.type === 'goal', c = s.side === 'h' ? st.hc : st.ac, r = 1.4 + Math.min(3, (s.xg || 0.05) * 6);
       return '<circle cx="' + q.x.toFixed(1) + '" cy="' + q.y.toFixed(1) + '" r="' + r.toFixed(1) + '" fill="' + (gl ? '#fff' : c) + '" fill-opacity="' + (gl ? 1 : .45) + '" stroke="' + c + '" stroke-width=".6"><title>' + esc(s.min + '\' ' + s.who + (s.xg != null ? ' · xG ' + s.xg.toFixed(2) : '') + (gl ? ' · GOL' : '')) + '</title></circle>' + (gl ? '<text x="' + q.x.toFixed(1) + '" y="' + (q.y + 1.6).toFixed(1) + '" font-size="4" text-anchor="middle">⚽</text>' : ''); }).join(''); }
-  const posOf = p => { const s = st.side(p.team); return p.x != null && s ? MP(p, s) : null; };
+  const posOf = p => { if (!p) return null; const s = st.side(p.team); return p.x != null && s ? MP(p, s) : null; };
   function place(x, y) { const b = document.getElementById('tball'), l = document.getElementById('tlbl'); if (!b) return; b.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')'); const hw = (st.lw || 30) / 2 + 3, lx = Math.min(197 - hw, Math.max(3 + hw, x)); l.setAttribute('transform', 'translate(' + lx.toFixed(1) + ',' + Math.max(10, y - 8).toFixed(1) + ')'); st.pos = { x, y }; }
   function fire(p) { const side = st.side(p.team), col = side === 'h' ? st.hc : side === 'a' ? st.ac : '#fff'; st.lastCol = col; banner(p, side); label(p.who[0] ? p.who[0].split(' ').slice(-1)[0] + ' · ' + ptyIt(p) : ptyIt(p), col); const q = posOf(p); if (q) trail(q);
     if (/goal/i.test(p.type) && !/miss|save|disallow/i.test(p.type + p.tt)) goalFx(p); }
@@ -1855,12 +1855,32 @@ const TRK = (() => { let st = null;
     const last = st.ev.length ? st.ev[st.ev.length - 1].wall : Date.now(), gaps = st.ev.slice(-11).map((p, k, A) => k ? p.wall - A[k - 1].wall : 0).slice(1).sort((u, v) => u - v), gap = gaps.length ? gaps[gaps.length >> 1] : 30000; st.delay = st.live ? Math.min(240000, Math.max(15000, Date.now() - last + Math.min(90000, gap * 1.3))) : 0;
     const pt = now(); let i0 = -1; st.ev.forEach((p, k) => { if (p.wall <= pt) i0 = k; }); st.i = Math.max(-1, i0 - 4);
     const rb = document.getElementById('trep'); if (rb) rb.onclick = () => { st.mode = 'rep'; st.r0 = st.k0; st.t0 = performance.now(); st.i = -1; const f = document.getElementById('tfeed'); if (f) f.innerHTML = ''; };
-    if (!st.ev.length) { const md = document.getElementById('tmode'); if (md) md.textContent = 'Azioni in campo non disponibili per questa partita'; return; } st.raf = requestAnimationFrame(tick); }
+    if (!st.ev.length) { const md = document.getElementById('tmode'); const gs = (+g.hs || 0) + (+g.as || 0);
+      if (md) md.textContent = gs > 0 ? 'Per questa partita le fonti pubblicano solo il punteggio (' + g.hs + '-' + g.as + '), senza minuti né marcatori: niente da mostrare sul campo.' : (g.st === 3 ? 'Ancora nessun evento: la palla si sposta al primo gol, cartellino o cambio.' : 'Azioni in campo non disponibili per questa partita.');
+      const bn = document.querySelector('.trk-b'); if (bn && gs > 0) bn.style.display = 'none'; return; } st.raf = requestAnimationFrame(tick); }
   function feed(g, PL, side, H, A, XL) { if (!st) return; st.side = side; st.live = g.st === 3; if (!st.live && st.mode === 'live') st.mode = 'end'; const n0 = st.ev.length; setEv(PL); shots(XL);
     if (st.mode === 'live' && st.ev.length > n0) { const last = st.ev[st.ev.length - 1].wall, need = Date.now() - last + 6000; if (need > st.delay + 20000) st.delay = Math.min(150000, need); } if (!st.raf && st.ev.length) st.raf = requestAnimationFrame(tick); }
   return { html, start, feed }; })();
 
-function openMatch(ev) { navTo(() => openMatch(ev)); applyLive(ev); if (ev.state === 'in' || ev.done) return vCenter(ev.g365id || null, ev, ev.sid || null); return vMatch(ev); }
+function evPlays(g) { const t0 = g.start ? new Date(g.start).getTime() : 0, t2 = (g.p2 || (t0 ? t0 + 60 * 60000 : 0));
+  const plays = (g.events || []).map(e => { const m = +e.min || 0, add = +e.add || 0, side = e.side === 'a' ? 'a' : 'h', T = String(e.t || '') + ' ' + String(e.sb || '');
+    const goal = /Goal/i.test(T) && !/Disallow|Cancel/i.test(T), card = /Card|Yellow|Red/i.test(T), sub = /Subst/i.test(T), own = /Own/i.test(T);
+    const xy = goal ? (own ? [12, 50] : [90, 50]) : card ? [52, 30 + (m % 40)] : sub ? [50, 2] : [60, 50];
+    const wall = !t0 ? 0 : m <= 45 ? t0 + (Math.max(0, m - 1) + add) * 60000 : t2 + (Math.max(0, m - 46) + add) * 60000;
+    const ETX = { Half: 'Fine primo tempo', HalfTime: 'Fine primo tempo', FullTime: 'Fine partita', PenaltyShootout: 'Calci di rigore', Penalty: 'Rigore', MissedPenalty: 'Rigore sbagliato', PenaltyMissed: 'Rigore sbagliato', VAR: 'VAR', Injury: 'Infortunio', ExtraTime: 'Tempi supplementari', Kickoff: 'Calcio d\'inizio' };
+    const lab = goal ? (own ? 'Autogol' : 'GOL') : card ? (/Red/i.test(T) ? 'Espulsione' : 'Ammonizione') : sub ? 'Cambio' : (ETX[String(e.t || '').replace(/\s+/g, '')] || e.t || 'Azione');
+    return { wall, type: goal ? 'goal' : card ? (/Red/i.test(T) ? 'redcard' : 'yellowcard') : sub ? 'substitution' : 'play', tt: lab, min: m + (add ? '+' + add : '') + "'", sec: (Math.max(0, m - 1) + add) * 60,
+      who: e.who ? [e.who] : [], team: side === 'h' ? g.home : g.away, text: lab + (e.who ? ' · ' + e.who : '') + (e.ex ? ' (' + e.ex + ')' : ''), x: xy[0], y: xy[1], approx: 1 }; }).filter(p => p.wall);
+  return { home: g.home, away: g.away, plays, box: {}, src: 'eventi', approx: 1 }; }
+let lastOpen = '';
+function openMatch(ev0) { navTo(() => openMatch(ev0));
+  // usa sempre la copia piu' aggiornata della partita (le schede del Quadro hanno una copia fatta prima del calcio d'inizio)
+  const ev = (events || []).find(e => e.id === ev0.id) || (events || []).find(e => sameT(e.home, ev0.home) && sameT(e.away, ev0.away) && Math.abs(new Date(e.date) - new Date(ev0.date)) < 6 * 3600e3) || ev0;
+  ['g365id', 'sid', 'fmid'].forEach(k => { if (!ev[k] && ev0[k]) ev[k] = ev0[k]; });
+  applyLive(ev);
+  const kick = new Date(ev.date).getTime(), started = ev.state === 'in' || ev.done || ev.state === 'post' || (kick && kick <= Date.now());
+  if (started) { if (lastOpen !== String(ev.id)) cenTab = 'campo'; lastOpen = String(ev.id); return vCenter(ev.g365id || null, ev, ev.sid || null); }
+  return vMatch(ev); }
 
 // ---------- SofaScore come riferimento del live: unione dati, timeline, statistiche a pagine ----------
 let stPer = 'ALL', stPg = 0;
@@ -1921,7 +1941,8 @@ async function vCenter(id, evHint, sid) { navTo(() => vCenter(id, evHint, sid));
         if (fid) { if (evHint) evHint.fmid = fid; PL = await memo('fpl' + fid, () => P.fmPlays(fid, g.home, g.away, g.start), g.st === 3 ? 8000 : 600000); } } catch (e) { } } if (root.dataset.cen !== tok) return;
     let XL = null; if (!(XLD.t && Date.now() - XLD.t < 600000)) { try { XL = await memo('xl' + id, async () => { let r = null; try { r = await P.fetchSofaLive(g.home, g.away, g.start); } catch (e) { } if (!r) { try { r = await P.fetchFotmobLive(g.home, g.away, g.start); } catch (e) { } } if (!r) XLD.t = Date.now(); return r; }, g.st === 3 ? 10000 : 900000); } catch (e) { } } if (root.dataset.cen !== tok) return;
     let SX = null; if (!g.sonly) { try { const s2 = sid || (XL && XL.id); if (s2) SX = await memo('sx' + s2, () => P.sofaFast(s2), g.st === 3 ? 2500 : 60000); } catch (e) { SX = null; } if (SX) sofaMerge(g, SX); } if (XL && XL.slow) { g.slow = XL.slow; if (XL.slow.lu) sofaLu(g, XL.slow.lu); if (XL.slow.mgr) { if (!g.lh.coach && XL.slow.mgr.h) g.lh.coach = XL.slow.mgr.h; if (!g.la.coach && XL.slow.mgr.a) g.la.coach = XL.slow.mgr.a; } } if (root.dataset.cen !== tok) return;
-    const sideOf = t => { if (!t || !PL) return null; return sameT(t, PL.home) ? 'h' : sameT(t, PL.away) ? 'a' : null; };
+    const PLX = (PL && PL.plays && PL.plays.length) ? PL : evPlays(g);
+    const sideOf = t => { if (!t || !PLX) return null; return sameT(t, PLX.home) ? 'h' : sameT(t, PLX.away) ? 'a' : null; };
     if (shown && document.getElementById('cs')) { const set = (i, v) => { const x = document.getElementById(i); if (x && x.innerHTML !== v) x.innerHTML = v; };
       set('cm', g.st === 3 ? '<i class="dotlive"></i>' + esc(g.min || g.stt) : esc(g.stt || '')); set('cs', g.st === 2 ? '–' : g.hs + '<span>:</span>' + g.as); set('cgh', gl('h')); set('cga', gl('a')); set('cstr', strip(g, PL)); set('ctl', tline2(g)); set('cmom', XL && XL.mom ? realMom(g, XL) : PL && PL.plays.length ? momentumSVG(g, PL.plays, sideOf) : timelineSVG(g));
       if (cenTab === 'campo' && document.getElementById('lpitch')) { TRK.feed(g, PL, sideOf, H, A, XL); return; } }
@@ -1930,7 +1951,8 @@ async function vCenter(id, evHint, sid) { navTo(() => vCenter(id, evHint, sid));
     h += '<div class="sb"><div class="sb-c" id="cm">' + (g.st === 3 ? '<i class="dotlive"></i>' + esc(g.min || g.stt) : esc(g.stt || '')) + '</div><div class="sb-r"><div class="sb-t"><i class="tc" style="background:' + TC.h + '"></i><b>' + esc(H) + '</b><div class="sb-g" id="cgh">' + gl('h') + '</div></div><div class="sb-s" id="cs">' + (g.st === 2 ? '–' : g.hs + '<span>:</span>' + g.as) + '</div><div class="sb-t"><i class="tc" style="background:' + TC.a + '"></i><b>' + esc(A) + '</b><div class="sb-g" id="cga">' + gl('a') + '</div></div></div>' + (g.ht ? '<div class="sb-h">1° tempo ' + g.ht + '</div>' : '') + '<div class="tl2" id="ctl">' + tline2(g) + '</div><div id="cstr">' + strip(g, PL) + '</div><div id="cmom">' + (XL && XL.mom ? realMom(g, XL) : PL && PL.plays.length ? momentumSVG(g, PL.plays, sideOf) : timelineSVG(g)) + '</div>' + (f && f.ev ? '<button class="btn" id="lfull" style="margin-top:8px;width:100%">📊 Analisi e pronostici pre-partita</button>' : '') + '</div>';
     h += '<div class="seg" id="ctab">' + [['campo', '⚽ Campo'], ['stat', 'Statistiche'], ['form', 'Formazioni'], ['cron', 'Eventi'], ['comm', 'Commento'], ['tiri', 'Tiri'], ['h2h', 'Scontri'], ['pron', 'Pronostici'], ['riep', 'Info']].map(x => '<button data-c="' + x[0] + '" class="' + (cenTab === x[0] ? 'on' : '') + '">' + x[1] + '</button>').join('') + '</div><div id="cbody">';
     if (cenTab === 'riep') h += '<div class="card"><div class="kv"><span>Arbitro</span><div>' + esc(g.ref || 'non indicato') + '</div></div><div class="kv"><span>Allenatori</span><div>' + esc((g.lh.coach || '—') + ' · ' + (g.la.coach || '—')) + '</div></div><div class="kv"><span>Stadio</span><div>' + esc(g.venue || '—') + '</div></div><div class="kv"><span>Moduli</span><div>' + esc((g.lh.formation || '—') + ' · ' + (g.la.formation || '—')) + '</div></div></div>' + (g.sx && g.sx.refSt ? '<div class="card"><div class="k">Arbitro su SofaScore</div><div class="sm">' + esc(g.ref) + ': ' + g.sx.refSt.g + ' gare · ' + (g.sx.refSt.y || 0) + ' gialli (' + ((g.sx.refSt.y || 0) / Math.max(1, g.sx.refSt.g)).toFixed(2) + ' a gara) · ' + ((g.sx.refSt.r || 0) + (g.sx.refSt.yr || 0)) + ' rossi</div></div>' : '') + (g.ref ? '<div class="card"><div class="k">Storico dell\'arbitro</div>' + refCard(g.ref, true) + '</div>' : '') ;
-    if (cenTab === 'campo') h += (PL && PL.plays && PL.plays.length ? TRK.html(g, PL, H, A) : xiPitch(g, H, A) + '<div class="sm mut">Per questa partita nessuna fonte pubblica le azioni in campo minuto per minuto: qui vedi le formazioni con gol, cartellini e cambi. Statistiche e cronaca restano nelle altre schede.</div>');
+    if (cenTab === 'campo') { h += TRK.html(g, PLX, H, A);
+      if (!(PL && PL.plays && PL.plays.length)) h += '<div class="sm mut">Per questa partita nessuna fonte pubblica tutte le azioni minuto per minuto: sul campo vedi gol, cartellini e cambi al loro minuto reale. Statistiche e cronaca restano nelle altre schede.</div>' + (((g.lh && g.lh.pl && g.lh.pl.length) || (g.la && g.la.pl && g.la.pl.length)) ? xiPitch(g, H, A) : ''); }
     if (cenTab === 'comm') h += '<div class="card">' + (PL && PL.plays.length ? PL.plays.slice().reverse().filter(p => p.text).map(p => '<div class="ir"><div class="ir-m"><b>' + esc(p.min || '') + ' ' + esc(ptyIt(p)) + '</b><div class="sm">' + esc(p.who.join(', ')) + (p.team ? ' · ' + esc(sideOf(p.team) === 'h' ? H : sideOf(p.team) === 'a' ? A : p.team) : '') + '</div><div class="sm mut">' + esc(p.text) + '</div></div></div>').join('') : '<p class="empty">Commento non disponibile per questa partita.</p>') + '</div><div class="sm mut">Commento originale ESPN (in inglese), con il tipo di azione tradotto.</div>';
     if (cenTab === 'pron') h += predCheck(g, f);
     if (cenTab === 'cron') h += '<div class="card">' + (g.events.length ? g.events.slice().reverse().map(e => '<div class="ir"><div class="ir-m"><b>' + e.min + '\'' + (e.add ? '+' + e.add : '') + ' ' + evIc(e) + ' ' + esc(evTx(e)) + '</b><div class="sm">' + esc(e.who || '') + (e.ex ? ' (' + (/Substitut/i.test(e.t) ? 'esce ' : /Goal/i.test(e.t) ? 'assist ' : '') + esc(e.ex) + ')' : '') + ' · ' + esc(e.side === 'h' ? H : A) + '</div></div></div>').join('') : '<p class="empty">Nessun evento ancora.</p>') + '</div>';
@@ -1944,7 +1966,7 @@ async function vCenter(id, evHint, sid) { navTo(() => vCenter(id, evHint, sid));
     root.querySelectorAll('#ctab button').forEach(x => x.onclick = () => { cenTab = x.dataset.c; shown = false; draw(); });
     root.querySelectorAll('#sper button').forEach(x => x.onclick = () => { stPer = x.dataset.sp; stPg = 0; shown = false; draw(); });
     root.querySelectorAll('.spg button').forEach(x => x.onclick = () => { stPg += +x.dataset.pg; if (stPg < 0) stPg = 99; shown = false; draw(); });
-    if (cenTab === 'campo') TRK.start(g, PL, sideOf, H, A, XL);
+    if (cenTab === 'campo') TRK.start(g, PLX, sideOf, H, A, XL);
     const fb = $('#lfull'); if (fb) fb.onclick = () => { clearInterval(liveT); root.dataset.cen = ''; vMatch(f.ev); };
     if (g.st === 4 && f && f.ev && S.snap && S.snap[f.ev.id] && !S.snap[f.ev.id].audited) { setTimeout(() => train(0, 40), 60000); }
     if (g.st !== 3 && g.st !== 2) clearInterval(liveT); };
