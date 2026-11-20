@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795176449;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795176730;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -951,6 +951,25 @@ E.wdwParse = function (html, day) { const T = String(html).replace(/<script[\s\S
     out.push({ h: v[1].trim(), a: v[2].trim(), date: day || null, rows }); }
   const seen = {}; return out.filter(x => { const id = x.h + '|' + x.a; if (seen[id]) return false; seen[id] = 1; return true; }); };
 E.wdwDay = async function (tomorrow) { const d = new Date(Date.now() + (tomorrow ? 86400e3 : 0)); return E.wdwParse(await E.fetchText('https://www.windrawwin.com/predictions/' + (tomorrow ? 'tomorrow' : 'today') + '/', 15000), d.toISOString()); };
+// SofaScore pre-partita: voti dei tifosi, quote con apertura, forma, serie, precedenti, quanto spesso la favorita vince a quella quota
+const frac = s => { const m = /^(\d+)\/(\d+)$/.exec(String(s || '')); return m ? 1 + (+m[1]) / (+m[2]) : null; };
+E.sofaPre = async function (id) { const g = p => SJ('event/' + id + p, 7000).catch(() => null);
+  const [ev, vo, od, pf, ts, h2, wo] = await Promise.all([g(''), g('/votes'), g('/odds/1/all'), g('/pregame-form'), g('/team-streaks'), g('/h2h'), g('/provider/1/winning-odds')]);
+  if (!ev && !vo && !od && !pf) throw new Error('SofaScore: nessuna risposta');
+  const e = (ev || {}).event || {}, votes = [], q = [], V = (vo || {}).vote, B = (vo || {}).bothTeamsToScoreVote;
+  if (V) { const t = (V.vote1 || 0) + (V.voteX || 0) + (V.vote2 || 0); if (t) [['1', V.vote1], ['X', V.voteX], ['2', V.vote2]].forEach(([k, n]) => votes.push({ k, n: n || 0, tot: t, pct: Math.round((n || 0) / t * 100) })); }
+  if (B) { const t = (B.voteYes || 0) + (B.voteNo || 0); if (t) [['GG', B.voteYes], ['NG', B.voteNo]].forEach(([k, n]) => votes.push({ k, n: n || 0, tot: t, pct: Math.round((n || 0) / t * 100) })); }
+  ((od || {}).markets || []).forEach(m => { const nm = String(m.marketName || '').toLowerCase(), cg = String(m.choiceGroup || '');
+    (m.choices || []).forEach(c => { let k = null; const cn = String(c.name || '');
+      if (/^full time$|^1x2$/.test(nm)) k = cn === '1' || cn === 'X' || cn === '2' ? cn : null;
+      else if (/match goals|total goals/.test(nm) && /^\d+(\.5)?$/.test(cg)) k = (/^over/i.test(cn) ? 'O' : /^under/i.test(cn) ? 'U' : '?') + cg;
+      else if (/both teams to score/.test(nm)) k = /^yes/i.test(cn) ? 'GG' : /^no/i.test(cn) ? 'NG' : null;
+      else if (/double chance/.test(nm)) k = cn === '1X' || cn === 'X2' || cn === '12' ? cn : null;
+      const now = frac(c.fractionalValue), op = frac(c.initialFractionalValue); if (k && k.indexOf('?') < 0 && now) q.push({ k, now: Math.round(now * 100) / 100, open: op ? Math.round(op * 100) / 100 : null, bk: 'SofaScore' }); }); });
+  const fm = t => t ? { f: (t.form || []).join(''), pos: t.position, rt: t.avgRating, val: t.value } : null, hd = (h2 || {}).teamDuel;
+  const st = [].concat(((ts || {}).general || []), ((ts || {}).head2head || [])).slice(0, 12).map(x => ({ n: x.name || '', v: x.value, who: x.team === 'home' ? 'h' : x.team === 'away' ? 'a' : 'e' }));
+  const W = wo ? ['home', 'away'].reduce((o, s) => { const x = wo[s]; if (x && x.expected != null) o[s[0]] = { exp: x.expected, act: x.actual, q: frac(x.fractionalValue) }; return o; }, {}) : null;
+  return { home: (e.homeTeam || {}).name, away: (e.awayTeam || {}).name, votes, q, form: pf ? { h: fm(pf.homeTeam), a: fm(pf.awayTeam), lbl: pf.label } : null, streaks: st, h2h: hd ? { hw: hd.homeWins, dr: hd.draws, aw: hd.awayWins } : null, win: W && Object.keys(W).length ? W : null }; };
 if (typeof module !== 'undefined' && module.exports) module.exports = E; else root.PP = E;
 })(typeof window !== 'undefined' ? window : globalThis);
 </script><script>(async function () {
@@ -1528,6 +1547,7 @@ const KIT = { ALT: 'Alternativa proposta', SAFE: 'Pronostico più sicuro', MULTI
   TIPA_OLBG_ESITO: 'Tipster OLBG: esito più votato', TIPA_OLBG_GOL: 'Tipster OLBG: Over/Under più votato', TIPA_OLBG_GG: 'Tipster OLBG: Goal/No Goal più votato', TIPA_OLBG_DC: 'Tipster OLBG: doppia chance più votata', TIPA_OLBG_CONMOD: 'Tipster OLBG d\'accordo con il modello', TIPA_OLBG_CONTROMOD: 'Tipster OLBG contro il modello',
   TIPA_FB_ESITO: 'Forebet: esito previsto', TIPA_FB_GOL: 'Forebet: Over/Under previsto', TIPA_FB_GG: 'Forebet: Goal/No Goal previsto', TIPA_FB_ES: 'Forebet: risultato esatto previsto', TIPA_FB_CONMOD: 'Forebet d\'accordo con il modello', TIPA_FB_CONTROMOD: 'Forebet contro il modello',
   TIPA_WDW_ESITO: 'WinDrawWin: esito', TIPA_WDW_GOL: 'WinDrawWin: Over/Under', TIPA_WDW_GG: 'WinDrawWin: Goal/No Goal', TIPA_WDW_ES: 'WinDrawWin: risultato esatto', TIPA_WDW_CONMOD: 'WinDrawWin d\'accordo con il modello', TIPA_WDW_CONTROMOD: 'WinDrawWin contro il modello', TIPA_OLBG_ES: 'Tipster OLBG: risultato esatto', TIPA_365_ES: 'Utenti 365Scores: risultato esatto',
+  TIPA_SOFA_ESITO: 'Utenti SofaScore: esito più votato', TIPA_SOFA_GG: 'Utenti SofaScore: Goal/No Goal più votato', TIPA_SOFA_CONMOD: 'Utenti SofaScore d\'accordo con il modello', TIPA_SOFA_CONTROMOD: 'Utenti SofaScore contro il modello',
   TIPA_365_ESITO: 'Utenti 365Scores: esito più votato', TIPA_365_GOL: 'Utenti 365Scores: Over/Under più votato', TIPA_365_GG: 'Utenti 365Scores: Goal/No Goal più votato', TIPA_365_DC: 'Utenti 365Scores: doppia chance più votata', TIPA_365_CONMOD: 'Utenti 365Scores d\'accordo con il modello', TIPA_365_CONTROMOD: 'Utenti 365Scores contro il modello',
   TIP_FORTE: 'Tipster: consenso forte', TIP_MEDIO: 'Tipster: consenso medio', TIP_POCHI: 'Tipster: pochi concordi',
   FAV_WIN: 'La favorita vince', FAV_NOLOSE: 'La favorita non perde (1X o X2)', FAV_SEGNA: 'La favorita segna almeno un gol', FAV_2PLUS: 'La favorita segna 2 o più gol', FAV_NIL: 'La favorita vince senza subire gol',
@@ -1766,6 +1786,13 @@ function ragiona(ev, X) { const lam = ev.lam, mk = ev.mk, D = mk.dirp, R = taRow
     li('Forza (Elo, aggiornata dopo ogni partita): ' + Math.round(lam.hr) + ' contro ' + Math.round(lam.ar) + (ev.neutral ? ', campo neutro' : ', con il vantaggio del campo') + ' → favorita ' + esc(fav)) +
     (xg ? li('xG delle ultime partite: ' + esc(ev.home) + ' crea ' + f2(xg.h.f) + ' e concede ' + f2(xg.h.a) + ' (' + xg.h.n + ' gare) · ' + esc(ev.away) + ' crea ' + f2(xg.a.f) + ' e concede ' + f2(xg.a.a) + ' (' + xg.a.n + ' gare)') : li('xG recenti: non ancora abbastanza partite raccolte per entrambe')) +
     (lg ? li('Campionato: ' + f2(lg.avg) + ' gol a partita su ' + lg.n + ' gare misurate dall\'app') : '') +
+    (() => { const sf = ((S.tipA || {})[ev.id] || {}).sf; if (!sf) return li('SofaScore: dati pre-partita non ancora letti per questa partita'); const rv = sf.home && !teamIs(sf.home, ev.home) && teamIs(sf.home, ev.away), FH = sf.form ? (rv ? sf.form.a : sf.form.h) : null, FA = sf.form ? (rv ? sf.form.h : sf.form.a) : null;
+      const fT = (n, F) => F ? esc(n) + ' ' + (F.f ? F.f.replace(/W/g, 'V').replace(/D/g, 'N').replace(/L/g, 'P') : '—') + (F.pos ? ', ' + F.pos + 'ª in classifica' : '') + (F.rt ? ', voto medio ' + F.rt : '') : null; let o = '';
+      if (FH || FA) o += li('Forma (SofaScore, ultime 5, V/N/P): ' + [fT(ev.home, FH), fT(ev.away, FA)].filter(Boolean).join(' · '));
+      if (sf.h2h && (sf.h2h.hw + sf.h2h.dr + sf.h2h.aw)) o += li('Precedenti (SofaScore): ' + esc(rv ? ev.away : ev.home) + ' ' + sf.h2h.hw + ' vittorie, ' + sf.h2h.dr + ' pareggi, ' + esc(rv ? ev.home : ev.away) + ' ' + sf.h2h.aw);
+      if (sf.streaks && sf.streaks.length) o += li('Serie in corso (SofaScore): ' + sf.streaks.slice(0, 6).map(x => (x.who === 'h' ? esc(rv ? ev.away : ev.home) : x.who === 'a' ? esc(rv ? ev.home : ev.away) : 'entrambe') + ' «' + esc(x.n) + '» ' + esc(String(x.v))).join(' · '));
+      if (sf.win) o += li('Quanto spesso vince a quella quota (SofaScore): ' + ['h', 'a'].filter(s => sf.win[s]).map(s => esc((s === 'h') !== rv ? ev.home : ev.away) + ' atteso ' + sf.win[s].exp + '%, reale ' + sf.win[s].act + '%').join(' · '));
+      return o; })() +
     (fmf && fmf.h2h ? li('Precedenti: ' + esc(sw ? ev.away : ev.home) + ' ' + fmf.h2h.hw + ' vittorie, ' + fmf.h2h.dr + ' pareggi, ' + esc(sw ? ev.home : ev.away) + ' ' + fmf.h2h.aw) : ''));
   // 3. esito
   const ES = [['1', mk.home, 'vittoria ' + ev.home], ['X', mk.draw, 'pareggio'], ['2', mk.away, 'vittoria ' + ev.away]].sort((a, b) => b[1] - a[1]), e0 = ES[0];
@@ -1801,11 +1828,11 @@ function ragiona(ev, X) { const lam = ev.lam, mk = ev.mk, D = mk.dirp, R = taRow
   return h; }
 // ================= TIPSTER AUTOMATICI: OLBG (tipster con storico), Forebet (modello statistico), WinDrawWin (esperti, dal 2003), voti 365Scores e quote con movimento =================
 const TA = { busy: 0 };
-const TSRC = { OLBG: 'Tipster OLBG', FB: 'Forebet', WDW: 'WinDrawWin', '365': 'Utenti 365Scores' };
+const TSRC = { OLBG: 'Tipster OLBG', FB: 'Forebet', WDW: 'WinDrawWin', '365': 'Utenti 365Scores', SOFA: 'Utenti SofaScore' };
 const TSITE = [['OLBG', 'OLBG (tipster con storico verificato)', () => P.olbgDay()], ['FB', 'Forebet (statistica, 850+ campionati)', async () => (await P.forebetDay(false)).concat(await P.forebetDay(true).catch(() => []))], ['WDW', 'WinDrawWin (pronostico con fiducia e risultato)', async () => (await P.wdwDay(false)).concat(await P.wdwDay(true).catch(() => []))]];
 const CONF = ['', 'bassa', 'media', 'alta'];
 const taLbl = k => /^TXT:/.test(k) ? esc(k.slice(4)) : TLBL(k);
-const taStrong = r => r.src === 'OLBG' ? r.tot >= 5 && r.pct >= 60 : r.src === '365' ? r.tot >= 40 && r.pct >= 60 : r.src === 'FB' ? r.pct != null && r.pct >= 60 : r.src === 'WDW' ? r.conf >= 3 && !/^ES:/.test(r.k) : false;
+const taStrong = r => r.src === 'OLBG' ? r.tot >= 5 && r.pct >= 60 : (r.src === '365' || r.src === 'SOFA') ? r.tot >= 40 && r.pct >= 60 : r.src === 'FB' ? r.pct != null && r.pct >= 60 : r.src === 'WDW' ? r.conf >= 3 && !/^ES:/.test(r.k) : false;
 const taOrd = r => r.pct != null ? r.pct : r.conf ? 45 + r.conf * 8 : 30;
 function siteFor(code, ev) { const L = ((S.tsrc || {})[code] || {}).list || (code === 'OLBG' && S.olbg ? S.olbg.list : []) || [];
   return L.filter(o => ((teamIs(o.h, ev.home) && teamIs(o.a, ev.away)) || (teamIs(o.h, ev.away) && teamIs(o.a, ev.home))) && (!o.date || Math.abs(new Date(o.date) - new Date(ev.date)) < 40 * 3600e3)); }
@@ -1814,15 +1841,21 @@ function siteRows(code, ev) { if (code === 'OLBG') return olbgFor(ev).map(x => (
 function taRows(ev) { const a = (S.tipA || {})[ev.id] || {}, out = [];
   const add = (src, rs, hh) => (rs || []).forEach(r => { const h = r.h || hh, rev = h && !teamIs(h, ev.home) && teamIs(h, ev.away), k = rev ? flipK(r.k) : r.k;
     let pm = null; try { pm = /^TXT:/.test(k) || !ev.mk ? null : tipP(ev, { h: ev.home, a: ev.away, k }); } catch (e) { } out.push({ src, k, pct: r.pct != null ? r.pct : null, n: r.n, tot: r.tot, conf: r.conf, pm }); });
-  ['OLBG', 'FB', 'WDW'].forEach(c => add(c, (a.s && a.s[c] && a.s[c].length) ? a.s[c] : (c === 'OLBG' && a.o && a.o.length ? a.o : siteRows(c, ev)))); add('365', a.v, a.vh); return out; }
-function taOdds(ev) { const a = (S.tipA || {})[ev.id]; if (!a || !a.q || !a.q.length) return null; const rev = a.vh && !teamIs(a.vh, ev.home) && teamIs(a.vh, ev.away), Q = {}; a.q.forEach(x => { Q[rev ? flipK(x.k) : x.k] = x; }); return Q; }
+  ['OLBG', 'FB', 'WDW'].forEach(c => add(c, (a.s && a.s[c] && a.s[c].length) ? a.s[c] : (c === 'OLBG' && a.o && a.o.length ? a.o : siteRows(c, ev)))); add('365', a.v, a.vh); if (a.sf) add('SOFA', a.sf.votes, a.sf.home); return out; }
+function taOdds(ev) { const a = (S.tipA || {})[ev.id]; if (!a) return null; const Q = {}, put = (L, h) => { const rev = h && !teamIs(h, ev.home) && teamIs(h, ev.away); (L || []).forEach(x => { const k = rev ? flipK(x.k) : x.k; if (!Q[k]) Q[k] = x; }); };
+  put(a.q, a.vh); if (a.sf) put(a.sf.q, a.sf.home); return Object.keys(Q).length ? Q : null; }
+// SofaScore: id della partita e dati pre-partita (se il telefono lo raggiunge)
+async function sofaFor(ev) { S.sofaSt = S.sofaSt || {}; if (S.sofaSt.ok === 0 && Date.now() - S.sofaSt.t < 10 * 60e3) return null;
+  try { const id = ev.sofId || await P.sofaId(ev.home, ev.away, ev.date); if (!id) return null; ev.sofId = id; const r = await P.sofaPre(id); S.sofaSt = { ok: 1, t: Date.now(), n: (S.sofaSt.n || 0) + 1 }; return r; }
+  catch (e) { S.sofaSt = { ok: 0, t: Date.now(), err: String(e && e.message || e).slice(0, 60), n: S.sofaSt.n || 0 }; return null; } }
 async function taSites(force) { S.tsrc = S.tsrc || {}; const now = Date.now();
   for (const [c, , f] of TSITE) { const cur = S.tsrc[c]; if (!force && cur && now - cur.t < (cur.ok ? 30 : 10) * 60e3) continue;
     try { const L = await f(); S.tsrc[c] = { t: Date.now(), list: L, ok: 1 }; } catch (e) { S.tsrc[c] = { t: Date.now(), list: (cur || {}).list || [], ok: 0, err: String(e && e.message || e).slice(0, 60) }; } }
   S.olbg = S.tsrc.OLBG; }
 async function taOne(ev) { const now = Date.now(), s = {}; ['OLBG', 'FB', 'WDW'].forEach(c => { const r = siteRows(c, ev); if (r.length) s[c] = r; });
   try { const d = new Date(ev.date), k = '365_' + ymd(d); if (!cache[k]) cache[k] = await P.fetch365Day(d); const m = P.match365(cache[k], ev);
-    if (!m) { S.tipA[ev.id] = { t: now, v: [], s }; return 0; } const r = await P.votes365(m.id); S.tipA[ev.id] = { t: Date.now(), v: r.rows, vh: r.home, q: r.q, s }; return 1; } catch (e) { S.tipA[ev.id] = { t: now, v: [], s, err: 1 }; return 0; } }
+    const sfP = sofaFor(ev); let r = null; if (m) { try { r = await P.votes365(m.id); } catch (e) { } } const sf = await sfP;
+    S.tipA[ev.id] = { t: Date.now(), v: r ? r.rows : [], vh: r ? r.home : null, q: r ? r.q : [], s, sf: sf || ((S.tipA[ev.id] || {}).sf) || null }; return r || sf ? 1 : 0; } catch (e) { S.tipA[ev.id] = { t: now, v: [], s, err: 1 }; return 0; } }
 async function taStep(max, list) { if (TA.busy) return 0; TA.busy = 1; let n = 0; S.tipA = S.tipA || {};
   try { const now = Date.now(); await taSites();
     const L = (list || events || []).filter(e => !e.done && new Date(e.date) - now < 48 * 3600e3 && new Date(e.date) - now > -3 * 3600e3 && (!S.tipA[e.id] || now - S.tipA[e.id].t > (new Date(e.date) - now < 3 * 3600e3 ? 20 : 90) * 60e3)).sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -1834,12 +1867,12 @@ const taFam = k => /^[12X]$/.test(k) ? 'ESITO' : /^[OU]/.test(k) ? 'GOL' : /^(GG
 // addestramento: dopo la partita la giocata principale di ogni fonte per tipo di mercato viene verificata
 function taGrade() { if (!S.tipA) return; let ch = 0;
   (events || []).forEach(ev => { const a = S.tipA[ev.id]; if (!a || a.g || !ev.done) return; a.g = 1; ch = 1; const R = taRows(ev).filter(r => !/^TXT:/.test(r.k));
-    ['OLBG', 'FB', 'WDW', '365'].forEach(src => { const G = {}; R.filter(r => r.src === src && (src === 'OLBG' ? r.tot >= 3 : src === '365' ? r.tot >= 15 : true)).forEach(r => { const f = taFam(r.k); if (f && (!G[f] || taOrd(r) > taOrd(G[f]))) G[f] = r; });
+    ['OLBG', 'FB', 'WDW', '365', 'SOFA'].forEach(src => { const G = {}; R.filter(r => r.src === src && (src === 'OLBG' ? r.tot >= 3 : (src === '365' || src === 'SOFA') ? r.tot >= 15 : true)).forEach(r => { const f = taFam(r.k); if (f && (!G[f] || taOrd(r) > taOrd(G[f]))) G[f] = r; });
       Object.keys(G).forEach(f => { const r = G[f], hit = tipRes(r.k, ev.hs, ev.as); if (hit == null) return; const p = Math.min(0.97, Math.max(0.03, (r.pct != null ? r.pct : f === 'ES' ? 12 : 45 + (r.conf || 1) * 8) / 100));
         P.record(S, 'TIPA_' + src + '_' + f, p, hit); if (r.pm != null && f !== 'ES') P.record(S, 'TIPA_' + src + (r.pm >= 0.5 ? '_CONMOD' : '_CONTROMOD'), p, hit); }); }); });
   if (ch) save(); }
 function srcAcc(src, k) { const tr = S.tracker['TIPA_' + src + '_' + taFam(k)]; return tr && tr.n >= 10 ? Math.round(tr.hits / tr.n * 100) + '% su ' + tr.n + ' verificati' : null; }
-function taVal(r) { return r.src === 'OLBG' ? r.pct + '% (' + r.n + ' su ' + r.tot + ' tipster)' : r.src === '365' ? r.pct + '% (' + r.n + ' voti su ' + r.tot + ')' : r.src === 'FB' ? (r.pct != null ? r.pct + '% di probabilità' : 'risultato previsto') : 'fiducia ' + CONF[r.conf || 1]; }
+function taVal(r) { return r.src === 'OLBG' ? r.pct + '% (' + r.n + ' su ' + r.tot + ' tipster)' : (r.src === '365' || r.src === 'SOFA') ? r.pct + '% (' + r.n + ' voti su ' + r.tot + ')' : r.src === 'FB' ? (r.pct != null ? r.pct + '% di probabilità' : 'risultato previsto') : 'fiducia ' + CONF[r.conf || 1]; }
 function taRowHtml(r) { const acc = srcAcc(r.src, r.k);
   const cmp = r.pm == null ? '' : (r.pct != null && r.pct < 50) ? '<span class="sm">scelta di minoranza · modello ' + fp(r.pm) + '</span>' : r.pm >= 0.5 || (/^ES:/.test(r.k) && r.pm >= 0.08) ? '<span class="ok">d\'accordo con il modello (' + fp(r.pm) + ')</span>' : '<span class="warn">contro il modello (' + fp(r.pm) + '): da ricontrollare</span>';
   return irow(null, (taStrong(r) ? chip('consenso forte', 'g') + ' ' : '') + taLbl(r.k), TSRC[r.src] + ': <b>' + taVal(r) + '</b>' + (acc ? ' · fonte verificata ' + acc : ''), r.pct != null ? r.pct + '%' : (r.conf ? CONF[r.conf] : ''), cmp); }
@@ -1847,7 +1880,7 @@ function taRowHtml(r) { const acc = srcAcc(r.src, r.k);
 function taAgree(ev) { const R = taRows(ev).filter(r => !/^TXT:/.test(r.k)), top = {}; R.forEach(r => { const f = taFam(r.k); if (!f) return; const id = r.src + f; if (!top[id] || taOrd(r) > taOrd(top[id])) top[id] = r; });
   const G = {}; Object.values(top).forEach(r => { if (r.pct != null && r.pct < 50 && r.src !== 'FB') return; (G[r.k] = G[r.k] || { k: r.k, rs: [], pm: r.pm }).rs.push(r); }); return Object.values(G).sort((a, b) => b.rs.length - a.rs.length || (b.pm || 0) - (a.pm || 0)); }
 function taSection(day) { const L = (events || []).filter(e => ymd(new Date(e.date)) === day).map(ev => { try { prepEv(ev); } catch (e) { } const R = taRows(ev).sort((a, b) => taStrong(b) - taStrong(a) || taOrd(b) - taOrd(a)), A = taAgree(ev); return { ev, R, A, best: (A[0] ? A[0].rs.length * 30 : 0) + (R.length ? Math.max(...R.map(r => taOrd(r) * (taStrong(r) ? 1.2 : 1))) : 0) }; }).filter(x => x.R.length).sort((a, b) => b.best - a.best);
-  const st = TSITE.map(([c, nm]) => { const x = (S.tsrc || {})[c]; return '<div class="sm">• ' + nm + ': ' + (!x ? 'in attesa del primo controllo' : x.ok ? x.list.length + ' partite lette alle ' + new Date(x.t).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '<span class="warn">non raggiungibile ora (' + esc(x.err || '') + '), riprovo da solo</span>') + '</div>'; }).join('') + '<div class="sm">• 365Scores (voti degli utenti e quote con movimento): ' + Object.keys(S.tipA || {}).length + ' partite.</div>';
+  const st = TSITE.map(([c, nm]) => { const x = (S.tsrc || {})[c]; return '<div class="sm">• ' + nm + ': ' + (!x ? 'in attesa del primo controllo' : x.ok ? x.list.length + ' partite lette alle ' + new Date(x.t).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '<span class="warn">non raggiungibile ora (' + esc(x.err || '') + '), riprovo da solo</span>') + '</div>'; }).join('') + '<div class="sm">• 365Scores (voti degli utenti e quote con movimento): ' + Object.keys(S.tipA || {}).length + ' partite.</div><div class="sm">• SofaScore (voti dei tifosi, quote, forma, serie, precedenti): ' + (!S.sofaSt ? 'in attesa del primo controllo' : S.sofaSt.ok ? 'raggiungibile, ' + Object.values(S.tipA || {}).filter(x => x.sf).length + ' partite lette' : '<span class="warn">non raggiungibile ora (' + esc(S.sofaSt.err || '') + '), riprovo ogni 10 minuti</span>') + '</div>';
   let h = '<h3 class="mt">Percentuali dei tipster su tutte le partite</h3><div class="card"><div class="sm">Aggiornate da sole ogni 5 minuti (ogni 20 minuti nelle ultime 3 ore prima del calcio d\'inizio). I tipster danno un\'indicazione: il ragionamento lo fa l\'app, con i dati, e lo trovi aprendo la partita, sezione Ragionamento.</div>' + st + '</div>';
   if (!L.length) return h + '<p class="empty">' + (TA.busy ? 'Sto raccogliendo le percentuali…' : 'Ancora nessuna percentuale per questa data: arrivano da sole appena le fonti le pubblicano.') + '</p>';
   const N = TA.show || 30; L.slice(0, N).forEach(x => { const ev = x.ev, d = new Date(ev.date), A = x.A.filter(g => g.rs.length >= 2);
