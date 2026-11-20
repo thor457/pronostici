@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795192140;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795192711;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -1011,6 +1011,8 @@ E.ytTranscript = async function (id) { const html = await E.fetchText('https://w
 E.tgUpdates = async function (token, offset) { const j = await E.fetchJson('https://api.telegram.org/bot' + token + '/getUpdates?timeout=0&limit=100' + (offset ? '&offset=' + offset : ''), 15000);
   if (!j || !j.ok) throw new Error((j && j.description) || 'Telegram: risposta non valida'); return (j.result || []).map(u => { const m = u.message || u.channel_post || u.edited_message || u.edited_channel_post || {}; const fo = m.forward_origin || {};
     return { uid: u.update_id, date: (m.forward_date || m.date || 0) * 1000, got: (m.date || 0) * 1000, text: m.text || m.caption || '', from: (fo.chat && fo.chat.title) || (m.forward_from_chat && m.forward_from_chat.title) || (fo.sender_user_name) || (m.chat && m.chat.title) || ((m.from || {}).first_name) || '' }; }); };
+// argomenti che i tipster portano a sostegno (dati citati)
+const ARGC = [['Assenze e formazioni', /infortun|squalific|assent|assenza|indisponib|non convocat|out per|rientra|recuper|in dubbio|formazione|titolare|panchina|turnover/], ['Arbitro e cartellini', /arbitr|cartellin|ammonit|espuls|giall|falli|fallos/], ['Motivazioni e contesto', /motivaz|classifica|salvezza|scudetto|champions|europa|derby|panchina a rischio|allenatore|esonero|pressione|stanchezz|coppa|turno infrasettimanale|trasferta lunga/], ['Numeri e forma', /ultim[ei] \d|ultime (due|tre|quattro|cinque|sei|sette|otto|dieci)|media|percentual|su \d+ partite|in casa|fuori casa|in trasferta|vittori|sconfitt|pareggi|gol fatti|gol subiti|clean sheet|porta inviolata|xg|expected|tiri|corner|serie (positiva|negativa|utile)|striscia|precedenti|scontri diretti/]];
 const NUMW = { zero: 0, uno: 1, una: 1, due: 2, tre: 3, quattro: 4, cinque: 5 };
 const tmm = t => Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2);
 // cosa dicono i tipster nel video su ogni partita: esito, gol, Goal/No Goal, esatto, ammoniti e marcatori, con il minuto e la frase
@@ -1018,11 +1020,12 @@ E.ytPicks = function (segs, evs, pools) { const out = {}; if (!segs || !segs.len
   const low = x => String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const tok = n => { const k = String(n || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\b(as|ac|fc|ssc|us|sc|ss|afc|calcio|club|cf|hellas|united|city)\b/g, ' ').replace(/[^a-z ]/g, ' ').trim().split(/\s+/).filter(w => w.length >= 4); return k.length ? k[k.length - 1] === 'milan' || k[0] === 'inter' ? k : k : []; };
   const ET = evs.map(ev => [tok(ev.home), tok(ev.away)]), hasT = (x, T) => T.some(w => new RegExp('\\b' + w + '\\b').test(x)), SL = segs.map(s => low(s.x)), SM = SL.map(x => ET.map((p, i) => (p[0].length && hasT(x, p[0])) || (p[1].length && hasT(x, p[1])) ? i : -1).filter(i => i >= 0));
-  const W = []; for (let i = 0; i < segs.length; i++) { const t = segs[i].t, own = new Set(SM[i]); let x = SL[i]; for (let j = i + 1; j < segs.length && segs[j].t - t < 25; j++) { if (SM[j].some(e => !own.has(e))) break; x += ' ' + SL[j]; } W.push({ t, x }); }
-  evs.forEach(ev => { const TH = tok(ev.home), TA = tok(ev.away); if (!TH.length || !TA.length) return; const has = hasT; const P = [];
+  const CUR = []; { let last = -1; for (let i = 0; i < segs.length; i++) { if (SM[i].length) last = i; CUR.push(last >= 0 && segs[i].t - segs[last].t < 150 ? SM[last] : []); } }
+  const W = []; for (let i = 0; i < segs.length; i++) { const t = segs[i].t, own = new Set(SM[i]); let x = SL[i]; for (let j = i + 1; j < segs.length && segs[j].t - t < 25; j++) { if (SM[j].some(e => !own.has(e))) break; x += ' ' + SL[j]; } W.push({ t, x, i }); }
+  evs.forEach((ev, ei) => { const TH = tok(ev.home), TA = tok(ev.away); if (!TH.length || !TA.length) return; const has = hasT; const P = [];
     const pl = side => ((pools && pools[side === 'h' ? ev.home : ev.away]) || []).map(n => ({ n, s: String(n).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(' ').pop() })).filter(p => p.s.length >= 4);
     const PH = pl('h'), PA = pl('a');
-    W.forEach(w => { const x = w.x, h = has(x, TH), a = has(x, TA); if (!h && !a) return; const both = h && a; const add = (k, why) => P.push({ k, t: w.t, q: x.slice(0, 160).trim(), why });
+    const A = []; W.forEach(w => { const x = w.x, ctx = CUR[w.i].length === 1 && CUR[w.i][0] === ei, h = has(x, TH), a = has(x, TA); if (!h && !a && !ctx) return; const both = (h && a) || (ctx && !SM[w.i].some(e => e !== ei)); { const s0 = SL[w.i]; const cat = ARGC.find(c => c[1].test(s0)); if (cat && (/\d|ultim|sempre|mai|tutte/.test(s0) || cat[0] !== 'Numeri e forma')) A.push({ t: w.t, m: tmm(w.t), cat: cat[0], q: s0.slice(0, 220).trim() }); } const add = (k, why) => P.push({ k, t: w.t, q: x.slice(0, 160).trim(), why });
       if (/pareggio|segno (x|ics)\b|\bx secco|finisce pari/.test(x) && both) add('X');
       if (/\b(1|uno) ?(x|ics)\b|doppia chance (casa|1)/.test(x) && both) add('1X'); if (/\b(x|ics) ?(2|due)\b/.test(x) && both) add('X2');
       const win = /(vince|vincera|vittoria|batte|fisso|secco|portera a casa i tre punti)/; if (win.test(x)) { const re = new RegExp('(' + TH.join('|') + ')[^.]{0,40}' + win.source + '|' + win.source + '[^.]{0,25}(' + TH.join('|') + ')'), ra = new RegExp('(' + TA.join('|') + ')[^.]{0,40}' + win.source + '|' + win.source + '[^.]{0,25}(' + TA.join('|') + ')'); const ih = re.test(x), ia = ra.test(x); if (ih && !ia) add('1'); else if (ia && !ih) add('2'); }
@@ -1030,11 +1033,11 @@ E.ytPicks = function (segs, evs, pools) { const out = {}; if (!segs || !segs.len
       if ((m = /\b(over|under)\s*(?:a\s*)?(uno|due|tre|quattro|\d(?:[.,]5)?)(?:\s*e\s*mezzo)?/.exec(x))) add((m[1] === 'over' ? 'O' : 'U') + ln(m[2]));
       if (/\bno ?go(a)?l\b|\bnogol\b|non segna (nessuna|una delle due)/.test(x)) add('NG'); else if (/\bgo(a)?l ?go(a)?l\b|\bgoal\b(?! di)|entrambe (a )?segn|\bgg\b|\bbtts\b/.test(x) && both) add('GG');
       if ((m = /(?:risultato esatto|esatto|finisce|finira|chiude)\D{0,12}\b(\d|zero|uno|due|tre|quattro)\s*(?:a|-)\s*(\d|zero|uno|due|tre|quattro)\b/.exec(x))) { const g = v => /\d/.test(v) ? +v : NUMW[v]; add('ES:' + g(m[1]) + '-' + g(m[2])); }
-      if (/ammonit|cartellin|giallo|ammonizion/.test(x)) PH.concat(PA).forEach(p => { if (new RegExp('\\b' + p.s + '\\b').test(x)) add('PL:card:' + p.n); });
-      if (/marcator|segna|in gol|gol di|a segno|rete di|anytime/.test(x)) PH.concat(PA).forEach(p => { if (new RegExp('\\b' + p.s + '\\b').test(x) && !/ammonit|cartellin|giallo/.test(x)) add('PL:gol:' + p.n); });
+      { const s1 = SL[w.i] + ' ' + (SL[w.i + 1] && segs[w.i + 1].t - segs[w.i].t < 8 ? SL[w.i + 1] : ''); if (/ammonit|cartellin|giallo|ammonizion/.test(s1)) PH.concat(PA).forEach(p => { const m2 = new RegExp('\\b' + p.s + '\\b').exec(s1); if (m2 && !/infortun|squalific|manca|assent|out\b|rientra/.test(s1.slice(Math.max(0, m2.index - 25), m2.index + 30))) add('PL:card:' + p.n); });
+      if (/marcator|segna|in gol|gol di|a segno|rete di|anytime/.test(s1)) PH.concat(PA).forEach(p => { const m2 = new RegExp('\\b' + p.s + '\\b').exec(s1); if (m2 && !/ammonit|cartellin|giallo|infortun|squalific|manca|assent|rientra/.test(s1)) add('PL:gol:' + p.n); }); }
     });
-    if (!P.length) return; const G = {}; P.forEach(p => { const g = G[p.k] = G[p.k] || { k: p.k, n: 0, at: [] }; if (!g.at.length || p.t - g.at[g.at.length - 1].t > 40) { g.n++; g.at.push({ t: p.t, m: tmm(p.t), q: p.q }); } });
-    out[ev.id] = { h: ev.home, a: ev.away, date: ev.date, picks: Object.values(G).sort((a, b) => b.n - a.n) }; });
+    if (!P.length && !A.length) return; const G = {}; P.forEach(p => { const g = G[p.k] = G[p.k] || { k: p.k, n: 0, at: [] }; if (!g.at.length || p.t - g.at[g.at.length - 1].t > 40) { g.n++; g.at.push({ t: p.t, m: tmm(p.t), q: p.q }); } });
+    const AR = [], aq = {}; A.forEach(r => { if (aq[r.q]) return; aq[r.q] = 1; AR.push(r); }); out[ev.id] = { h: ev.home, a: ev.away, date: ev.date, picks: Object.values(G).sort((a, b) => b.n - a.n), args: AR.slice(0, 20) }; });
   return out; };
 if (typeof module !== 'undefined' && module.exports) module.exports = E; else root.PP = E;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1867,6 +1870,13 @@ async function leagueStep(maxM) { if (LGB.busy) return 0; LGB.busy = 1; S.lgTab 
         n++; TL.msg = L.name + ': ' + (L.fin.length - todo.length + n) + '/' + L.fin.length + ' partite della stagione analizzate'; await zz(150); }
       if (n >= (maxM || 10)) break; }
     if (n) { P.pidxClear && P.pidxClear(); save(); } } finally { LGB.busy = 0; } return n; }
+// ================= PRONOSTICO FINALE: dati dell'app + tipster (pesati per quanto ci prendono davvero) =================
+const SW = { OLBG: 0.06, FB: 0.05, WDW: 0.05, '365': 0.02, SOFA: 0.02, VID: 0.07, WEB: 0.07, TG: 0.05 };
+function finalP(ev, k, pm) { if (pm == null) return null; const R = taRows(ev).filter(r => !/^TXT:|^ES:/.test(r.k)), fam = taFam(k); let lo = Math.log(pm / (1 - pm)), sh = 0; const why = [];
+  const seen = {}; R.forEach(r => { const ag = r.k === k && (r.pct == null || r.pct >= 50), co = contra(k, r.k) && (r.pct == null || r.pct >= 55); if (!ag && !co) return; const id = r.src + (ag ? '+' : '-'); if (seen[id]) return; seen[id] = 1;
+    let w = SW[r.src] || 0.04; const tr = S.tracker['TIPA_' + r.src + '_' + fam]; let note = ''; if (tr && tr.n >= 20) { const f = Math.max(0.3, Math.min(2, 1 + 3 * (tr.hits / tr.n - tr.sumP / tr.n))); w *= f; note = ' (ci prende il ' + Math.round(tr.hits / tr.n * 100) + '% su ' + tr.n + ')'; }
+    if (r.conf >= 3 || (r.pct != null && r.pct >= 70)) w *= 1.3; const d = (ag ? 1 : -1) * w * 2.5; sh += d; why.push((ag ? '+ ' : '− ') + TSRC[r.src] + note); });
+  sh = Math.max(-0.45, Math.min(0.45, sh)); const p = 1 / (1 + Math.exp(-(lo + sh))); return { p, pm, why, sh }; }
 // ================= SELEZIONE PRO: passa solo la giocata che supera tutti i filtri =================
 // due giocate si contraddicono davvero (Over 2,5 non contraddice Over 1,5 ne' Under 3,5)
 function contra(a, b) { const ln = k => +k.slice(1); if (/^[OU]\d/.test(a) && /^[OU]\d/.test(b)) { if (a[0] === b[0]) return false; const o = a[0] === 'O' ? a : b, u = a[0] === 'O' ? b : a; return ln(o) >= ln(u); }
@@ -1945,7 +1955,7 @@ function ragiona(ev, X) { const lam = ev.lam, mk = ev.mk, D = mk.dirp, R = taRow
       if (sf.win) o += li('Quanto spesso vince a quella quota (SofaScore): ' + ['h', 'a'].filter(s => sf.win[s]).map(s => esc((s === 'h') !== rv ? ev.home : ev.away) + ' atteso ' + sf.win[s].exp + '%, reale ' + sf.win[s].act + '%').join(' · '));
       return o; })() +
     (fmf && fmf.h2h ? li('Precedenti: ' + esc(sw ? ev.away : ev.home) + ' ' + fmf.h2h.hw + ' vittorie, ' + fmf.h2h.dr + ' pareggi, ' + esc(sw ? ev.home : ev.away) + ' ' + fmf.h2h.aw) : ''));
-  try { h += extHtml(ev); } catch (e) { }
+  try { h += extHtml(ev, X); } catch (e) { }
   // 3. esito
   const ES = [['1', mk.home, 'vittoria ' + ev.home], ['X', mk.draw, 'pareggio'], ['2', mk.away, 'vittoria ' + ev.away]].sort((a, b) => b[1] - a[1]), e0 = ES[0];
   h += blk('3 · Esito (1X2)', li('Dati: 1 ' + fp(mk.home) + ' · X ' + fp(mk.draw) + ' · 2 ' + fp(mk.away) + '; ' + tr('FAV_WIN')) + li('Tipster: ' + tipTxt(['1', 'X', '2'])) + (mkt(e0[0]) ? li('Mercato: ' + esc(taLbl(e0[0])) + ' ' + mkt(e0[0]).txt) : '') +
@@ -1974,9 +1984,10 @@ function ragiona(ev, X) { const lam = ev.lam, mk = ev.mk, D = mk.dirp, R = taRow
   const top2 = s => (SC && SC[s] || []).slice(0, 2).map(r => esc(r.name) + ' ' + fp(r.pc)).join(', ') || '—';
   h += blk('8 · Marcatori', li(esc(ev.home) + ': ' + top2('home')) + li(esc(ev.away) + ': ' + top2('away')) + li('Contano tiri, xG personali e minuti delle ultime partite, scalati sui gol attesi di stasera; verifica rigorista e formazione ufficiale prima di giocarli.'));
   // 9. sintesi
-  const cand = [['1', mk.home], ['X', mk.draw], ['2', mk.away], ['1X', mk['1X']], ['X2', mk['X2']], ['O2.5', mk['over2.5']], ['U2.5', mk['under2.5']], ['O1.5', mk['over1.5']], ['U3.5', mk['under3.5']], ['GG', mk.btts], ['NG', mk.nobtts]].filter(x => x[1] != null)
-    .map(([k, p]) => ({ k, p, n: tipOf([k]).filter(r => r.pct == null ? r.conf >= 2 : r.pct >= 50).length })).filter(x => x.p >= 0.55).sort((a, b) => (b.n > 0) - (a.n > 0) || b.p - a.p).slice(0, 4);
-  h += blk('9 · In sintesi', cand.length ? cand.map(x => li('<b>' + taLbl(x.k) + '</b> ' + fp(x.p) + (x.n ? ' · confermata da ' + x.n + ' fonte/i' : ' · solo dai dati'))).join('') + '<div class="sm">Prima la giocata confermata da dati e fonti; le doppie chance servono solo come copertura nelle multiple.</div>' : li('nessuna giocata oltre il 55%: partita da evitare o da giocare solo con l\'esatto e la sua direzione'));
+  let cand = [['1', mk.home], ['X', mk.draw], ['2', mk.away], ['1X', mk['1X']], ['X2', mk['X2']], ['O2.5', mk['over2.5']], ['U2.5', mk['under2.5']], ['O1.5', mk['over1.5']], ['U3.5', mk['under3.5']], ['GG', mk.btts], ['NG', mk.nobtts]].filter(x => x[1] != null)
+    .map(([k, p]) => ({ k, p, n: tipOf([k]).filter(r => r.pct == null ? r.conf >= 2 : r.pct >= 50).length })).filter(x => x.p >= 0.45);
+  cand.forEach(x => { x.f = finalP(ev, x.k, x.p); }); cand.sort((a, b) => (b.f ? b.f.p : b.p) - (a.f ? a.f.p : a.p)); cand = cand.filter(x => (x.f ? x.f.p : x.p) >= 0.55).slice(0, 5);
+  h += blk('9 · Pronostico finale (dati + tipster)', cand.length ? cand.map(x => li('<b>' + taLbl(x.k) + ' ' + fp(x.f ? x.f.p : x.p) + '</b> · dati dell\'app ' + fp(x.p) + (x.f && x.f.why.length ? ' → ' + (x.f.sh >= 0 ? 'rafforzato' : 'indebolito') + ' da: ' + esc(x.f.why.join(', ')) : ' · nessun tipster su questo mercato'))).join('') + '<div class="sm">Ogni tipster sposta la probabilità poco e solo in proporzione a quanto ci prende nei controlli dell\'app; mai più di circa ±10 punti in tutto.</div>' + '<div class="sm">Prima la giocata confermata da dati e fonti; le doppie chance servono solo come copertura nelle multiple.</div>' : li('nessuna giocata oltre il 55%: partita da evitare o da giocare solo con l\'esatto e la sua direzione'));
   return h; }
 // ================= TIPSTER IN VIDEO (YouTube) E TELEGRAM: letti da soli ogni volta che pubblicano =================
 const YT = { busy: 0 };
@@ -1997,7 +2008,7 @@ async function ytStep(force) { if (YT.busy) return 0; YT.busy = 1; const Y = ytS
   try { const ids = []; for (const l of Y.links) { try { (await P.ytIds(l)).forEach(i => ids.indexOf(i) < 0 && ids.push(i)); } catch (e) { } }
     for (const c of Y.ch) { try { (await P.ytIds(c)).slice(0, 4).forEach(i => ids.indexOf(i) < 0 && ids.push(i)); } catch (e) { Y.err = 'canale ' + c + ' non raggiungibile'; } }
     let L = null, pools = null;
-    for (const id of ids) { const v = Y.v[id]; const wait = !v ? 0 : v.ok ? (Date.now() - v.t < 6 * 3600e3 || (v.date && Date.now() - new Date(v.date) > 6 * 864e5) ? Infinity : 0) : (v.tries || 0) > 30 ? Infinity : 90 * 60e3;
+    for (const id of ids) { const v = Y.v[id]; const wait = !v ? 0 : v.ok ? (Date.now() - v.t < 6 * 3600e3 || (v.date && Date.now() - new Date(v.date) > 6 * 864e5) ? Infinity : 0) : (v.tries || 0) > 60 ? Infinity : (v.date && Date.now() - new Date(v.date) < 2 * 864e5 ? 30 : 90) * 60e3;
       if (!force && v && Date.now() - v.t < wait) continue; if (force && v && v.ok && Date.now() - v.t < 30 * 60e3) continue;
       try { const r = await P.ytTranscript(id); if (r.handle && Y.ch.indexOf(r.handle) < 0) Y.ch.push(r.handle);
         const base = { t: Date.now(), title: r.title, date: r.date, ch: r.ch, live: r.now, tries: ((v || {}).tries || 0) + 1 };
@@ -2021,7 +2032,14 @@ function extFor(ev) { const out = []; const take = (src, m, label, when) => { if
   const Y = S.yt; if (Y && Y.v) Object.keys(Y.v).forEach(id => { const v = Y.v[id]; if (v.ok && v.m) take('VID', v.m, v.title || id, v.date); });
   if (S.tg && S.tg.m) take('TG', S.tg.m, 'Telegram', null); if (Y && Y.w) Object.keys(Y.w).forEach(u => { const w = Y.w[u]; if (w.ok && w.m) take('WEB', w.m, w.title || u, w.date); }); return out; }
 function extRows(ev, src) { const G = {}; extFor(ev).filter(p => p.src === src && !/^PL:/.test(p.k)).forEach(p => { const g = G[p.k] = G[p.k] || { k: p.k, n: 0 }; g.n += p.n; }); return Object.values(G).map(g => ({ k: g.k, conf: g.n >= 2 ? 3 : 2, n: g.n })); }
-function extHtml(ev) { const E2 = extFor(ev); if (!E2.length) return '';
+function extArgs(ev) { const out = []; const take = (src, m, label) => (m || []).forEach(x => { if (!((sameT(x.h, ev.home) && sameT(x.a, ev.away)) || (sameT(x.h, ev.away) && sameT(x.a, ev.home)))) return; if (x.date && Math.abs(new Date(x.date) - new Date(ev.date)) > 30 * 3600e3) return; (x.args || []).forEach(a => out.push({ ...a, src, label })); });
+  const Y = S.yt; if (Y && Y.v) Object.keys(Y.v).forEach(id => Y.v[id].ok && take('VID', Y.v[id].m, Y.v[id].title || id)); if (Y && Y.w) Object.keys(Y.w).forEach(u => Y.w[u].ok && take('WEB', Y.w[u].m, Y.w[u].title || u)); if (S.tg && S.tg.m) take('TG', S.tg.m, 'Telegram'); return out; }
+function argsHtml(ev, X) { const A = extArgs(ev); if (!A.length) return ''; const fmf = X && X.fmf, out0 = fmf ? [].concat((fmf.lh || {}).out || [], (fmf.la || {}).out || []) : [], pool = [].concat(P.teamPool(S, ev.home), P.teamPool(S, ev.away)).map(r => r.name);
+  const chk = a => { if (a.cat !== 'Assenze e formazioni') return ''; const q = a.q; const hit = pool.filter(n => { const sn = n.split(' ').pop().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); return sn.length >= 4 && new RegExp('\\b' + sn + '\\b').test(q); }).slice(0, 3);
+    if (!hit.length) return ''; return hit.map(n => { const o = out0.find(x => sameT(x.name, n) || x.name.split(' ').pop() === n.split(' ').pop()); const back = /rientr|recuper|torna/.test(q); return esc(n) + ': ' + (o ? (back ? '<span class="warn">FotMob lo dà ancora fuori (' + esc(o.why) + '): da verificare</span>' : '<span class="ok">confermato da FotMob (' + esc(o.why) + ')</span>') : (back ? '<span class="ok">FotMob non lo segna tra gli assenti</span>' : '<span class="warn">FotMob non lo segna assente: notizia da verificare</span>')); }).join(' · '); };
+  const C = {}, dq = {}; A.forEach(a => { if (dq[a.q]) return; dq[a.q] = 1; (C[a.cat] = C[a.cat] || []).push(a); });
+  return '<div class="sm mt"><b>Il loro ragionamento (dati che citano), confrontato con quelli dell\'app:</b></div>' + Object.keys(C).map(c => '<div class="sm"><b>' + esc(c) + '</b></div>' + C[c].slice(0, 5).map(a => { const v = chk(a); return '<div class="sm">• ' + (a.src === 'VID' ? '🎥 min ' + esc(a.m) : a.src === 'WEB' ? '🌐' : '✈️') + ': «' + esc(a.q.slice(0, 180)) + '»' + (v ? '<div class="sm">→ ' + v + '</div>' : '') + '</div>'; }).join('')).join(''); }
+function extHtml(ev, X) { const E2 = extFor(ev); const AH = (() => { try { return argsHtml(ev, X); } catch (e) { return ''; } })(); if (!E2.length && !AH) return '';
   const li = t => '<div class="sm">• ' + t + '</div>', cards = (AN[ev.id] || {}).cards, sc = (AN[ev.id] || {}).sc;
   const judge = p => { if (/^PL:card:/.test(p.k)) { const nm = p.k.slice(8), it = cards && cards.items.find(c => sameT(c.name, nm) || c.name.split(' ').pop() === nm.split(' ').pop()); return it ? '<span class="ok">anche l\'app lo mette tra i candidati (' + it.p.toFixed(0) + '%)</span>' : '<span class="warn">l\'app non lo mette tra i primi: controlla falli, ruolo e duello prima di seguirli</span>'; }
     if (/^PL:gol:/.test(p.k)) { const nm = p.k.slice(7), L = sc ? (sc.home || []).concat(sc.away || []) : [], it = L.find(r => sameT(r.name, nm) || r.name.split(' ').pop() === nm.split(' ').pop()); return it ? 'per l\'app segna con il ' + fp(it.pc) : '<span class="warn">non è tra i marcatori più probabili per l\'app</span>'; }
@@ -2029,7 +2047,7 @@ function extHtml(ev) { const E2 = extFor(ev); if (!E2.length) return '';
     return pm == null ? '' : pm >= 0.55 ? '<span class="ok">l\'app è d\'accordo (' + fp(pm) + ')</span>' : pm >= 0.45 ? 'per l\'app è in bilico (' + fp(pm) + ')' : '<span class="warn">l\'app non è d\'accordo (' + fp(pm) + '): serve un motivo che i dati non vedono</span>'; };
   const lab = k => /^PL:card:/.test(k) ? 'Ammonito: ' + esc(k.slice(8)) : /^PL:gol:/.test(k) ? 'Marcatore: ' + esc(k.slice(7)) : taLbl(k);
   return '<div class="card"><div class="k">Cosa dicono i tipster in video e su Telegram</div><div class="sm">Le loro scelte sono un\'indicazione: l\'app le confronta con i suoi dati e dice dove è d\'accordo e dove no.</div>' +
-    E2.sort((a, b) => b.n - a.n).slice(0, 14).map(p => li('<b>' + lab(p.k) + '</b> · ' + (p.src === 'VID' ? '🎥 ' + esc(p.label) : p.src === 'WEB' ? '🌐 ' + esc(p.label) : '✈️ Telegram') + (p.n > 1 ? ' (ripetuto ' + p.n + ' volte)' : '') + ' · ' + judge(p) + p.at.slice(0, 2).map(a => '<div class="sm mut">' + (p.src === 'VID' ? 'min ' : '') + esc(a.m) + ': «' + esc(a.q.slice(0, 140)) + '»</div>').join(''))).join('') + '</div>'; }
+    (AH || '') + E2.sort((a, b) => b.n - a.n).slice(0, 14).map(p => li('<b>' + lab(p.k) + '</b> · ' + (p.src === 'VID' ? '🎥 ' + esc(p.label) : p.src === 'WEB' ? '🌐 ' + esc(p.label) : '✈️ Telegram') + (p.n > 1 ? ' (ripetuto ' + p.n + ' volte)' : '') + ' · ' + judge(p) + p.at.slice(0, 2).map(a => '<div class="sm mut">' + (p.src === 'VID' ? 'min ' : '') + esc(a.m) + ': «' + esc(a.q.slice(0, 140)) + '»</div>').join(''))).join('') + '</div>'; }
 function extSection() { const Y = ytState(), G = S.tg || {}; const V = Object.keys(Y.v).map(id => ({ id, ...Y.v[id] })).sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 8);
   return '<h3 class="mt">Tipster in video e Telegram</h3><div class="card"><div class="sm">L\'app controlla da sola i canali ogni 2 ore: appena esce un video o finisce una diretta legge i sottotitoli minuto per minuto e collega ogni scelta alla partita. Canali seguiti: <b>' + Y.ch.map(esc).join(', ') + '</b></div>' +
     '<div class="rowb"><input class="inp" id="ytl" placeholder="Link di un video, di un canale YouTube o di una pagina web"><button class="btn" id="ytadd">Aggiungi</button><button class="btn" id="ytgo">Controlla ora</button></div>' +
@@ -2480,7 +2498,7 @@ async function trainLoop() {
     try {
       if (document.hidden || training) { await zz(15000); continue; }
       if (S.tg && S.tg.token && Date.now() - (TL.tgT || 0) > 5 * 60e3) { TL.tgT = Date.now(); TL.step = 'messaggi Telegram dei tipster'; await tgStep(); }
-      else if (Date.now() - (TL.ytT || 0) > 2 * 3600e3) { TL.ytT = Date.now(); TL.step = 'video dei tipster (YouTube)'; await ytStep(); }
+      else if (Date.now() - (TL.ytT || 0) > (Object.values((S.yt || {}).v || {}).some(v => !v.ok && v.date && Date.now() - new Date(v.date) < 2 * 864e5) ? 30 * 60e3 : 2 * 3600e3)) { TL.ytT = Date.now(); TL.step = 'video dei tipster (YouTube)'; await ytStep(); }
       else if (Date.now() - (TL.taT || 0) > 5 * 60e3) { TL.step = 'percentuali dei tipster'; TL.taT = Date.now(); await taStep(15); }
       else if ((events || []).some(e => sqWanted(e)) && Date.now() - (TL.sqT || 0) > 8000) { TL.step = 'dati delle partite in arrivo'; TL.sqT = Date.now(); await squadStep(3); }
       else if ((events || []).filter(e => e.done && !(S.fmSeen || {})[e.id]).length >= 3 && Date.now() - (TL.xgT || 0) > 90000) { TL.step = 'xG delle partite finite'; TL.xgT = Date.now(); await xgStep(); }
