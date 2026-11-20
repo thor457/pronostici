@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795192711;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795210822;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -1137,7 +1137,7 @@ function applyLive(ev) { if (!ev || !LIVE.t) return; let g = LIVE.m[lkey(P.IT[ev
   if (!g) return; if (g.st === 4 && g.hs >= 0) { ev.done = true; ev.state = 'post'; ev.hs = g.hs; ev.as = g.as; ev.min = ''; } else if (g.st === 3) { ev.state = 'in'; ev.done = false; ev.hs = g.hs; ev.as = g.as; ev.min = g.min || g.stt; } ev.g365id = ev.g365id || g.id; if (g.sid) ev.sid = ev.sid || g.sid; }
 // elenco live unico: SofaScore e' il riferimento (punteggio e minuto), 365Scores completa l'elenco
 async function fetchLiveAll() { const L = await P.fetchLive().catch(e => { if (!LIVE.list.length) throw e; return LIVE.list.slice(); });
-  try { (await P.fetchSofaList()).forEach(x => { if (x.st !== 3 && x.st !== 4) return; const g = L.find(y => sameT(y.home, x.hn) && sameT(y.away, x.an) || sameT(y.home, x.an) && sameT(y.away, x.hn));
+  try { if (sofaOff()) throw 0; const SL = await fast(P.fetchSofaList(), LIVE.list.length ? 3000 : 5000); if (!SL) { S.sofaSt = { ok: 0, t: Date.now(), err: 'lista SofaScore lenta' }; throw 0; } SL.forEach(x => { if (x.st !== 3 && x.st !== 4) return; const g = L.find(y => sameT(y.home, x.hn) && sameT(y.away, x.an) || sameT(y.home, x.an) && sameT(y.away, x.hn));
     if (g) { g.sid = x.id; if (x.st === 3 || x.st === 4) { g.hs = x.hs; g.as = x.as; g.st = x.st; g.stt = x.stt; g.min = x.min || g.min; } }
     else if (x.hn && x.an && x.st === 3) L.push({ id: null, sid: x.id, home: x.hn, away: x.an, hs: x.hs, as: x.as, st: 3, stt: x.stt, min: x.min, comp: x.comp || 'SofaScore', start: x.start }); }); } catch (e) { }
   return L; }
@@ -2215,6 +2215,10 @@ function liveChecks(g, f) { if (!f || !f.sn) return ''; const sn = f.sn, cur = {
   if (sn.safe) one(sn.safe.label, sn.safe.key); if (sn.alt) one(sn.alt.label, sn.alt.key);
   const ex = (sn.ex3 || []).map(x => x[0]), now = g.hs + '-' + g.as; if (ex.length) row.push(chip('Esatti ' + ex.join(' / ') + (ex.indexOf(now) >= 0 ? (fin ? ' ✅' : ' ora in linea') : ''), ex.indexOf(now) >= 0 ? 'g' : ''));
   return row.length ? '<div class="sm">' + row.join(' ') + '</div>' : ''; }
+function liveMinTxt(g) { const m = g.min && String(g.min).trim(); if (m && m !== "0'") return m; const st = String(g.stt || ''); if (st && !/^(started|live|in corso|inprogress)$/i.test(st)) return /half ?time|intervallo/i.test(st) ? 'Intervallo' : st;
+  const el = Math.floor((Date.now() - new Date(g.start)) / 60000); if (!(el >= 0)) return 'In corso'; return el <= 47 ? '~' + Math.max(1, el) + "'" : el <= 62 ? 'Intervallo (circa)' : '~' + Math.min(90, el - 15) + "'"; }
+const sofaOff = () => S.sofaSt && S.sofaSt.ok === 0 && Date.now() - S.sofaSt.t < 10 * 60e3;
+const fast = (p, ms) => Promise.race([Promise.resolve(p).catch(() => null), zz(ms).then(() => null)]);
 async function vLive() {
   if (liveT) clearInterval(liveT);
   root.innerHTML = head('Live', 'Tutte le partite del mondo minuto per minuto · si aggiorna ogni 20 secondi') + '<div class="seg" id="lsg"><button data-f="live">In corso</button><button data-f="mine">Con pronostico</button><button data-f="end">Finite</button><button data-f="all">Tutte</button></div><div id="lv"><div class="skel"></div><div class="skel"></div></div>';
@@ -2224,9 +2228,9 @@ async function vLive() {
     const W = L.filter(g => liveFilter === 'live' ? g.st === 3 : liveFilter === 'end' ? g.st === 4 : liveFilter === 'mine' ? (snapFor(g) || {}).sn : true);
     const by = {}; W.forEach(g => (by[g.comp] = by[g.comp] || []).push(g)); const nl = L.filter(g => g.st === 3).length;
     let h = '<div class="sm" style="margin:6px 0">' + nl + ' partite in corso ora · ' + L.length + ' oggi · aggiornato ' + new Date().toLocaleTimeString('it-IT') + '</div>';
-    h += Object.keys(by).sort((x, y) => x.localeCompare(y, 'it')).map(c => '<div class="k mt">' + esc(c) + '</div>' + by[c].map(g => { const f = snapFor(g); return '<div class="mc lvc" data-g="' + (g.id || '') + '" data-s="' + (g.sid || '') + '"><div class="mc-h"><span>' + (g.st === 3 ? '<b class="ok">' + esc(g.min || g.stt) + '</b>' : esc(g.st === 4 ? 'Finita' : new Date(g.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }))) + '</span>' + (f && f.sn ? chip('pronostico registrato', 'g') : '') + '</div><div class="ir"><div class="ir-m"><b>' + esc(g.home) + ' – ' + esc(g.away) + '</b>' + liveChecks(g, f) + '</div><span class="bd">' + (g.hs >= 0 && g.st !== 2 ? g.hs + ' – ' + g.as : '–') + '</span></div></div>'; }).join('')).join('');
+    h += Object.keys(by).sort((x, y) => x.localeCompare(y, 'it')).map(c => '<div class="k mt">' + esc(c) + '</div>' + by[c].map(g => { const f = snapFor(g); return '<div class="mc lvc" data-g="' + (g.id || '') + '" data-s="' + (g.sid || '') + '"><div class="mc-h"><span>' + (g.st === 3 ? '<b class="ok">' + esc(liveMinTxt(g)) + '</b>' : esc(g.st === 4 ? 'Finita' : new Date(g.start).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }))) + '</span>' + (f && f.sn ? chip('pronostico registrato', 'g') : '') + '</div><div class="ir"><div class="ir-m"><b>' + esc(g.home) + ' – ' + esc(g.away) + '</b>' + liveChecks(g, f) + '</div><span class="bd">' + (g.hs >= 0 && g.st !== 2 ? g.hs + ' – ' + g.as : '–') + '</span></div></div>'; }).join('')).join('');
     if (!W.length) h += '<p class="empty">Nessuna partita in questo filtro.</p>';
-    $('#lv').innerHTML = h; root.querySelectorAll('[data-g]').forEach(x => x.onclick = () => vCenter(+x.dataset.g || null, null, +x.dataset.s || null)); };
+    $('#lv').innerHTML = h; root.querySelectorAll('[data-g]').forEach(x => x.onclick = () => { const b = x.querySelector('.ir-m b'); window.__cenT = b ? b.textContent : ''; vCenter(+x.dataset.g || null, null, +x.dataset.s || null); }); };
   await draw(); liveT = setInterval(draw, 20000);
 }
 async function vLiveGame(id) { return vCenter(id); }
@@ -2438,9 +2442,11 @@ function sofaH2HHTML(g, H, A) { const SL = g.slow; if (!SL) return '<div class="
 function sofaRatings(g, H, A) { const L = g.slu; if (!L) return ''; const side = (k, nm) => { const r = L[k] && L[k].pl.filter(p => p.rt != null).sort((x, y) => y.rt - x.rt); return r && r.length ? '<div class="sm"><b>' + esc(nm) + '</b> ' + (L[k].formation ? '(' + esc(L[k].formation) + ')' : '') + ': ' + r.slice(0, 11).map(p => esc(p.short || p.name) + ' <b>' + p.rt.toFixed(1) + '</b>').join(' · ') + '</div>' : ''; }; const t = side('h', H) + side('a', A); return t ? '<div class="card"><div class="k">Voti SofaScore</div>' + t + '</div>' : ''; }
 async function vCenter(id, evHint, sid) { navTo(() => vCenter(id, evHint, sid));
   if (liveT) clearInterval(liveT); const tok = 'c' + id + '_' + Date.now(); root.dataset.cen = tok; let shown = false;
+  root.innerHTML = '<div class="hd"><button class="ib" id="lbk0">‹</button><div><b>' + esc(evHint ? evHint.home + ' – ' + evHint.away : (window.__cenT || 'Partita')) + '</b><div class="sm mut">Apro la partita…</div></div></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>'; { const b0 = $('#lbk0'); if (b0) b0.onclick = () => { clearInterval(liveT); root.dataset.cen = ''; render(); }; } window.scrollTo(0, 0);
   const draw = async () => { if (root.dataset.cen !== tok) { clearInterval(liveT); return; } let g = null, PL = null, gerr = '';
-    if (!sid) { try { sid = (evHint && evHint.sid) || await P.sofaId(evHint ? evHint.home : '', evHint ? evHint.away : '', evHint ? evHint.date : 0); } catch (e) { } }
-    if (sid) { try { g = await memo('sc' + sid, () => P.sofaCenter(sid), 2500); } catch (e) { gerr = 'SofaScore: ' + e.message; } }
+    const T1 = shown ? 15000 : 4500;
+    if (!sid && evHint && !sofaOff()) { try { sid = evHint.sid || await fast(P.sofaId(evHint.home, evHint.away, evHint.date), T1); } catch (e) { } }
+    if (sid && !sofaOff()) { try { g = await fast(memo('sc' + sid, () => P.sofaCenter(sid), 2500), T1); if (!g) gerr = 'SofaScore lento'; } catch (e) { gerr = 'SofaScore: ' + e.message; } if (!g) { S.sofaSt = { ok: 0, t: Date.now(), err: gerr || 'non raggiungibile' }; } }
     if (!g && id) { try { g = await P.fetchLiveGame(id); } catch (e) { gerr += (gerr ? ' · ' : '') + '365Scores: ' + e.message; } }
     if (!g) { try { const fid = (evHint && evHint.fmid) || (evHint ? await P.fotmobId(evHint) : null); if (fid) { g = await memo('fc' + fid, () => P.fmCenter(fid), 8000); if (evHint && g) evHint.fmid = fid; } } catch (e) { gerr += (gerr ? ' · ' : '') + 'FotMob: ' + e.message; } }
     if (root.dataset.cen !== tok) return;
@@ -2449,12 +2455,12 @@ async function vCenter(id, evHint, sid) { navTo(() => vCenter(id, evHint, sid));
     if (!sid && g.sid) sid = g.sid;
     const f = evHint ? { ev: evHint, sn: S.snap && S.snap[evHint.id] } : snapFor(g), H = P.IT[g.home] || g.home, A = P.IT[g.away] || g.away;
     const gl = s => g.events.filter(e => /Goal/i.test(e.t) && !/Disallow|Cancel/i.test(e.t + e.sb) && (e.side === s) !== /Own/i.test(e.sb)).map(e => e.min + '\'' + (e.add ? '+' + e.add : '') + ' ' + esc(String(e.who || '').split(' ').slice(-1)[0]) + (/Penalty/i.test(e.sb) ? ' (r)' : /Own/i.test(e.sb) ? ' (aut.)' : '')).join(', ');
-    const eid = f && f.ev ? f.ev.id : null; if (eid) { try { PL = await memo('pl' + eid, () => P.fetchPlays(eid), g.st === 3 ? 4000 : 600000); } catch (e) { PL = null; } }
-    if ((!PL || !PL.plays.length) && sid) { try { PL = await memo('spl' + sid, () => P.sofaPlays(sid, g.home, g.away, g.start, g.p2 || (g.sx && g.sx.p2)), g.st === 3 ? 5000 : 600000); } catch (e) { } }
-    if (!PL || !PL.plays.length) { try { const fid = g.fmid || (evHint && evHint.fmid) || (evHint ? await P.fotmobId(evHint) : null) || (g.home ? await P.fotmobId({ home: g.home, away: g.away, date: g.start }) : null);
-        if (fid) { if (evHint) evHint.fmid = fid; PL = await memo('fpl' + fid, () => P.fmPlays(fid, g.home, g.away, g.start), g.st === 3 ? 8000 : 600000); } } catch (e) { } } if (root.dataset.cen !== tok) return;
-    let XL = null; if (!(XLD.t && Date.now() - XLD.t < 600000)) { try { XL = await memo('xl' + id, async () => { let r = null; try { r = await P.fetchSofaLive(g.home, g.away, g.start); } catch (e) { } if (!r) { try { r = await P.fetchFotmobLive(g.home, g.away, g.start); } catch (e) { } } if (!r) XLD.t = Date.now(); return r; }, g.st === 3 ? 10000 : 900000); } catch (e) { } } if (root.dataset.cen !== tok) return;
-    let SX = null; if (!g.sonly) { try { const s2 = sid || (XL && XL.id); if (s2) SX = await memo('sx' + s2, () => P.sofaFast(s2), g.st === 3 ? 2500 : 60000); } catch (e) { SX = null; } if (SX) sofaMerge(g, SX); } if (XL && XL.slow) { g.slow = XL.slow; if (XL.slow.lu) sofaLu(g, XL.slow.lu); if (XL.slow.mgr) { if (!g.lh.coach && XL.slow.mgr.h) g.lh.coach = XL.slow.mgr.h; if (!g.la.coach && XL.slow.mgr.a) g.la.coach = XL.slow.mgr.a; } } if (root.dataset.cen !== tok) return;
+    const eid = f && f.ev && !/^(s365_|sof_)/.test(String(f.ev.id)) ? f.ev.id : null; if (eid) { try { PL = await fast(memo('pl' + eid, () => P.fetchPlays(eid), g.st === 3 ? 4000 : 600000), T1); } catch (e) { PL = null; } }
+    if ((!PL || !PL.plays || !PL.plays.length) && sid && !sofaOff()) { try { PL = await fast(memo('spl' + sid, () => P.sofaPlays(sid, g.home, g.away, g.start, g.p2 || (g.sx && g.sx.p2)), g.st === 3 ? 5000 : 600000), T1); } catch (e) { } }
+    if (!PL || !PL.plays || !PL.plays.length) { try { const fid = g.fmid || (evHint && evHint.fmid) || await fast(evHint ? P.fotmobId(evHint) : g.home ? P.fotmobId({ home: g.home, away: g.away, date: g.start }) : null, T1);
+        if (fid) { if (evHint) evHint.fmid = fid; g.fmid = fid; PL = await fast(memo('fpl' + fid, () => P.fmPlays(fid, g.home, g.away, g.start), g.st === 3 ? 8000 : 600000), T1); } } catch (e) { } } if (root.dataset.cen !== tok) return;
+    let XL = null; if (!(XLD.t && Date.now() - XLD.t < 600000)) { try { XL = await fast(memo('xl' + id, async () => { let r = null; if (!sofaOff()) { try { r = await P.fetchSofaLive(g.home, g.away, g.start); } catch (e) { } } if (!r) { try { r = await P.fetchFotmobLive(g.home, g.away, g.start); } catch (e) { } } if (!r) XLD.t = Date.now(); return r; }, g.st === 3 ? 10000 : 900000), T1); } catch (e) { } } if (root.dataset.cen !== tok) return;
+    let SX = null; if (!g.sonly && !sofaOff()) { try { const s2 = sid || (XL && XL.id); if (s2) SX = await fast(memo('sx' + s2, () => P.sofaFast(s2), g.st === 3 ? 2500 : 60000), T1); } catch (e) { SX = null; } if (SX) sofaMerge(g, SX); } if (XL && XL.slow) { g.slow = XL.slow; if (XL.slow.lu) sofaLu(g, XL.slow.lu); if (XL.slow.mgr) { if (!g.lh.coach && XL.slow.mgr.h) g.lh.coach = XL.slow.mgr.h; if (!g.la.coach && XL.slow.mgr.a) g.la.coach = XL.slow.mgr.a; } } if (root.dataset.cen !== tok) return;
     const PLX = (PL && PL.plays && PL.plays.length) ? PL : evPlays(g);
     const sideOf = t => { if (!t || !PLX) return null; return sameT(t, PLX.home) ? 'h' : sameT(t, PLX.away) ? 'a' : null; };
     if (shown && document.getElementById('cs')) { const set = (i, v) => { const x = document.getElementById(i); if (x && x.innerHTML !== v) x.innerHTML = v; };
