@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795256608;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795256819;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -1529,7 +1529,7 @@ function majorsHtml(out, pend) { const M = out.filter(x => isMajor(x.ev)).map(x 
     const x = z.x, ev = x.ev, D = ev.mk.dirp, te = tensionOf(ev, x.cf && x.cf.exp, x.dt && x.dt.ref); let sel = null; try { sel = selezione(ev, { LV: [], alert: x.alertTxt }); } catch (e) { }
     const best = sel && sel.ok.length ? sel.ok[0] : null, cards = (x.cards.items || []).slice(0, 3), scs = ['home', 'away'].map(s => (x.sc[s] || []).slice(0, 2)).flat().sort((a, b) => b.pc - a.pc).slice(0, 3), tf = taAgree(ev).filter(g => g.rs.length >= 2)[0];
     h += '<div class="card" data-i="M' + esc(String(ev.id)) + '"><b>' + hh + ' · ' + esc(ev.home) + ' – ' + esc(ev.away) + '</b> <span class="sm">' + esc(LG(ev)) + '</span>' +
-      '<div class="chips">' + chip('Esito ' + D.esito.label + ' ' + pc0(D.esito.p)) + chip(D.tot.label + ' ' + pc0(D.tot.p)) + chip(D.goal.label + ' ' + pc0(D.goal.p)) + chip('Esatto ' + D.score + ' · alt. ' + ((ev.mk.exact.find(e => e[0] !== D.score) || [''])[0])) + chip('Tensione ' + te.lvl, te.lvl === 'ALTA' ? 'g' : '') + '</div>' +
+      '<div class="chips">' + chip('Esito ' + D.esito.label + ' ' + pc0(D.esito.p)) + chip(D.tot.label + ' ' + pc0(D.tot.p)) + chip(D.goal.label + ' ' + pc0(D.goal.p)) + chip('Esatto ' + D.score + ' · alt. ' + ((ev.mk.exact.find(e => e[0] !== D.score) || [''])[0])) + chip('Tensione ' + te.lvl, te.lvl === 'ALTA' ? 'g' : '') + (S.lu && S.lu[ev.id] ? chip('XI ufficiale ✔ ' + ((S.luSrc || {})[ev.id] || ''), 'g') : (new Date(ev.date) - Date.now() < 100 * 60e3 ? chip('XI: controllo continuo') : '')) + '</div>' +
       '<div class="sm">' + (best ? (best.c.prov ? '◐ Selezione provvisoria: ' : '<b class="ok">✔ Selezione Pro:</b> ') + '<b>' + esc(best.c.label) + '</b> ' + fp(best.c.p) : '<span class="warn">Nessuna giocata supera i filtri della Selezione Pro</span>') + '</div>' +
       '<div class="sm"><b>Cartellini</b> (' + (x.cf && x.cf.exp != null ? x.cf.exp.toFixed(1) + ' gialli attesi' : 'attesa n.d.') + (x.dt && x.dt.ref ? ', arbitro ' + esc(x.dt.ref) : '') + '): ' + (cards.length ? cards.map(c => esc(c.name) + ' ' + c.p.toFixed(0) + '%').join(' · ') : 'nessun nome solido') + '</div>' +
       '<div class="sm"><b>Marcatori forti:</b> ' + (scs.length ? scs.map(r => esc(r.name) + ' ' + fp(r.pc)).join(' · ') : '—') + '</div>' +
@@ -1910,7 +1910,7 @@ function vImp() {
   $('#ex').onclick = () => { const b = new Blob([JSON.stringify(S)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'pronostici_stato.json'; a.click(); };
   $('#rs').onclick = () => { if (confirm('Cancello tutto l\'addestramento?')) { localStorage.removeItem(KEY); location.reload(); } };
 }
-window.__S=()=>S;window.__T={ webStep, ytStep, tgStep, extFor, extHtml, analyzeMatch, prefetchAll, train, histStep, leagueStep, selezione, tabOf, ragiona, taSection, taSites, taOne, taStep, taRows, taConc, taMultiHtml, taSection, squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
+window.__S=()=>S;window.__T={ pollLU, webStep, ytStep, tgStep, extFor, extHtml, analyzeMatch, prefetchAll, train, histStep, leagueStep, selezione, tabOf, ragiona, taSection, taSites, taOne, taStep, taRows, taConc, taMultiHtml, taSection, squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
 // auto-addestramento all'apertura se ultimo > 6 ore
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').catch(() => { });
 
@@ -1957,7 +1957,7 @@ function contra(a, b) { const ln = k => +k.slice(1); if (/^[OU]\d/.test(a) && /^
 const MK2TIP = { OVER25: ['O2.5'], UNDER25: ['U2.5'], OVER15: ['O1.5'], UNDER35: ['U3.5'], BTTS: ['GG'], NOBTTS: ['NG'] };
 function selezione(ev, X) { const out = { ok: [], no: [] }, Q = taOdds(ev), R = taRows(ev), min = (new Date(ev.date) - Date.now()) / 60000, xiOff = (X.LV || []).length && (X.LV || []).every(v => v.status === 'UFFICIALE');
   const fav = ev.lam.lh >= ev.lam.la ? 'home' : 'away';
-  (ev.list || []).filter(c => c.p >= 0.55 && !/^(COR_|OVER05$|O05_1T$)/.test(c.key)).forEach(c => { const why = [], bad = [];
+  const favN = ev.lam.lh >= ev.lam.la ? ev.home : ev.away; (ev.list || []).filter(c => c.p >= 0.55 && c.p <= 0.86 && !/^(COR_|OVER05$|O05_1T$|FAV_SEGNA$)/.test(c.key)).map(c => Object.assign({}, c, { label: String(c.label).replace(/^Favorita/, favN) })).forEach(c => { const why = [], bad = [];
     let tk = MK2TIP[c.key] || (c.key === 'FAV_WIN' ? [fav === 'home' ? '1' : '2'] : c.key === 'FAV_NOLOSE' ? [fav === 'home' ? '1X' : 'X2'] : null);
     // 1. probabilita' tarata
     if (c.p >= 0.62) why.push('probabilità tarata ' + fp(c.p)); else bad.push('probabilità ' + fp(c.p) + ' sotto la soglia del 62%');
@@ -2262,16 +2262,30 @@ function vTip() { tipGrade();
 
 
 // ---- controllo automatico formazioni ufficiali di tutte le partite vicine al calcio d'inizio ----
-async function pollLU() {
-  const now = Date.now(); let ch = false; S.lu = S.lu || {}; S.luSt = S.luSt || {};
-  for (const ev of events) { if (ev.done) continue; const mins = (new Date(ev.date).getTime() - now) / 60000; if (mins > 150 || S.lu[ev.id]) continue;
-    try { const d = new Date(ev.date), k = '365_' + ymd(d); if (!cache[k]) cache[k] = await P.fetch365Day(d); const m = P.match365(cache[k], ev); if (!m) continue; const g = await P.fetch365Game(m.id);
-      const conf = g.teams.length >= 2 && g.teams.every(t => t.status === 'Confirmed' && t.xi.length >= 10); S.luSt[ev.id] = g.teams.map(t => t.status === 'Confirmed' ? 1 : t.xi.length ? 0 : -1);
-      if (conf) { S.lu[ev.id] = Date.now(); ch = true; } } catch (e) { } }
-  if (ch) save(); decorateLU(); }
+const LUP = { run: 0 };
+// formazione ufficiale: 365Scores, FotMob ed ESPN; appena esce, ammoniti/sostituti e marcatori ricalcolati sull'XI vero e registrati per l'addestramento
+async function luSources(ev) { let ros = null, src = '', official = false, f = null;
+  try { const d = new Date(ev.date), k = '365_' + ymd(d); if (!cache[k] || Date.now() - (cache[k].t || 0) > 3600e3) { cache[k] = await P.fetch365Day(d); } const m = P.match365(cache[k], ev);
+    if (m) { const g = await P.fetch365Game(m.id); S.luSt[ev.id] = g.teams.map(t => t.status === 'Confirmed' ? 1 : t.xi.length ? 0 : -1);
+      if (g.teams.length >= 2 && g.teams.every(t => t.status === 'Confirmed' && t.xi.length >= 10)) { const sw = !sameT(g.teams[0].name, ev.home) && sameT(g.teams[0].name, ev.away), H = sw ? g.teams[1] : g.teams[0], A = sw ? g.teams[0] : g.teams[1]; ros = {}; ros[ev.home] = H.xi.map(p => ({ name: p.name, pos: p.pos, starter: true })).concat((H.bench || []).map(p => ({ name: p.name, pos: p.pos, starter: false }))); ros[ev.away] = A.xi.map(p => ({ name: p.name, pos: p.pos, starter: true })).concat((A.bench || []).map(p => ({ name: p.name, pos: p.pos, starter: false }))); official = true; src = '365Scores'; } } } catch (e) { }
+  if (!official) { try { const id = ev.fmid || await P.fotmobId(ev); if (id) { ev.fmid = id; f = await P.fotmobFull(id); if (f && f.official) { const r = fmRoster(ev, f); if (r) { ros = r; official = true; src = 'FotMob'; } } } } catch (e) { } }
+  if (!official && !/^(s365_|sof_)/.test(String(ev.id)) && ev.league) { try { const sm = await P.fetchSummary(ev.league, ev.id); const R = P.rostersMap ? P.rostersMap(sm) : null; if (R && Object.keys(R).length >= 2 && Object.values(R).every(L => L.filter(p => p.starter).length >= 11)) { ros = {}; Object.keys(R).forEach(t => { ros[sameT(t, ev.home) ? ev.home : ev.away] = R[t]; }); official = true; src = 'ESPN'; } } catch (e) { } }
+  return { ros, official, src, f }; }
+async function luOfficial(ev, L) { S.lu[ev.id] = Date.now(); S.luSrc = S.luSrc || {}; S.luSrc[ev.id] = L.src; try { prepEv(ev); const ab = {}, ref = (L.f && L.f.ref) || ((S.refOf || {})[ev.id] || {}).r || null;
+    const cards = P.pickCards(S, SEED, ev, L.ros, ev.lam, ab), sc = P.pickScorers(S, ev, L.ros, ev.lam, ab), cf = P.cardsForecast(S, ev, ev.lam, L.ros, ref, null);
+    S.snapPre = S.snapPre || {}; const old = S.snap && S.snap[ev.id]; if (old && !old.official) S.snapPre[ev.id] = old;
+    snapMatch(ev, cards, sc, cf, ref, true); if (AN[ev.id]) { AN[ev.id].cards = cards; AN[ev.id].sc = sc; AN[ev.id].cf = cf; AN[ev.id].t = Date.now(); AN[ev.id].xi = 1; }
+    log('XI ufficiale ' + ev.home + '-' + ev.away + ' (' + L.src + '): ammoniti e marcatori ricalcolati sui titolari'); } catch (e) { log('XI ' + ev.home + '-' + ev.away + ': ' + e.message); } }
+async function pollLU() { if (LUP.run) return; LUP.run = 1; const now = Date.now(); let ch = false; S.lu = S.lu || {}; S.luSt = S.luSt || {}; S.luT = S.luT || {};
+  try { const L0 = [].concat(events || [], QM.list || []).filter((e, i, a) => a.findIndex(x => x.id === e.id) === i);
+    const L = L0.filter(ev => { if (ev.done || S.lu[ev.id]) return false; const mins = (new Date(ev.date).getTime() - now) / 60000; if (mins > 100 || mins < -5) return false; const every = mins < 45 ? 60e3 : mins < 75 ? 120e3 : 300e3; return !S.luT[ev.id] || now - S.luT[ev.id] > every; })
+      .sort((a, b) => (isMajor(b) - isMajor(a)) || new Date(a.date) - new Date(b.date));
+    let i = 0; await Promise.all([0, 1, 2].map(async () => { while (i < L.length) { const ev = L[i++]; S.luT[ev.id] = Date.now(); const R = await luSources(ev); if (R.official) { await luOfficial(ev, R); ch = true; } if (busy()) await zz(300); } }));
+    LUP.n = L.length; LUP.t = Date.now(); } finally { LUP.run = 0; }
+  if (ch) { save(); if (tab === 'quadro' && window.__qdraw) window.__qdraw(); } decorateLU(); }
 function decorateLU() { document.querySelectorAll('.mc[data-i]').forEach(c => { const ev = events[+c.dataset.i]; if (!ev || ev.done) return; let s = c.querySelector('.lub'); if (!s) { s = document.createElement('span'); s.className = 'chip lub'; s.style.cssText = 'margin-left:6px'; const t = c.querySelector('b') || c; t.appendChild(s); }
     const ok = S.lu && S.lu[ev.id]; s.className = 'chip lub' + (ok ? ' ok' : ''); s.textContent = ok ? 'XI ufficiale ✔' : 'XI non ufficiale'; }); }
-setInterval(() => { if (!document.hidden && events && events.length) pollLU(); }, 90000);
+setInterval(() => { if (!document.hidden && events && events.length) pollLU(); }, 45000);
 new MutationObserver(() => decorateLU()).observe(document.getElementById('app'), { childList: true });
 
 
