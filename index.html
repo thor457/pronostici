@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795254620;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795255326;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -615,7 +615,11 @@ const SOFA_H = ['https://api.sofascore.com/api/v1/', 'https://api.sofascore.app/
 let sofaH = 0; try { const v = +localStorage.getItem('pp_sofah'); if (v >= 0 && v < SOFA_H.length) sofaH = v; } catch (e) { }
 const SOFA = SOFA_H[sofaH];
 const SJ = async (path, ms) => { let last; for (let i = 0; i < SOFA_H.length; i++) { const k = (sofaH + i) % SOFA_H.length;
-    try { const r = await E.fetchAny(SOFA_H[k] + path, ms || 6000); if (k !== sofaH) { sofaH = k; try { localStorage.setItem('pp_sofah', String(k)); } catch (e) { } } return r; } catch (e) { last = e; } }
+    if (k === 99) continue; try { const r = await E.fetchAny(SOFA_H[k] + path, ms || 6000); if (k !== sofaH) { sofaH = k; try { localStorage.setItem('pp_sofah', String(k)); } catch (e) { } } return r; } catch (e) { last = e; } }
+  // ultima via: lettore r.jina.ai, che spesso passa dove SofaScore blocca le app
+  try { const t = await new Promise((res, rej) => { const ctl = new AbortController(), to = setTimeout(() => { ctl.abort(); rej(new Error('tempo scaduto')); }, Math.max(ms || 6000, 12000));
+      fetch('https://r.jina.ai/' + SOFA_H[0] + path, { signal: ctl.signal, headers: { 'X-Return-Format': 'text', 'Accept': 'application/json' } }).then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status))).then(v => { clearTimeout(to); res(v); }).catch(e => { clearTimeout(to); rej(e); }); });
+    const a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a >= 0 && b > a) return JSON.parse(t.slice(a, b + 1)); } catch (e) { last = last || e; }
   throw last; };
 const sofaIso = d => d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
 const SIDC = {};
@@ -890,8 +894,12 @@ E.cardsForecast = function (S, ev, lam, rosters, refName, summ) { summ = summ ||
 };
 E.fmtP = p => (p * 100).toFixed(p >= 0.995 ? 0 : 1).replace('.', ',') + '%';
 // ---------- TIPSTER AUTOMATICI: voti degli utenti 365Scores e consenso dei tipster OLBG ----------
-E.fetchText = async function (url, ms, minLen) { let last; for (const px of PROXIES) { const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, to = ctl ? setTimeout(() => ctl.abort(), ms || 9000) : null;
-  try { const r = await fetch(px ? px + encodeURIComponent(url) : url, ctl ? { signal: ctl.signal } : {}); if (!r.ok) throw new Error('HTTP ' + r.status); const t = await r.text(); if (t && t.length > (minLen != null ? minLen : 500)) return t; throw new Error('vuota'); } catch (e) { last = e; } finally { if (to) clearTimeout(to); } } throw last; };
+// testo di una pagina: prova insieme accesso diretto, lettore r.jina.ai (supera molte protezioni anti-bot) e i proxy, e tiene la prima risposta valida
+E.fetchText = async function (url, ms, minLen) { const min = minLen != null ? minLen : 500, T = Math.max(ms || 9000, 15000);
+  const one = (u, opt) => new Promise((res, rej) => { const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, to = setTimeout(() => { if (ctl) ctl.abort(); rej(new Error('tempo scaduto')); }, T);
+    fetch(u, Object.assign(ctl ? { signal: ctl.signal } : {}, opt || {})).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }).then(t => { clearTimeout(to); if (t && t.length > min && !/cf-chl|challenge-platform|Just a moment\.\.\./i.test(t.slice(0, 4000))) res(t); else rej(new Error(t && t.length > min ? 'protezione anti-bot' : 'risposta vuota')); }).catch(e => { clearTimeout(to); rej(e); }); });
+  const tries = [one(url)]; if (!/^https:\/\/(api\.telegram|webws\.365scores|site\.api\.espn|www\.fotmob)/.test(url)) { tries.push(new Promise(r => setTimeout(r, 1500)).then(() => one('https://r.jina.ai/' + url, { headers: { 'X-Return-Format': 'html' } }))); PROXIES.slice(1).forEach((px, i) => tries.push(new Promise(r => setTimeout(r, 2500 + i * 1000)).then(() => one(px + encodeURIComponent(url))))); }
+  return new Promise((res, rej) => { let left = tries.length; const errs = []; tries.forEach(p => p.then(res, e => { errs.push(String(e && e.message || e)); if (--left === 0) rej(new Error(errs[0] + (errs.length > 1 ? ' (anche le vie alternative: ' + [...new Set(errs.slice(1))].join(', ') + ')' : ''))); })); }); };
 E.votes365 = async function (id) {
   const d = await E.fetchJson(B365 + 'game/?appTypeId=5&langId=1&timezoneName=Europe/Rome&userCountryId=1&gameId=' + id, 20000), g = d.game || {}, P = ((g.promotedPredictions || d.promotedPredictions || {}).predictions) || [], rows = [];
   P.forEach(p => { const tot = p.totalVotes || 0, ti = String(p.title || ''), op = p.options || [], v = o => (o.vote || {});
@@ -2102,6 +2110,7 @@ function extBind() { const a = $('#ytadd'), g = $('#ytgo'), t = $('#tgsave'); co
   if (t) t.onclick = () => { S.tg = S.tg || {}; S.tg.token = ($('#tgk').value || '').trim(); S.tg.ok = null; S.tg.err = null; save(); tgStep().then(() => tab === 'tip' && vTip()); vTip(); }; }
 // ================= TIPSTER AUTOMATICI: OLBG (tipster con storico), Forebet (modello statistico), WinDrawWin (esperti, dal 2003), voti 365Scores e quote con movimento =================
 const TA = { busy: 0 };
+const itErr = e => { const m = String(e && e.message || e || ''); return /abort|tempo scaduto|timeout/i.test(m) ? 'nessuna risposta in tempo' : /failed to fetch|network|load failed/i.test(m) ? 'connessione rifiutata dal sito' : /anti-bot|403|429/i.test(m) ? 'il sito blocca le app (protezione anti-bot)' : m.slice(0, 60); };
 const TSRC = { OLBG: 'Tipster OLBG', FB: 'Forebet', WDW: 'WinDrawWin', '365': 'Utenti 365Scores', SOFA: 'Utenti SofaScore', VID: 'Tipster in video', TG: 'Tipster Telegram', WEB: 'Tipster sul web' };
 const TSITE = [['OLBG', 'OLBG (tipster con storico verificato)', () => P.olbgDay()], ['FB', 'Forebet (statistica, 850+ campionati)', async () => (await P.forebetDay(false)).concat(await P.forebetDay(true).catch(() => []))], ['WDW', 'WinDrawWin (pronostico con fiducia e risultato)', async () => (await P.wdwDay(false)).concat(await P.wdwDay(true).catch(() => []))]];
 const CONF = ['', 'bassa', 'media', 'alta'];
@@ -2121,10 +2130,10 @@ function taOdds(ev) { const a = (S.tipA || {})[ev.id]; if (!a) return null; cons
 // SofaScore: id della partita e dati pre-partita (se il telefono lo raggiunge)
 async function sofaFor(ev) { S.sofaSt = S.sofaSt || {}; if (S.sofaSt.ok === 0 && Date.now() - S.sofaSt.t < 10 * 60e3) return null;
   try { const id = ev.sofId || await P.sofaId(ev.home, ev.away, ev.date); if (!id) return null; ev.sofId = id; const r = await P.sofaPre(id); S.sofaSt = { ok: 1, t: Date.now(), n: (S.sofaSt.n || 0) + 1 }; return r; }
-  catch (e) { S.sofaSt = { ok: 0, t: Date.now(), err: String(e && e.message || e).slice(0, 60), n: S.sofaSt.n || 0 }; return null; } }
+  catch (e) { S.sofaSt = { ok: 0, t: Date.now(), err: itErr(e), n: S.sofaSt.n || 0 }; return null; } }
 async function taSites(force) { S.tsrc = S.tsrc || {}; const now = Date.now();
   for (const [c, , f] of TSITE) { const cur = S.tsrc[c]; if (!force && cur && now - cur.t < (cur.ok ? 30 : 10) * 60e3) continue;
-    try { const L = await f(); S.tsrc[c] = { t: Date.now(), list: L, ok: 1 }; } catch (e) { S.tsrc[c] = { t: Date.now(), list: (cur || {}).list || [], ok: 0, err: String(e && e.message || e).slice(0, 60) }; } }
+    try { const L = await f(); S.tsrc[c] = { t: Date.now(), list: L, ok: 1 }; } catch (e) { S.tsrc[c] = { t: Date.now(), list: (cur || {}).list || [], ok: 0, err: itErr(e) }; } }
   S.olbg = S.tsrc.OLBG; }
 async function taOne(ev) { const now = Date.now(), s = {}; ['OLBG', 'FB', 'WDW'].forEach(c => { const r = siteRows(c, ev); if (r.length) s[c] = r; });
   try { const d = new Date(ev.date), k = '365_' + ymd(d); if (!cache[k]) cache[k] = await P.fetch365Day(d); const m = P.match365(cache[k], ev);
