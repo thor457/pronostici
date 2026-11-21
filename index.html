@@ -282,12 +282,16 @@ E.cardCandidate = function (S, name, pos, status) {
   let base = BASE_ROLE[g][idx];
   let fpg = null, ypg = null, n = 0, never = false;
   if (h) { n = h[0]; fpg = h[2] / h[0]; ypg = h[3] / h[0]; never = n >= 5 && h[3] === 0; }
+  const sp = E.SP[norm(name)]; let src = 'club/naz';
+  if (sp && sp.ap >= 4 && sp.ap > n) { n = sp.ap; ypg = (sp.y + sp.r) / sp.ap; fpg = sp.f > 0 ? sp.f / sp.ap : null; never = n >= 5 && sp.y + sp.r === 0; src = 'stagione (' + sp.by.join(', ') + ')'; }
   let factor = 1;
-  if (n >= 4) { const f = fpg >= 2 ? 30.6 : fpg >= 1.4 ? 19.6 : fpg >= 0.8 ? 12.6 : 11.2; const y = ypg >= 0.34 ? 24.4 : ypg >= 0.2 ? 14.0 : ypg > 0 ? 11.2 : 11.9; factor = ((f + y) / 2) / 13.5; }
+  if (n >= 4) { const f = fpg == null ? 13.5 : fpg >= 2 ? 30.6 : fpg >= 1.4 ? 19.6 : fpg >= 0.8 ? 12.6 : 11.2; const y = ypg >= 0.34 ? 24.4 : ypg >= 0.2 ? 14.0 : ypg > 0 ? 11.2 : 11.9; factor = ((f + y) / 2) / 13.5; }
   if (never) factor = Math.min(factor, 0.8);
   const pRaw = Math.max(3, Math.min(40, base * factor)) / 100, ck = (S.tracker['CG_' + g] && S.tracker['CG_' + g].n >= 30) ? 'CG_' + g : 'CARD1'; let p = E.calibrate(S, ck, pRaw) * 100;
   const score = (fpg || 0) + 3 * (ypg || 0);
-  return { name, pos, group: g, n, fpg, ypg, never, p, pRaw, score, base, factor, status, hist: n >= 4 ? 'club/naz: ' + fpg.toFixed(2) + ' falli/gara, ' + ypg.toFixed(2) + ' gialli/gara su ' + n + ' gare' : 'storico scarso (' + n + ' gare)' };
+  const fsp = sp && sp.ap >= 4 ? sp.fs / sp.ap : null;
+  return { name, pos, group: g, n, fpg, ypg, never, p, pRaw, score, base, factor, status, sp: sp || null, fsp, src,
+    hist: n >= 4 ? src + ': ' + (fpg != null ? fpg.toFixed(2) + ' falli/gara, ' : 'falli non rilevati, ') + ypg.toFixed(2) + ' gialli/gara su ' + n + ' gare' + (sp && sp.ap >= 4 ? ' · ' + (sp.y + sp.r) + ' cartellini in stagione' + (fsp != null && fsp > 0 ? ', ' + fsp.toFixed(1) + ' falli subiti/gara' : '') : '') : 'storico scarso (' + n + ' gare)' };
 };
 let PIDX = null, PIDXn = -1, PIDXt = 0, PGM = null, PGMn = -1;
 E.playerIndex = function (S) { if (PIDX && Date.now() - PIDXt < 120000) return PIDX; const n = Object.keys(S.players).length;
@@ -303,8 +307,10 @@ E.teamPool = function (S, team) { const idx = E.playerIndex(S), k = E.keyName(te
   (idx[k] || []).concat(idx['c:' + ck] || []).forEach(r => { if (seen[r.pk]) return; seen[r.pk] = 1; out.push(r); });
   return out; };
 E.poolFor = function (S, team, rosters) {
-  if (rosters && rosters[team]) return rosters[team].filter(x => x.starter).map(x => ({ name: x.name, pos: x.pos }));
-  return E.teamPool(S, team).filter(r => r.starts >= 2).slice(0, 16).map(r => ({ name: r.name, pos: r.pos, starts: r.starts }));
+  if (rosters && rosters[team]) return rosters[team].filter(x => x.starter).map(x => { const sp = E.SP[norm(x.name)], bad = !x.pos || /^(SUB|S)$/i.test(x.pos); return { name: x.name, pos: bad && sp && sp.pos ? sp.pos : x.pos }; });
+  const own = E.teamPool(S, team).filter(r => r.starts >= 2).slice(0, 16).map(r => ({ name: r.name, pos: r.pos, starts: r.starts }));
+  if (own.length >= 11) return own; const seen = {}; own.forEach(x => seen[norm(x.name)] = 1);
+  return own.concat(E.seasonPool(team).filter(x => !seen[norm(x.name)])).slice(0, 16);
 };
 const sideOf = pos => { pos = (pos || '').toUpperCase(); if (/^(LB|LWB|LM|AM-L|CD-L|CM-L|CF-L|LF|LW)$/.test(pos)) return 'L'; if (/^(RB|RWB|RM|AM-R|CD-R|CM-R|CF-R|RF|RW)$/.test(pos)) return 'R'; return 'C'; };
 E.pickCards = function (S, seed, ev, rosters, lam, absent) {
@@ -319,8 +325,13 @@ E.pickCards = function (S, seed, ev, rosters, lam, absent) {
   };
   const weak = mk(out.weak, gap >= 150 ? 'weak' : 'even', out.strong), strong = mk(out.strong, gap >= 150 ? 'strong' : 'even', out.weak);
   const all = weak.concat(strong).sort((x, y) => ((x.never ? 1 : 0) - (y.never ? 1 : 0)) || y.p - x.p);
-  const n = gap >= 150 ? 3 : 4; out.items = all.slice(0, n); out.all = all;
-  out.rest = all.slice(n, n + 4).map(c => Object.assign(c, { why: 'scartato: stima ' + c.p.toFixed(0) + '% sotto i nomi scelti' + (c.never ? ' e mai ammonito in 5+ gare' : ''), flip: c.team === out.weak ? 'sbagliato se la partita si fa nervosa e la squadra debole insegue con falli tattici' : 'sbagliato se la squadra forte va sotto e deve recuperare in pressing' }));
+  const hH = E.teamHeat(S, rosters, ev.home), hA = E.teamHeat(S, rosters, ev.away), ey = hH.k >= 6 && hA.k >= 6 ? 11 * (hH.y / hH.k + hA.y / hA.k) : null;
+  const ko = E.stageInfo(ev.stage || E.STG[ev.id]); out.ey = ey; out.stage = ko;
+  const n = (ey != null && ey >= 5) || (ko && ko.final) ? 5 : (ey != null && ey >= 4) || ko ? 4 : gap >= 150 ? 3 : 4;
+  out.items = all.filter(c => !c.never).slice(0, n); out.all = all;
+  // partita da tanti cartellini: almeno un nome per squadra se il migliore dell'altra e' vicino
+  if (n >= 4 && out.items.length) [out.weak, out.strong].forEach(t => { if (!out.items.some(c => c.team === t)) { const b = all.find(c => c.team === t && !c.never); if (b && b.p >= out.items[out.items.length - 1].p * 0.8) out.items[out.items.length - 1] = b; } });
+  out.rest = all.filter(c => out.items.indexOf(c) < 0).slice(0, 5).map(c => Object.assign(c, { why: 'scartato: stima ' + c.p.toFixed(0) + '% sotto i nomi scelti' + (c.never ? ' e mai ammonito in 5+ gare' : ''), flip: c.team === out.weak ? 'sbagliato se la partita si fa nervosa e la squadra debole insegue con falli tattici' : 'sbagliato se la squadra forte va sotto e deve recuperare in pressing' }));
   out.byRole = ['CB', 'FB', 'CM', 'WG', 'ATT'].map(g => all.filter(c => c.group === g && !c.never)[0]).filter(Boolean);
   out.pAny2 = out.items.length > 1 ? 1 - out.items.slice(0, 2).reduce((a, c) => a * (1 - c.p / 100), 1) : null;
   return out;
@@ -431,6 +442,8 @@ E.fetchSummary = async function (lg, id) {
     out.rosters.push(o); });
   (d.keyEvents || []).forEach(e => out.events.push({ clock: (e.clock || {}).displayValue, type: (e.type || {}).text || '', team: (e.team || {}).displayName || '', who: (e.participants || []).map(p => p.athlete.displayName) }));
   const off = (d.gameInfo || {}).officials || []; if (off.length) out.referee = off[0].displayName;
+  try { const h0 = d.header || {}, c0 = (h0.competitions || [])[0] || {}; out.stage = (h0.season || {}).name || ''; if (out.stage) E.STG[id] = out.stage; out.teamIds = (c0.competitors || []).map(x => ({ id: x.team && x.team.id, name: x.team && x.team.displayName })); out.lgSlug = (h0.league || {}).slug || lg;
+    const st = ((c0.status || {}).type || {}).state; if (st !== 'post' && out.teamIds.length === 2) await Promise.race([E.loadSeason(out.lgSlug, out.teamIds), new Promise(r => setTimeout(r, 12000))]); } catch (e) { }
   try { out.table = []; (((d.standings || {}).groups || [])[0] || { standings: { entries: [] } }).standings.entries.forEach(en => { const g = n => { const x = (en.stats || []).find(z => z.name === n); return x ? x.value : null; }; out.table.push({ team: en.team, rank: g('rank'), pts: g('points'), gp: g('gamesPlayed'), gd: g('pointDifferential') }); }); } catch (e) { out.table = []; }
   try { const ss = (d.seasonseries || [])[0]; out.h2h = ss ? { txt: ss.summary, ev: (ss.events || []).slice(0, 3).map(e => { const c = e.competitors || []; return c.map(x => x.team.displayName + ' ' + x.score).join(' - ') + ' (' + String(e.date).slice(0, 10) + ')'; }) } : null; } catch (e) { out.h2h = null; }
   try { out.form = {}; (d.lastFiveGames || []).forEach(t => { out.form[t.team.displayName] = (t.events || []).map(e => e.gameResult || '?').join(''); }); } catch (e) { out.form = {}; }
@@ -439,6 +452,37 @@ E.fetchSummary = async function (lg, id) {
     const cs = (d.boxscore.teams || []).map(t => { const x = (t.statistics || []).find(z => z.name === 'wonCorners'); return x ? parseFloat(x.displayValue) : NaN; }); if (cs.length === 2 && cs.every(v => v === v)) out.cor = cs[0] + cs[1]; } catch (e) { }
   return out;
 };
+// ---------- STAGIONE DEI GIOCATORI (ESPN): presenze, gialli, rossi, falli fatti e subiti in coppa + campionato nazionale ----------
+// serve quando l'app non ha ancora visto abbastanza gare di una squadra (coppe sudamericane, campionati minori): i nomi per ammonito
+// non devono mai uscire "al 18% per ruolo" se esiste lo storico reale del giocatore
+E.SP = {}; E.SPT = {}; E.SPC = {}; E.STG = {};
+try { const x = JSON.parse(localStorage.getItem('pp_spc') || 'null'); if (x && typeof x === 'object') E.SPC = x; } catch (e) { }
+E.spSave = function () { try { const K = Object.keys(E.SPC); if (K.length > 260) K.sort((a, b) => E.SPC[a].t - E.SPC[b].t).slice(0, K.length - 200).forEach(k => delete E.SPC[k]); localStorage.setItem('pp_spc', JSON.stringify(E.SPC)); } catch (e) { } };
+E.spGet = async function (key, url, ttl) { const c = E.SPC[key]; if (c && Date.now() - c.t < ttl) return c.d; const d = await E.fetchJson(url, 15000); return d; };
+E.rosterStats = async function (lg, tid) { const key = 'r:' + lg + ':' + tid, c = E.SPC[key]; if (c && Date.now() - c.t < 6 * 3600e3) return c.d;
+  const d = await E.fetchJson(BASE + lg + '/teams/' + tid + '/roster', 15000), out = [];
+  (d.athletes || []).forEach(a => { const v = {}; (((a.statistics || {}).splits || {}).categories || []).forEach(cg => (cg.stats || []).forEach(z => { v[z.name] = z.value; }));
+    if (!(v.appearances > 0)) return; out.push({ n: a.displayName, pos: (a.position || {}).abbreviation || '', ap: v.appearances || 0, sub: v.subIns || 0, y: v.yellowCards || 0, r: v.redCards || 0, f: v.foulsCommitted || 0, fs: v.foulsSuffered || 0 }); });
+  const r = { comp: ((d.season || {}).displayName || lg).replace(/^\d{4}(-\d{2,4})?\s+/, ''), players: out }; E.SPC[key] = { t: Date.now(), d: r }; E.spSave(); return r; };
+E.teamLeagues = async function (lg, tid) { const L = []; if (lg && lg !== 'all') L.push(lg); const key = 't:' + tid, c = E.SPC[key]; let dl = c && Date.now() - c.t < 7 * 86400e3 ? c.d : null;
+  if (dl == null) { try { const d = await E.fetchJson(BASE + (lg && lg !== 'all' ? lg : 'all') + '/teams/' + tid, 12000); dl = (((d.team || {}).defaultLeague) || {}).slug || ''; E.SPC[key] = { t: Date.now(), d: dl }; E.spSave(); } catch (e) { dl = ''; } }
+  if (dl && L.indexOf(dl) < 0) L.push(dl); return L; };
+E.loadSeason = async function (lg, teams) {
+  await Promise.all((teams || []).filter(t => t && t.id).map(async t => { const Ls = await E.teamLeagues(lg, t.id), agg = {}, comps = [];
+    await Promise.all(Ls.map(async l => { try { const r = await E.rosterStats(l, t.id); comps.push(r.comp);
+      r.players.forEach(p => { const k = norm(p.n), a = agg[k] || (agg[k] = { n: p.n, pos: p.pos, team: t.name, ap: 0, sub: 0, y: 0, r: 0, f: 0, fs: 0, by: [] });
+        a.ap += p.ap; a.sub += p.sub; a.y += p.y; a.r += p.r; a.f += p.f; a.fs += p.fs; if (!a.pos && p.pos) a.pos = p.pos; a.by.push(r.comp + ' ' + p.y + 'G' + (p.r ? '+' + p.r + 'R' : '') + '/' + p.ap); }); } catch (e) { } }));
+    if (!Object.keys(agg).length) return; E.SPT[E.keyName(t.name)] = { comps, players: agg }; Object.keys(agg).forEach(k => { E.SP[k] = agg[k]; }); }));
+};
+// candidati abituali di una squadra dalla stagione (quando mancano formazioni e storico dell'app): i piu presenti da titolari, portieri esclusi
+E.seasonPool = function (team) { const T = E.SPT[E.keyName(team)]; if (!T) return []; return Object.keys(T.players).map(k => T.players[k]).filter(p => !/^G/.test((p.pos || '').toUpperCase()))
+  .sort((a, b) => (b.ap - b.sub) - (a.ap - a.sub)).slice(0, 14).map(p => ({ name: p.n, pos: p.pos, starts: p.ap - p.sub, season: true })); };
+E.spOf = name => E.SP[norm(name)] || null;
+// posta in gioco dalla fase della competizione (finale, semifinale, eliminazione diretta)
+E.stageInfo = function (stage) { const s = String(stage || ''); if (!s) return null;
+  if (/\bfinal(e)?\b/i.test(s) && !/semi|quarter|cuart|octav|round of|ottav|quart/i.test(s)) return { ko: true, final: true, txt: 'FINALE (' + s + '): partita secca da dentro o fuori, massima tensione, falli tattici e proteste' };
+  if (/semi|quarter|cuart|octav|round of|ottav|quart|play-?off|knockout|elimin|repechaje|ida|vuelta|leg/i.test(s)) return { ko: true, final: false, txt: 'eliminazione diretta (' + s + ')' };
+  return null; };
 E.rostersMap = summ => { const m = {}; summ = summ || {}; (summ.rosters || []).forEach(r => m[r.team] = r.players.map(p => ({ name: p.name, pos: p.pos, starter: p.starter }))); return (summ.rosters || []).some(r => r.players.some(p => p.starter)) ? m : null; };
 // esito di un ammonito-o-sostituto e di un marcatore da una partita finita
 E.cardOrSub = function (summ, name) { summ = summ || {};
@@ -862,8 +906,12 @@ E.fmTeamRecent = async function (teamId, k) { const d = await E.fetchAny('https:
 E.tcAdd = function (S, team, y) { if (!team || !(y >= 0)) return; S.tc = S.tc || {}; const k = E.keyName(team); const v = S.tc[k] || [0, 0]; v[0]++; v[1] += y; S.tc[k] = v; };
 E.tcAvg = function (S, team) { const v = (S.tc || {})[E.tkey(S.tc, team)]; if (!v || v[0] < 3) return null; return { n: v[0], y: v[1] / v[0] }; };
 E.teamHeat = function (S, rosters, team) { let y = 0, f = 0, k = 0; const pool = rosters && rosters[team] ? rosters[team].filter(x => x.starter).map(x => norm(x.name)) : []; const ck = E.keyName(team);
-  const arr = pool.length ? pool : E.teamPool(S, team).filter(r => r.starts >= 3).slice(0, 11).map(r => r.pk);
-  arr.forEach(p => { const v = S.players[p]; if (v && v[0] >= 4) { y += v[3] / v[0]; f += v[2] / v[0]; k++; } }); return { y, f, k }; };
+  let arr = pool.length ? pool : E.teamPool(S, team).filter(r => r.starts >= 3).slice(0, 11).map(r => r.pk);
+  if (!pool.length && arr.length < 8) arr = arr.concat(E.seasonPool(team).map(x => norm(x.name)).filter(k0 => arr.indexOf(k0) < 0)).slice(0, 11);
+  let kf = 0; arr.forEach(p => { const v = S.players[p], sp = E.SP[p];
+    if (v && v[0] >= 4 && !(sp && sp.ap > v[0])) { y += v[3] / v[0]; f += v[2] / v[0]; k++; kf++; }
+    else if (sp && sp.ap >= 4) { y += (sp.y + sp.r) / sp.ap; if (sp.f > 0) { f += sp.f / sp.ap; kf++; } k++; } });
+  if (kf && kf < k) f = f * k / kf; return { y, f, k }; };
 
 // ---------- arbitro, tensione, cartellini previsti ----------
 E.refReview = function (S, name) {
@@ -901,7 +949,8 @@ E.cardsForecast = function (S, ev, lam, rosters, refName, summ) { summ = summ ||
   T.push([foulsE != null && fRef != null && foulsE >= fRef * 1.08, 'Squadre fallose', foulsE != null ? 'falli attesi ' + foulsE.toFixed(0) + ' (riferimento ' + (fRef ? fRef.toFixed(0) : '?') + ')' : 'dato non disponibile']);
   T.push([rv.label === 'severo', 'Arbitro severo', rv.avg != null ? rv.avg.toFixed(1) + ' a gara contro ' + (rv.lg ? rv.lg.toFixed(1) : '?') : 'dato non disponibile']);
   if (tb.length === 2) { const d = Math.abs(tb[0].pts - tb[1].pts), n = summ.table.length; T.push([d <= 3, 'Scontro diretto in classifica', 'distacco ' + d + ' punti (' + tb[0].rank + '° e ' + tb[1].rank + '°)']); T.push([n >= 8 && tb.some(r => r.rank > n * 0.66), 'Zona bassa della classifica', n >= 8 ? tb.map(r => r.team + ' ' + r.rank + '°').join(', ') : 'girone di sole ' + n + ' squadre: dato non significativo']); }
-  else T.push([false, 'Posta in classifica', 'classifica non disponibile']);
+  else { const si = E.stageInfo((summ && summ.stage) || ev.stage || E.STG[ev.id]); T.push(si ? [true, 'Posta in gioco', si.txt] : [false, 'Posta in classifica', 'classifica non disponibile']); }
+  if (tb.length === 2) { const si2 = E.stageInfo((summ && summ.stage) || ev.stage || E.STG[ev.id]); if (si2) T.push([true, 'Posta in gioco', si2.txt]); }
   const fm = (summ && summ.form) || {}, neg = Object.keys(fm).filter(k => (fm[k].split('').reduce((t, c) => t + (c === 'W' ? 3 : c === 'D' ? 1 : 0), 0)) <= 3);
   T.push([neg.length > 0, 'Serie negativa', neg.length ? neg.map(k => k + ' ' + fm[k]).join(', ') : Object.keys(fm).length ? 'nessuna squadra sotto i 4 punti nelle ultime 5' : 'forma non disponibile']);
   T.push([Math.abs(lam.dElo) < 100, 'Partita equilibrata', 'differenza di forza ' + Math.round(Math.abs(lam.dElo)) + ' (sotto 100 = contrasti alla pari)']);
@@ -1339,7 +1388,7 @@ async function vMatch(ev) { root.dataset.cen = '';
   $('#rfm').onclick = () => vMatch(ev);
   let summ = null, ros = null, g365 = null, ros365 = null;
   const d365 = new Date(ev.date), k365 = '365_' + ymd(d365);
-  const p1 = memo('s' + ev.id, () => P.fetchSummary(ev.league, ev.id), 100000).then(x => { summ = x; ros = P.rostersMap(x); }).catch(e => log('ESPN: ' + e.message));
+  const p1 = memo('s' + ev.id, () => P.fetchSummary(ev.league, ev.id), 100000).then(x => { summ = x; ros = P.rostersMap(x); if (x && x.stage) ev.stage = x.stage; }).catch(e => log('ESPN: ' + e.message));
   const p2 = (async () => { if (!cache[k365]) cache[k365] = await P.fetch365Day(d365); const m = P.match365(cache[k365], ev); if (m) { ev.g365id = m.id; g365 = await memo('g' + m.id, () => P.fetch365Game(m.id), 100000); ros365 = P.rosters365(g365, ev); } })().catch(e => log('365Scores: ' + e.message));
   let fm = null, fmf = null; const live = (ev.state !== 'post' && !ev.done); let lsx = null, sfx = null;
   const src = (k, nm, f) => { if (DOWN[k] && Date.now() - DOWN[k] < 30 * 60000) return Promise.resolve(null); return f().catch(() => { if (!DOWN[k]) log(nm + ' non raggiungibile dal telefono: continuo con le altre fonti, riprovo tra 30 minuti.'); DOWN[k] = Date.now(); return null; }); };
@@ -1372,9 +1421,9 @@ async function vMatch(ev) { root.dataset.cen = '';
   if (!ev.done && ev.state === 'pre') { S.cp = S.cp || {}; if (!S.cp[ev.id] || !S.cp[ev.id].official && ros) S.cp[ev.id] = { lg: ev.league, official: !!ros, t: Date.now(), cards: cards.items.map(c => ({ n: c.name, p: c.p / 100 })), sc: ['home', 'away'].reduce((a, s) => a.concat(sc[s].slice(0, 2).map(r => ({ n: r.name, p: r.pc }))), []), done: false }; save(); }
   let refName = (summ && summ.referee) || (g365 && g365.referee) || (fmf && fmf.ref) || ''; const ra = P.refAvg(S, refName), sf = safest(ev);
   const cf = P.cardsForecast(S, ev, lam, ros, refName, summ), pcs = x => x == null ? '—' : pc0(x), fd1 = x => String(x.toFixed(1)).replace('.', ',');
-  const benchFor = (team, grp) => (ros && ros[team] ? ros[team].filter(x => !x.starter) : []).map(x => { const v = S.players[P.norm(x.name)]; return Object.assign({}, x, { pos: (v && v[8]) || x.pos }); }).filter(x => grp.indexOf(P.roleGroup(x.pos)) >= 0).map(x => { const v = S.players[P.norm(x.name)]; return v && v[0] >= 4 ? { n: x.name, pos: v[8] || x.pos, f: v[2] / v[0], y: v[3] / v[0], g: v[4] / v[0], s: v[5] / v[0] } : null; }).filter(Boolean);
+  const benchFor = (team, grp) => (ros && ros[team] ? ros[team].filter(x => !x.starter) : []).map(x => { const v = S.players[P.norm(x.name)]; return Object.assign({}, x, { pos: (v && v[8]) || x.pos }); }).filter(x => grp.indexOf(P.roleGroup(x.pos)) >= 0).map(x => { const v = S.players[P.norm(x.name)], sp = P.spOf(x.name); if (v && v[0] >= 4 && !(sp && sp.ap > v[0])) return { n: x.name, pos: v[8] || x.pos, f: v[2] / v[0], y: v[3] / v[0], g: v[4] / v[0], s: v[5] / v[0] }; return sp && sp.ap >= 3 ? { n: x.name, pos: x.pos || sp.pos, f: sp.f / sp.ap, y: (sp.y + sp.r) / sp.ap, g: 0, s: 0 } : null; }).filter(Boolean);
   const subCard = c => { const b = benchFor(c.team, [c.group]).sort((p, q) => q.y + q.f * 0.3 - p.y - p.f * 0.3)[0]; return b ? 'Sostituto diretto probabile (panchina, stesso ruolo): ' + esc(b.n) + ' (' + esc(b.pos) + ', ' + b.f.toFixed(2) + ' falli/gara, ' + b.y.toFixed(2) + ' gialli/gara)' : (ros ? 'Sostituto: nessun panchinaro dello stesso ruolo con storico sufficiente' : 'Sostituto: panchina non ancora pubblicata'); };
-  const whyCard = c => { const st = c.status === 'weak' ? 'squadra più debole' : c.status === 'strong' ? 'squadra più forte' : 'squadre alla pari'; return 'Ruolo ' + c.group + ' (' + esc(c.pos) + ') in ' + st + ': base ' + c.base.toFixed(1) + '% × fattore storico ' + c.factor.toFixed(2) + (c.n >= 4 ? ' (falli ' + c.fpg.toFixed(2) + '/gara, gialli ' + c.ypg.toFixed(2) + '/gara su ' + c.n + ' gare)' : ' (storico scarso: fattore 1)') + ' = ' + c.p.toFixed(0) + '% dopo la calibrazione.'; };
+  const whyCard = c => { const st = c.status === 'weak' ? 'squadra più debole' : c.status === 'strong' ? 'squadra più forte' : 'squadre alla pari'; return 'Ruolo ' + c.group + ' (' + esc(c.pos) + ') in ' + st + ': base ' + c.base.toFixed(1) + '% × fattore storico ' + c.factor.toFixed(2) + (c.n >= 4 ? ' (' + (c.fpg != null ? 'falli ' + c.fpg.toFixed(2) + '/gara, ' : 'falli non rilevati, ') + 'gialli ' + c.ypg.toFixed(2) + '/gara su ' + c.n + ' gare' + (c.src && c.src !== 'club/naz' ? '; fonte ' + c.src : '') + ')' : ' (storico scarso: fattore 1)') + ' = ' + c.p.toFixed(0) + '% dopo la calibrazione.'; };
   const scWhy = (r, side, lt) => { const att = sc[side].filter(x => x !== r && P.roleGroup(x.pos) === 'ATT')[0], g = P.roleGroup(r.pos); let t = (r.gp >= 4 ? r.spg.toFixed(1) + ' tiri/gara (' + r.sotpg.toFixed(1) + ' in porta), ' + r.gpg.toFixed(2) + ' gol/gara in stagione' + (r.recN ? ', nelle ultime ' + r.recN + ': ' + r.recG + ' gol e ' + r.recS + ' tiri' : '') : 'storico scarso, stima prudente') + '; gol attesi della squadra ' + lt.toFixed(2) + (r.pen ? '; rigorista probabile' : '') + '.';
     if (g !== 'ATT' && att && r.gp >= 4) { const w = []; if (r.spg > att.spg) w.push('più tiri (' + r.spg.toFixed(1) + ' contro ' + att.spg.toFixed(1) + ')'); if (r.recG > att.recG) w.push('più gol di recente (' + r.recG + ' contro ' + att.recG + ')'); if (r.pen && !att.pen) w.push('i rigori'); t += ' Davanti all\'attaccante ' + esc(att.name) + (w.length ? ': ' + w.join(', ') : ': pesa il punteggio complessivo, non un solo dato') + '.'; }
     return t; };
@@ -1420,7 +1469,7 @@ async function vMatch(ev) { root.dataset.cen = '';
   { const rv = cf.rv; let r = '<div class="card dir"><div class="k">Recensione dell\'arbitro</div><div class="big">' + (refName ? esc(refName) : 'Non noto') + (refName ? ' <small>' + esc(rv.label) + '</small>' : '') + '</div><div class="sm">' + (rv.avg != null ? fd1(rv.avg) + ' cartellini a gara su ' + rv.n + ' gare viste dall\'app' + (rv.lg ? ' (media di tutti gli arbitri visti: ' + fd1(rv.lg) + ')' : '') + '. ' + (rv.thin ? 'Campione ancora piccolo (meno di 5 gare): peso basso.' : '') : 'L\'app ha visto troppe poche gare di questo arbitro per giudicarlo: la recensione si costruisce con l\'addestramento.') + '</div><div class="sm">Nei test l\'arbitro da solo non ha previsto chi viene ammonito, ma ha senso per il numero totale di cartellini. Per la recensione completa (media di carriera, rigori, rossi) apri le fonti:</div><div class="links">' + (refName ? '<a href="https://www.google.com/search?q=' + encodeURIComponent(refName + ' arbitro cartellini media statistiche') + '" target="_blank" rel="noopener">Statistiche arbitro<i>↗</i></a><a href="https://valuestats.com/it/" target="_blank" rel="noopener">ValueStats<i>↗</i></a>' : '') + '<a href="https://www.google.com/search?q=' + encodeURIComponent(ev.home + ' ' + ev.away + ' arbitro designato') + '" target="_blank" rel="noopener">Arbitro designato<i>↗</i></a></div></div>';
     r += '<div class="card"><div class="k">Cartellini previsti</div><div class="big">≈ ' + (cf.exp != null ? fd1(cf.exp) : '—') + ' <small>' + (cf.exp != null ? 'tra gialli e rossi' : 'dati insufficienti') + '</small></div>' + (cf.exp != null ? '<div class="chips">' + chip('Almeno 3: ' + pcs(cf.p3)) + chip('Almeno 4: ' + pcs(cf.p4)) + chip('Almeno 5: ' + pcs(cf.p5)) + '</div><div class="sm">Stima ' + cf.how + '; probabilità con distribuzione di Poisson sulla media (non ancora calibrate sui cartellini reali).</div>' : '') + '</div>';
     r += '<div class="card"><div class="k">Perché questi cartellini</div>' + cf.reasons.map(x => '<div class="sm">• ' + esc(x) + '</div>').join('') + '<div class="sm">• Sale se: una squadra va sotto presto e rincorre con falli, c\'è un rigore o un\'espulsione, la partita si spezza a centrocampo.</div><div class="sm">• Scende se: gol precoce e partita gestita, ritmo basso, poche transizioni.</div></div>';
-    r += '<div class="card"><div class="k">Tensione della partita: ' + cf.level + ' (' + cf.cnt + ' elementi su ' + cf.tension.length + ')</div><div class="sm">Conta solo ciò che è documentato nei dati: mai il solo arbitro o la sola etichetta di derby.</div>' + cf.tension.map(t => '<div class="kv"><span class="' + (t[0] ? 'ok' : 'mut') + '">' + (t[0] ? '✔ sì' : '✗ no') + '</span><div><b>' + esc(t[1]) + '</b><div class="sm">' + esc(t[2]) + '</div></div></div>').join('') + '<div class="sm warn">Non misurabili dall\'app: precedenti caldi (cartellini nelle gare passate), rivalità, dichiarazioni della vigilia. Controllali nelle fonti.</div></div>';
+    r += '<div class="card"><div class="k">Tensione della partita: ' + cf.level + ' (' + cf.cnt + ' elementi su ' + cf.tension.length + ')</div><div class="sm">Conta solo ciò che è documentato nei dati: mai il solo arbitro o la sola etichetta di derby.</div>' + cf.tension.map(t => '<div class="kv"><span class="' + (t[0] ? 'ok' : 'mut') + '">' + (t[0] ? '✔ sì' : '✗ no') + '</span><div><b>' + esc(t[1]) + '</b><div class="sm">' + esc(t[2]) + '</div></div></div>').join('') + '<div class="sm warn">Da controllare nelle fonti (aperte qui sotto): diffidati e squalificati, precedenti caldi, dichiarazioni della vigilia.</div><div class="links"><a href="https://www.google.com/search?q=' + encodeURIComponent(ev.home + ' ' + ev.away + ' diffidati squalificati ammoniti') + '" target="_blank" rel="noopener">Diffidati e squalificati<i>↗</i></a><a href="https://www.google.com/search?q=' + encodeURIComponent(ev.home + ' ' + ev.away + ' conferenza stampa vigilia') + '" target="_blank" rel="noopener">Conferenze stampa<i>↗</i></a><a href="https://www.google.com/search?q=' + encodeURIComponent(ev.home + ' ' + ev.away + ' precedenti cartellini espulsioni') + '" target="_blank" rel="noopener">Precedenti caldi<i>↗</i></a></div></div>';
     r += '<div class="card"><div class="k">I nomi per ammonito o suo sostituto</div>' + (cards.items.length ? cards.items.map(c => '<div class="sm"><b>' + esc(c.name) + '</b> (' + esc(c.team) + ', ' + esc(c.pos) + ') ≈ ' + c.p.toFixed(0) + '%: ' + whyCard(c) + '</div>').join('') + '<div class="sm">Analisi completa di ciascuno nella sezione Cartellini.</div>' : '<div class="sm warn">Nessun candidato con dati sufficienti.</div>') + '</div>';
     r += '<div class="card"><div class="k">Storico completo dell\'arbitro</div>' + refCard(refName, true) + '</div>';
     S1.arbitro = r; }
@@ -1434,7 +1483,7 @@ async function vMatch(ev) { root.dataset.cen = '';
     '<div class="sm">L\'esatto da solo è la giocata più difficile: affiancalo alla direzione e a un\'alternativa.</div>';
   // ---- CARTELLINI
   const nameRow = (c) => '<div class="ir tall"><div class="ir-m"><b>' + esc(c.name) + '</b> <span class="sm">' + esc(c.team) + ' · ' + esc(c.pos) + '</span><div class="sm">' + c.hist + (c.never ? ' · <span class="warn">MAI AMMONITO: sconsigliato</span>' : '') + '</div><details class="why"><summary>Analisi del singolo</summary><div class="sm">' + whyCard(c) + '</div>' + (c.duel ? '<div class="sm">Duello: ' + esc(c.duel) + '.</div>' : '<div class="sm">Duello: nessun attaccante avversario con 1,2+ falli subiti/gara nel lato opposto.</div>') + '<div class="sm">' + subCard(c) + '</div><div class="sm">Scenario in cui sbaglia: ' + (c.team === cards.weak ? 'la squadra debole difende bassa senza contrasti o va in vantaggio e gestisce' : 'la squadra forte segna presto e non deve rincorrere in pressing') + ', oppure il giocatore esce presto.</div></details><button class="x" data-n="' + esc(P.norm(c.name)) + '">assente / non gioca</button></div><span class="bd">≈ ' + c.p.toFixed(0) + '%</span></div>';
-  let c1 = '<div class="sm">Squadra più debole: <b>' + esc(cards.weak) + '</b> (gap Elo ' + Math.round(cards.gap) + '). Candidati: centrale, mediano e anche terzini, esterni e attaccanti con tanti falli e gialli. Tetto realistico 25-30% per un nome.</div>';
+  let c1 = (cards.stage ? '<div class="card dir"><div class="k">Posta in gioco</div><div class="sm"><b>' + esc(cards.stage.txt) + '</b>. Nomi scelti: ' + cards.items.length + ' (in partite da tanti cartellini l\'app ne propone di più, da entrambe le squadre).</div></div>' : '') + (cards.ey != null ? '<div class="sm">Cartellini attesi dalle due rose (gialli a gara dei probabili titolari, stagione e storico): ≈ ' + cards.ey.toFixed(1).replace('.', ',') + '.</div>' : '') + '<div class="sm">Squadra più debole: <b>' + esc(cards.weak) + '</b> (gap Elo ' + Math.round(cards.gap) + '). Candidati: centrale, mediano e anche terzini, esterni e attaccanti con tanti falli e gialli. Tetto realistico 25-30% per un nome.</div>';
   c1 += cards.items.length ? cards.items.map(nameRow).join('') : '<div class="empty">Nessun candidato con dati sufficienti: astensione.</div>';
   if (cards.byRole && cards.byRole.length) c1 += '<div class="card"><div class="k">Miglior nome per ruolo</div><div class="sm">I dati premiano difensori e mediani della squadra debole, ma un terzino, un esterno o una punta con tanti falli e gialli può superarli.</div><div class="chips">' + cards.byRole.map(c => chip(esc(c.name) + ' · ' + c.group + ' ' + c.p.toFixed(0) + '%')).join('') + '</div></div>';
   if (cards.pAny2 != null) c1 += '<div class="sm">Almeno uno dei primi due ammonito: ≈ ' + (cards.pAny2 * 100).toFixed(0) + '%.</div>';
