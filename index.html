@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795255326;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795256608;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -104,9 +104,22 @@ E.matrix = function (lh, la, rho) {
   let s = 0; M.forEach(r => r.forEach(v => s += v));
   return M.map(r => r.map(v => v / s));
 };
+// MATRICE DEI RISULTATI ESATTI RAFFINATA: gol attesi (forma, xG, assenze, Elo) + distribuzione reale dei gol delle due squadre (casa/fuori)
+// + tasso di pareggi del campionato + correzione per i punteggi bassi + indicazioni dei tipster sull'esatto. Restituisce anche il perche'.
+E.exactMatrix = function (S, ev, X) { X = X || {}; const lh = ev.lam.lh, la = ev.lam.la, why = []; const pois = (l, k) => Math.exp(-l) * Math.pow(l, k) / FACT[k];
+  const gdOf = (t, side) => { const G = S.gd || {}, k = E.tkey(G, t); return G[k] && G[k][side]; };
+  const emp = (A, fa, B, fb) => { const a = A && A.n >= 5 ? A : null, b = B && B.n >= 5 ? B : null; if (!a && !b) return null; const v = [0, 0, 0, 0, 0, 0]; let w = 0; [[a, fa], [b, fb]].forEach(([x, f]) => { if (!x) return; for (let k = 0; k < 6; k++) v[k] += x[f][k] / x.n * x.n; w += x.n; }); return { v: v.map(z => z / w), n: w }; };
+  const eh = emp(gdOf(ev.home, 'h'), 'gf', gdOf(ev.away, 'a'), 'ga'), ea = emp(gdOf(ev.away, 'a'), 'gf', gdOf(ev.home, 'h'), 'ga');
+  const marg = (l, e) => { const p = []; for (let k = 0; k < K; k++) p.push(pois(l, k)); if (!e) return p; const w = Math.min(0.35, e.n / 60); for (let k = 0; k < K; k++) p[k] = (1 - w) * p[k] + w * (k < 5 ? e.v[k] : k === 5 ? e.v[5] * 0.6 : e.v[5] * 0.4 / Math.max(1, K - 6)); return p; };
+  const ph = marg(lh, eh), pa = marg(la, ea); if (eh) why.push('gol segnati/subiti in casa e fuori nelle ultime ' + eh.n + ' gare delle due squadre (peso ' + Math.round(Math.min(0.35, eh.n / 60) * 100) + '%)');
+  const rho = -0.06, M = ph.map(a => pa.map(b => a * b)); M[0][0] *= 1 - lh * la * rho; M[0][1] *= 1 + lh * rho; M[1][0] *= 1 + la * rho; M[1][1] *= 1 - rho;
+  const norm1 = () => { let t = 0; M.forEach(r => r.forEach(v => t += v)); M.forEach(r => r.forEach((v, j) => r[j] = v / t)); }; norm1();
+  if (X.lgDraw && X.lgN >= 40) { let d = 0; for (let i = 0; i < K; i++) d += M[i][i]; const tgt = 0.6 * d + 0.4 * X.lgDraw, f = Math.max(0.88, Math.min(1.2, tgt / d)); if (Math.abs(f - 1) > 0.02) { for (let i = 0; i < K; i++) M[i][i] *= f; norm1(); why.push('pareggi del campionato ' + Math.round(X.lgDraw * 100) + '% (' + X.lgN + ' gare): pareggi ' + (f > 1 ? 'alzati' : 'abbassati') + ' del ' + Math.round(Math.abs(f - 1) * 100) + '%'); } }
+  (X.tips || []).slice(0, 4).forEach(t => { const m = /^(\d+)-(\d+)$/.exec(t.s); if (!m || +m[1] >= K || +m[2] >= K) return; M[+m[1]][+m[2]] *= 1 + Math.min(0.12, t.w || 0.06); }); if ((X.tips || []).length) { norm1(); why.push('esatti indicati dai tipster: ' + X.tips.map(t => t.s + ' (' + t.src + ')').join(', ') + ' (peso piccolo)'); }
+  return { M, why, eh, ea }; };
 const sum = (M, f) => { let s = 0; for (let i = 0; i < K; i++) for (let j = 0; j < K; j++) if (f(i, j)) s += M[i][j]; return s; };
-E.markets = function (lh, la) {
-  const M = E.matrix(lh, la), m = {};
+E.markets = function (lh, la, Mo) {
+  const M = Mo || E.matrix(lh, la), m = {};
   m.home = sum(M, (i, j) => i > j); m.draw = sum(M, (i, j) => i === j); m.away = sum(M, (i, j) => i < j);
   m['1X'] = m.home + m.draw; m['X2'] = m.away + m.draw; m['12'] = m.home + m.away;
   for (const l of [0.5, 1.5, 2.5, 3.5, 4.5]) { m['over' + l] = sum(M, (i, j) => i + j > l); m['under' + l] = 1 - m['over' + l]; }
@@ -993,7 +1006,7 @@ E.sofaPre = async function (id) { const g = p => SJ('event/' + id + p, 7000).cat
 // FotMob campionato: partite finite della stagione e classifica completa (generale, casa, trasferta, ultime 5, xG)
 E.FMLG = [[55, 'Serie A'], [47, 'Premier League'], [87, 'LaLiga'], [54, 'Bundesliga'], [53, 'Ligue 1'], [42, 'Champions League'], [73, 'Europa League'], [86, 'Serie B'], [61, 'Liga Portugal'], [57, 'Eredivisie'], [268, 'Brasileirão'], [112, 'Liga Profesional Argentina']];
 E.fmLeague = async function (id) { const d = await E.fetchJson('https://www.fotmob.com/api/data/leagues?id=' + id, 25000), M = ((d.fixtures || {}).allMatches) || [];
-  const fin = M.filter(x => (x.status || {}).finished && !(x.status || {}).cancelled).map(x => ({ id: x.id, h: (x.home || {}).name, a: (x.away || {}).name, t: (x.status || {}).utcTime, r: x.roundName }));
+  const fin = M.filter(x => (x.status || {}).finished && !(x.status || {}).cancelled).map(x => { const sc = /^(\d+)\s*-\s*(\d+)$/.exec(((x.status || {}).scoreStr) || ''); return { id: x.id, h: (x.home || {}).name, a: (x.away || {}).name, t: (x.status || {}).utcTime, r: x.roundName, hs: sc ? +sc[1] : (x.home || {}).score, as: sc ? +sc[2] : (x.away || {}).score }; });
   const nxt = M.filter(x => !(x.status || {}).finished && !(x.status || {}).cancelled).slice(0, 30).map(x => ({ id: x.id, h: (x.home || {}).name, a: (x.away || {}).name, hid: (x.home || {}).id, aid: (x.away || {}).id, t: (x.status || {}).utcTime, r: x.roundName }));
   const tab = {}, T0 = ((d.table || [])[0] || {}).data || {}, T = T0.table || (T0.tables && T0.tables[0] && T0.tables[0].table) || {}, sc = s => { const m = /^(\d+)-(\d+)$/.exec(s || ''); return m ? [+m[1], +m[2]] : [null, null]; };
   const row = r => { const [gf, ga] = sc(r.scoresStr); return { pos: r.idx, pts: r.pts, pl: r.played, w: r.wins, d: r.draws, l: r.losses, gf, ga }; };
@@ -1213,7 +1226,12 @@ async function dayEvents(date) { const ds = ymd(date), ls = LGSEL(); let out = [
   const near = (a, b) => Math.abs(new Date(a.date) - new Date(b.date)) < 4 * 3600e3 && (sameT(a.home, b.home) && sameT(a.away, b.away) || sameT(a.home, b.away) && sameT(a.away, b.home));
   extra.forEach(L => L.forEach(x => { const m = out.find(e => near(e, x)); if (m) { if (!m.lgName && x.lgName) m.lgName = x.lgName; if (x.g365id) m.g365id = m.g365id || x.g365id; if (x.sid) m.sid = m.sid || x.sid; if (!m.venue && x.venue) m.venue = x.venue; } else out.push(x); }));
   out.sort((a, b) => a.date.localeCompare(b.date)); return out; }
-function prepEv(ev) { if (ev.lam) return ev; const lam = P.lambdas(S, SEED, ev); ev.lam = lam; ev.mk = P.markets(lam.lh, lam.la); ev.list = P.marketList(S, ev.mk, lam.lh, lam.la, SEED, ev); ev.list.forEach(x => { if (!MLBL[x.key]) MLBL[x.key] = x.label; }); ev.favHome = lam.lh >= lam.la; return ev; }
+function exExtra(ev) { const X = { tips: [] }; try { const T = S.lgTab || {}; for (const id in T) { if (id === '42' || id === '73') continue; const tb = T[id].tab || {}, ks = Object.keys(tb); if (!ks.some(n => sameT(tb[n].name, ev.home))) continue; let d = 0, pl = 0; ks.forEach(n => { d += tb[n].d || 0; pl += tb[n].pl || 0; }); if (pl) { X.lgDraw = d / pl; X.lgN = Math.round(pl / 2); } break; } } catch (e) { }
+  try { ['FB', 'WDW'].forEach(c => siteRows(c, ev).forEach(r => { if (/^ES:/.test(r.k)) { const rev = r.h && !teamIs(r.h, ev.home) && teamIs(r.h, ev.away), sc = r.k.slice(3).split('-'); X.tips.push({ s: rev ? sc[1] + '-' + sc[0] : sc.join('-'), src: TSRC[c], w: 0.06 }); } })); extFor(ev).forEach(p => { if (/^ES:/.test(p.k)) X.tips.push({ s: p.k.slice(3), src: p.src === 'VID' ? 'video' : p.src === 'WEB' ? 'web' : 'Telegram', w: 0.08 }); }); } catch (e) { }
+  return X; }
+function exWhyHtml(ev) { const mk = ev.mk, l = ev.lam; let t = '<details class="why"><summary>Come è stato scelto</summary><div class="sm">• Gol attesi ' + esc(ev.home) + ' ' + l.lh.toFixed(2) + ', ' + esc(ev.away) + ' ' + l.la.toFixed(2) + ' (forza Elo, forma, xG recenti' + (ev.absAdj ? ', assenze' : '') + ', media gol del campionato)</div>';
+  (mk.exWhy || []).forEach(w => t += '<div class="sm">• ' + esc(w) + '</div>'); const E3 = mk.exact.slice(0, 5); t += '<div class="sm">• Punteggi più probabili: ' + E3.map(c => c[0] + ' ' + fp(c[1])).join(' · ') + '</div>'; const tr1 = S.tracker.EX1, tr3 = S.tracker.EX3; if (tr1 && tr1.n >= 20) t += '<div class="sm">• Nei controlli l\'esatto principale è entrato ' + Math.round(tr1.hits / tr1.n * 100) + '% (' + tr1.n + ' partite)' + (tr3 && tr3.n ? ', uno dei primi 3 il ' + Math.round(tr3.hits / tr3.n * 100) + '%' : '') + '</div>'; return t + '</details>'; }
+function prepEv(ev) { if (ev.lam) return ev; const lam = P.lambdas(S, SEED, ev); ev.lam = lam; let EXR = null; try { EXR = P.exactMatrix(S, ev, exExtra(ev)); } catch (e) { } ev.mk = P.markets(lam.lh, lam.la, EXR ? EXR.M : undefined); if (EXR) { ev.mk.exWhy = EXR.why; ev.exR = EXR; } ev.list = P.marketList(S, ev.mk, lam.lh, lam.la, SEED, ev); ev.list.forEach(x => { if (!MLBL[x.key]) MLBL[x.key] = x.label; }); ev.favHome = lam.lh >= lam.la; return ev; }
 let DAYT = { key: '', t: 0 };
 async function loadDay(force) { const dk = ymd(curDate) + '|' + LGSEL().join(',');
   if (!force && DAYT.key === dk && events.length && Date.now() - DAYT.t < 150000) { return; }
@@ -1618,11 +1636,13 @@ function vMulti() {
   $('#go').onclick = async () => {
     await loadDay(); const T = +$('#tq').value, m = (+$('#mg').value || 0) / 100, el = $('#mm'), LGV = ($('#mlg') || {}).value || 'all'; const ms = events.filter(e => !e.done && e.state === 'pre' && lgPass(e, LGV));
     if ($('#md').value === 'e') { // multipla di risultati esatti
-      const nn = Math.min(ms.length, Math.max(2, Math.round(Math.log(T) / Math.log(9)))), cov = T <= 50 ? 2 : 1; const pick = ms.map(ev => ({ ev, c: ev.mk.exact.slice(0, cov) })).sort((p, q) => q.c.reduce((s, x) => s + x[1], 0) - p.c.reduce((s, x) => s + x[1], 0)).slice(0, nn);
+      const nn = Math.min(ms.length, Math.max(2, Math.round(Math.log(T) / Math.log(9)))), cov = T <= 50 ? 2 : 1; const inDir = ev => { const D = ev.mk.dirp, k = D.esito.k; const L = ev.mk.exact.filter(c => { const [i, j] = c[0].split('-').map(Number); return k === '1' ? i > j : k === '2' ? i < j : k === 'X' ? i === j : true; }); return (L.length >= cov ? L : ev.mk.exact).slice(0, cov); };
+      const allP = ms.map(prepEv).map(ev => ({ ev, c: inDir(ev), q: (ev.lam.known ? 1 : 0.8) * Math.min(1, ev.mk.dirp.esito.p / 0.5) })).sort((p, q) => q.c.reduce((s, x) => s + x[1], 0) * q.q - p.c.reduce((s, x) => s + x[1], 0) * p.q);
+      let nE = 2; { let od = 1; for (let i = 0; i < allP.length; i++) { od *= 1 / Math.max(0.02, allP[i].c.reduce((s, x) => s + x[1], 0)) / (1 + m); nE = i + 1; if (od >= T) break; } } const pick = allP.slice(0, Math.max(2, Math.min(nE, 8)));
       if (pick.length < 2) { el.innerHTML = '<p class="empty">Servono almeno 2 partite non iniziate.</p>'; return; }
       const ps = pick.map(x => x.c.reduce((s, y) => s + y[1], 0)), pAll = ps.reduce((p, q) => p * q, 1), combos = Math.pow(cov, pick.length);
       regMult('e', T, pick.map((x, i) => ({ id: x.ev.id, ex: x.c.map(y => y[0]), p: ps[i], h: x.ev.home, a: x.ev.away })), pAll, null);
-      el.innerHTML = '<div class="sm">Multipla di risultati esatti: ' + pick.length + ' partite, ' + cov + ' punteggio/i per partita (' + combos + ' combinazioni). Ogni esatto ha la direzione che lo sostiene.</div>' + pick.map((x, i) => irow(null, esc(x.ev.home) + ' – ' + esc(x.ev.away), x.c.map(y => y[0] + ' ' + fp(y[1])).join(' · '), fp(ps[i]), 'Direzione: ' + esc(x.ev.mk.dir[0]) + ' ' + fp(x.ev.mk.dir[1]) + ' · ' + x.ev.mk.dir[2] + (x.ev.mk.dirp.same ? '' : ' · attenzione: l\'esatto ' + x.ev.mk.dirp.top + ' non è in linea con l\'esito più probabile'))).join('') + '<div class="card sum"><div>Entrano tutte: <b>' + fp(pAll) + '</b> (≈ 1 volta su ' + Math.round(1 / pAll) + ')</div><div>Quota giusta della combinazione vincente: <b>' + (1 / pAll).toFixed(0) + '</b>' + (cov > 1 ? ' (con ' + combos + ' combinazioni la puntata si divide: il ritorno è quella quota divisa ' + combos + ')' : '') + '</div><div class="sm">Gli esatti sono la giocata più difficile: l\'app misura la loro riuscita reale in Precisione (EX1, EX3). Controlla la quota reale: deve superare quella giusta.</div></div>';
+      el.innerHTML = '<div class="sm">Multipla di risultati esatti: ' + pick.length + ' partite, ' + cov + ' punteggio/i per partita (' + combos + ' combinazioni). Ogni esatto ha la direzione che lo sostiene.</div>' + pick.map((x, i) => irow(null, esc(x.ev.home) + ' – ' + esc(x.ev.away), x.c.map(y => y[0] + ' ' + fp(y[1])).join(' · '), fp(ps[i]), 'Direzione: ' + esc(x.ev.mk.dir[0]) + ' ' + fp(x.ev.mk.dir[1]) + ' · ' + x.ev.mk.dir[2] + (x.ev.mk.dirp.same ? '' : ' · il singolo punteggio più probabile è ' + x.ev.mk.dirp.top + ', ma l\'esito più probabile è ' + x.ev.mk.dirp.esito.label + ': l\'app gioca l\'esatto dentro la direzione') + exWhyHtml(x.ev))).join('') + '<div class="card sum"><div>Entrano tutte: <b>' + fp(pAll) + '</b> (≈ 1 volta su ' + Math.round(1 / pAll) + ')</div><div>Quota giusta della combinazione vincente: <b>' + (1 / pAll).toFixed(0) + '</b>' + (cov > 1 ? ' (con ' + combos + ' combinazioni la puntata si divide: il ritorno è quella quota divisa ' + combos + ')' : '') + '</div><div class="sm">Gli esatti sono la giocata più difficile: l\'app misura la loro riuscita reale in Precisione (EX1, EX3). Controlla la quota reale: deve superare quella giusta.</div></div>';
       return; }
     let days = +(($('#dys') || {}).value || 1) || 1; const nFix = +(($('#nl') || {}).value || 0) || 0; if (LGV !== 'all' && ms.length < 3) days = Math.max(days, 4);
     el.innerHTML = '<div class="sm">Sto preparando il palinsesto dei giorni scelti…</div>';
@@ -1908,11 +1928,14 @@ P.ratingHook = function (team, lg) { const T = S.lgTab || {}; let best = null; f
   return null; };
 // correzione una tantum: squadre partite da 1500 perche' il nome non combaciava con l'archivio Elo
 if (!S.migAl) { try { let n = 0; Object.keys(S.elo || {}).forEach(k => { if (SEED.elo_nt_idx && SEED.elo_nt_idx[k] !== undefined) return; if (SEED.elo_cl_idx[P.clubKey(k)] !== undefined) return; const a = P.clubAlias(k, SEED.elo_cl_idx); if (!a) return; const v = SEED.elo_cl_idx[a]; if (Math.abs(S.elo[k] - v) > 100) { S.elo[k] = Math.round((0.7 * v + 0.3 * S.elo[k]) * 10) / 10; n++; } }); S.migAl = 1; if (n) log('Corrette ' + n + ' squadre con nome diverso dall\'archivio Elo (es. Manchester City / Man City).'); } catch (e) { } }
+if (!S.gdMig) { Object.values(S.lgTab || {}).forEach(L => { L.t = 0; }); S.gdMig = 1; }
+function gdBuild() { const G = {}; Object.keys(S.lgTab || {}).forEach(id => (S.lgTab[id].fin || []).forEach(m => { if (m.hs == null || m.as == null || !m.h) return; const put = (t, side, gf, ga) => { const k = P.keyName(t), o = G[k] = G[k] || {}, x = o[side] = o[side] || { n: 0, gf: [0, 0, 0, 0, 0, 0], ga: [0, 0, 0, 0, 0, 0] }; x.n++; x.gf[Math.min(5, gf)]++; x.ga[Math.min(5, ga)]++; }; put(m.h, 'h', +m.hs, +m.as); put(m.a, 'a', +m.as, +m.hs); })); S.gd = G; }
 function lgPending() { const T = S.lgTab || {}; return P.FMLG.some(([id]) => !T[id] || Date.now() - T[id].t > 6 * 3600e3 || (T[id].fin || []).some(m => !(S.fmIng || {})[m.id])); }
 const LGB = { busy: 0 };
 async function leagueStep(maxM) { if (LGB.busy) return 0; LGB.busy = 1; S.lgTab = S.lgTab || {}; let n = 0;
   try { for (const [id, nm] of P.FMLG) { const L = S.lgTab[id]; if (L && Date.now() - L.t < 6 * 3600e3) continue;
-      try { const r = await P.fmLeague(id); S.lgTab[id] = { t: Date.now(), name: r.name || nm, tab: r.tab, fin: r.fin.map(x => ({ id: x.id, t: x.t })) }; } catch (e) { if (!L) S.lgTab[id] = { t: Date.now(), name: nm, tab: {}, fin: [], err: 1 }; } await zz(100); }
+      try { const r = await P.fmLeague(id); S.lgTab[id] = { t: Date.now(), name: r.name || nm, tab: r.tab, fin: r.fin.map(x => ({ id: x.id, t: x.t, h: x.h, a: x.a, hs: x.hs, as: x.as })) }; } catch (e) { if (!L) S.lgTab[id] = { t: Date.now(), name: nm, tab: {}, fin: [], err: 1 }; } await zz(100); }
+    gdBuild(); [].concat(events || [], QM.list || []).forEach(e => { if (!e.done && e.lam) { try { delete e.lam; prepEv(e); } catch (x) { } } });
     for (const [id] of P.FMLG) { const L = S.lgTab[id]; if (!L) continue;
       const todo = (L.fin || []).filter(m => !(S.fmIng || {})[m.id]).sort((a, b) => new Date(b.t) - new Date(a.t));
       for (const m of todo) { if (n >= (maxM || 10)) break; if (busy()) await zz(500);
@@ -2026,6 +2049,7 @@ function ragiona(ev, X) { const lam = ev.lam, mk = ev.mk, D = mk.dirp, R = taRow
   h += blk('6 · Risultato esatto', li('Dati: ' + ex.map(x => x[0] + ' ' + fp(x[1])).join(' · ') + ' (i primi 3 insieme ' + fp(ex.reduce((a, x) => a + x[1], 0)) + ')') + li('Direzione che lo sostiene: ' + esc(D.esito.label) + ' ' + fp(D.esito.p) + ' · ' + esc(D.tot.label) + ' ' + fp(D.tot.p) + ' · ' + esc(D.goal.label) + ' ' + fp(D.goal.p)) +
     li('Tipster: ' + (te.length ? te.map(r => TSRC[r.src] + ' ' + r.k.slice(3) + ' (modello ' + fp(r.pm || 0) + (ex.some(x => x[0] === r.k.slice(3)) ? ', tra i primi 3 dell\'app' : ', fuori dai primi 3 dell\'app') + ')').join(' · ') : 'nessun risultato esatto pubblicato') ) +
     '<div class="sm"><b>Lettura:</b> ' + (te.some(r => ex[0] && r.k.slice(3) === ex[0][0]) ? 'esatto ' + ex[0][0] + ' confermato anche da un tipster: è il più sostenuto' : 'esatto principale ' + (ex[0] ? ex[0][0] : '—') + ', alternativa ' + (ex[1] ? ex[1][0] : '—') + ': giocarli insieme alla direzione, mai da soli') + '.</div>');
+  h += exWhyHtml(ev);
   // 7. cartellini e marcatori
   const C = X.cards, SC = X.sc, cf = X.cf;
   h += blk('7 · Cartellini', li('Previsti ≈ ' + (cf && cf.exp != null ? f2(cf.exp) : '—') + ' gialli, tensione ' + esc((cf && cf.level) || 'n.d.') + (X.ra ? '; arbitro ' + f2(X.ra.avg) + ' a gara' : '')) +
