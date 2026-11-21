@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795257160;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795257539;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -1095,6 +1095,7 @@ let S, STORE_MSG = '';
 try { S = await idbGet(KEY); IDB.ok = true; } catch (e) { IDB.ok = false; STORE_MSG = 'IndexedDB non disponibile (' + (e.message || e) + '): uso la memoria locale, più piccola.'; }
 if (!S) { try { const t = localStorage.getItem(KEY); if (t) { S = JSON.parse(t);
       if (IDB.ok) { try { await idbSet(KEY, S); localStorage.removeItem(KEY); STORE_MSG = 'Archivio spostato su IndexedDB: molto più spazio, niente più errori di salvataggio.'; } catch (e) { IDB.ok = false; } } } } catch (e) { S = null; } }
+if (window.__PRELOAD_S) S = window.__PRELOAD_S;
 if (!S || S.seedBuilt === undefined) S = P.defaultState(SEED);
 else if (S.seedBuilt < SEED.built) { const old = S; S = P.defaultState(SEED); S.elo = old.elo; S.pNT = old.pNT; S.pCL = old.pCL; S.rowsNT = old.rowsNT; S.rowsCL = old.rowsCL; S.seen = old.seen; S.tracker = old.tracker; S.picks = old.picks; S.settings = old.settings; S.log = old.log; S.trainCount = old.trainCount; S.lastTrain = old.lastTrain; Object.keys(old.players).forEach(k => { if (!S.players[k] || old.players[k][0] > S.players[k][0]) S.players[k] = old.players[k]; }); }
 if (Array.isArray(S.picks)) S.picks = {};
@@ -1140,7 +1141,7 @@ const LGSEL = () => S.settings.all === false ? S.settings.leagues : S.settings.l
 const LG = ev => ev.lgName || LGN[ev.league] || (ev.league === 'all' ? 'Altri campionati' : ev.league);
 const fp = P.fmtP, LGN = {}; P.LEAGUES.forEach(l => LGN[l[0]] = l[1]);
 const cache = {}, DOWN = {};
-let lastAct = 0; const busy = () => Date.now() - lastAct < 2500 && !document.hidden;
+let lastAct = 0; const busy = () => !window.__CLOUD && Date.now() - lastAct < 2500 && !document.hidden;
 ['touchstart', 'pointerdown', 'wheel', 'scroll', 'keydown'].forEach(e => addEventListener(e, () => { lastAct = Date.now(); }, { passive: true, capture: true }));
 const yieldUI = () => new Promise(r => setTimeout(r, busy() ? 160 : 0));
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(true); }); window.addEventListener('pagehide', () => save(true));
@@ -1926,7 +1927,7 @@ function vImp() {
   $('#ex').onclick = () => { const b = new Blob([JSON.stringify(S)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'pronostici_stato.json'; a.click(); };
   $('#rs').onclick = () => { if (confirm('Cancello tutto l\'addestramento?')) { localStorage.removeItem(KEY); location.reload(); } };
 }
-window.__S=()=>S;window.__T={ pollLU, webStep, ytStep, tgStep, extFor, extHtml, analyzeMatch, prefetchAll, train, histStep, leagueStep, selezione, tabOf, ragiona, taSection, taSites, taOne, taStep, taRows, taConc, taMultiHtml, taSection, squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
+window.__S=()=>S;window.__T={ cloudSync, cloudMerge, pumpVerify, queueVerify, majorsAhead, prefetchAll2: (l) => prefetchAll(l), pollLU, webStep, ytStep, tgStep, extFor, extHtml, analyzeMatch, prefetchAll, train, histStep, leagueStep, selezione, tabOf, ragiona, taSection, taSites, taOne, taStep, taRows, taConc, taMultiHtml, taSection, squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
 // auto-addestramento all'apertura se ultimo > 6 ore
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').catch(() => { });
 
@@ -2731,6 +2732,23 @@ const FST = {};
 // controllo automatico: se c'e' una versione nuova all'indirizzo impostato, la scarica e avvisa
 const UPDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/index.html';
 let updReady = 0;
+// ================= ADDESTRAMENTO 24 SU 24 NEL CLOUD: il telefono scarica il modello addestrato e lo unisce al suo =================
+const CLOUDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/state/';
+const CL_LOCAL = ['settings', 'log', 'yt', 'tg', 'tipA', 'tsrc', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
+const CL_UNION = ['snap', 'snapPre', 'ver', 'lu', 'luSrc', 'fmIng', 'seen', 'resolvedIds', 'refOf', 'cp', 'fmSeen', 'fmTeamT'];
+const trScore = X => Object.values((X && X.tracker) || {}).reduce((a, t) => a + (t.n || 0), 0);
+function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C);
+  Object.keys(C).forEach(k => { if (CL_LOCAL.indexOf(k) >= 0) return; const v = C[k];
+    if (CL_UNION.indexOf(k) >= 0 && v && typeof v === 'object' && !Array.isArray(v)) { S[k] = S[k] || {}; Object.keys(v).forEach(id => { if (S[k][id] === undefined) { S[k][id] = v[id]; n++; } }); return; }
+    if (theirs >= mine || S[k] === undefined) { S[k] = v; n++; } });
+  if (P.pidxClear) P.pidxClear(); return { n, mine, theirs }; }
+async function cloudSync(force) { S.cloud = S.cloud || {}; if (!force && S.cloud.chk && Date.now() - S.cloud.chk < 50 * 60e3) return; S.cloud.chk = Date.now();
+  try { const m = await (await fetch(CLOUDURL + 'meta.json?t=' + Date.now(), { cache: 'no-store' })).json(); S.cloud.last = m; if (!m || !m.t || (S.cloud.got && S.cloud.got >= m.t && !force)) return;
+    const r = await fetch(CLOUDURL + 'state.json?t=' + m.t, { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status); const C = await r.json(); const res = cloudMerge(C); S.cloud.got = m.t; S.cloud.res = res;
+    [].concat(events || [], QM.list || []).forEach(e => { if (!e.done && e.lam) { try { delete e.lam; prepEv(e); } catch (x) { } } });
+    save(true); log('Modello addestrato nel cloud scaricato (' + new Date(m.t).toLocaleString('it-IT') + '): ' + res.n + ' parti aggiornate, controlli ' + res.theirs + ' contro ' + res.mine + ' del telefono.'); }
+  catch (e) { S.cloud.err = String(e.message || e).slice(0, 80); } }
+setTimeout(() => cloudSync(), 15000); setInterval(() => { if (!document.hidden) cloudSync(); }, 10 * 60e3);
 async function updCheck(force) { S.settings = S.settings || {}; const u = (S.settings.updUrl || '').trim() || UPDURL;
   if (!force && S.settings.updT && Date.now() - S.settings.updT < 2 * 3600e3) return;
   S.settings.updT = Date.now();
