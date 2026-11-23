@@ -62,12 +62,17 @@ async def main():
             if left() < MIN * 60 * 0.65: break
             n = await ev("async()=>await window.__T.leagueStep(25)", 300)
             if not n: break
-        print('2. palinsesto e pronostici pre-partita')
-        r = await ev("""async()=>{const T=window.__T; await T.loadDay(true); let L=T.getEvents().slice(); try{L=L.concat(await T.majorsAhead())}catch(e){}
-          const now=Date.now(), seen={}; L=L.filter(e=>!e.done&&e.state==='pre'&&new Date(e.date)>now&&new Date(e.date)-now<30*3600e3&&(seen[e.id]?0:(seen[e.id]=1)));
-          L.sort((a,b)=>(/^(ita|eng|esp|ger|fra|por|ned)\\.|^uefa\\./.test(b.league||'')-/^(ita|eng|esp|ger|fra|por|ned)\\.|^uefa\\./.test(a.league||''))||new Date(a.date)-new Date(b.date)); L=L.slice(0,160);
-          let i=0,n=0; await Promise.all([0,1,2,3].map(async()=>{while(i<L.length){const e=L[i++];try{T.prepEv(e);await T.analyzeMatch(e);await T.refreshSnap(e);n++}catch(x){}}})); return n+' su '+L.length}""", 900)
-        print('  analizzate', r)
+        # formazioni ufficiali in continuo per tutto il giro (escono circa 60' prima: un giro ogni ora le prende tutte prima del via)
+        stop = {'v': False}
+        async def lu_loop():
+            while not stop['v']:
+                await ev("async()=>{await window.__T.pollLU(); return 1}", 240)
+                for _ in range(18):
+                    if stop['v']: break
+                    await asyncio.sleep(5)
+        lu_task = asyncio.create_task(lu_loop())
+        print('2. palinsesto completo di oggi e domani: pre-pronostico di ogni partita, poi analisi profonda finché c\'è tempo')
+        print('  ', await ev("async()=>JSON.stringify(await window.__T.palinsestoStep([0,1], %d))" % int(MIN * 60 * 1000 * 0.3), 1200))
         print('2b. tipster (OLBG e voti/quote 365Scores) sulle partite delle prossime 48 ore')
         print('  ', await ev("""async()=>{const T=window.__T,S=window.__S(); let L=T.getEvents().slice(); try{L=L.concat(await T.majorsAhead())}catch(e){} const seen={}; L=L.filter(e=>!e.done&&(seen[e.id]?0:(seen[e.id]=1)));
           const n=await T.taStep(120,L); const o=(S.tsrc||{}).OLBG; return n+' partite con voti/quote; OLBG '+(o?(o.ok?o.list.length+' consigli':'errore '+o.err):'-')}""", 900))
@@ -75,9 +80,11 @@ async def main():
         print('  ', await ev("async()=>{const n=await window.__T.webStep(true); const w=(window.__S().yt||{}).w||{}; return n+' pagine lette; '+Object.keys(w).map(u=>u.replace(/https?:\\/\\/(www\\.)?/,'').slice(0,40)+' '+(w[u].ok?'ok '+(w[u].m||[]).length+' partite':'no '+(w[u].why||''))).join(' | ')}", 300))
         print('  infortunati Transfermarkt:', await ev("async()=>{await window.__T.siteStep(); const I=window.__S().tmInj||{}; return Object.keys(I).map(k=>k+' '+((I[k].L||[]).length)).join(', ')}", 300))
         print('3. formazioni ufficiali'); print('  ', await ev("async()=>{await window.__T.pollLU(); return Object.keys(window.__S().lu||{}).length}", 300))
-        print('4. verifica partite finite')
-        r = await ev("""async()=>{const T=window.__T,S=window.__S(); let L=[]; for(const k of [0,-1]){try{L=L.concat(await T.dayEvents(new Date(Date.now()+k*86400e3)))}catch(e){}}
-          const F=L.filter(e=>e.done&&S.snap&&S.snap[e.id]&&!(S.ver&&S.ver[e.id])); let n=0; for(const e of F){try{T.prepEv(e);await T.verifyMatch(e);n++}catch(x){}} return n+' verificate su '+F.length}""", 900)
+        print('4. verifica e audit di tutte le partite finite (ieri l\'altro, ieri, oggi), prima e dopo le ufficiali')
+        r = await ev("""async()=>{const T=window.__T,S=window.__S(); const LL=[]; let L=[]; for(const k of [0,-1,-2]){try{const d=await T.dayEvents(new Date(Date.now()+k*86400e3)); LL.push(d); L=L.concat(d)}catch(e){}}
+          const F=L.filter(e=>e.done&&S.snap&&S.snap[e.id]&&!(S.ver&&S.ver[e.id])); let n=0, t0=Date.now(); let i=0;
+          await Promise.all([0,1,2,3].map(async()=>{while(i<F.length&&Date.now()-t0<%d){const e=F[i++];try{T.prepEv(e);await T.verifyMatch(e);n++}catch(x){}}}));
+          const C=T.covStep(LL); const ds=Object.keys(C).sort().slice(-3); return n+' verificate su '+F.length+' · copertura '+ds.map(d=>d+': '+JSON.stringify(C[d])).join(' | ')}""" % int(MIN * 60 * 1000 * 0.25), 1500)
         print('  ', r)
         print('4b. ripasso stagioni 2025-26 e 2026-27 (pre-pronostico e confronto)')
         t1=time.time()
@@ -89,9 +96,13 @@ async def main():
         while left() > 90:
             await ev("async()=>{await window.__T.histStep()}", 300)
             await ev("async()=>await window.__T.leagueStep(25)", 300)
+        stop['v'] = True
+        try: await asyncio.wait_for(lu_task, 300)
+        except Exception: pass
+        print('  formazioni ufficiali prese in questo giro:', await ev("Object.keys(window.__S().lu||{}).length"))
         out = await pg.evaluate("""(L)=>{const S=window.__S(),o={};Object.keys(S).forEach(k=>{if(L.indexOf(k)<0)o[k]=S[k]}); if(S.yt&&S.yt.w)o.ytw=S.yt.w;
           // archivi per id: solo gli ultimi 10 giorni
-          const cut=Date.now()-10*864e5; ['snap','snapPre'].forEach(k=>{if(o[k]){const x={};Object.keys(o[k]).forEach(id=>{const v=o[k][id];if(!v||!v.kick||new Date(v.kick)>cut)x[id]=v});o[k]=x}});
+          const cut=Date.now()-10*864e5, cut2=Date.now()-36*3600e3, V=S.ver||{}; ['snap','snapPre'].forEach(k=>{if(o[k]){const x={};Object.keys(o[k]).forEach(id=>{const v=o[k][id];if(!v||!v.kick)return; const kt=new Date(v.kick); if(kt>cut&&(!V[id]||kt>cut2))x[id]=v});o[k]=x}});
           return JSON.stringify(o)}""", LOCAL)
         score = await pg.evaluate("Object.values(window.__S().tracker||{}).reduce((a,t)=>a+(t.n||0),0)")
         nver = await pg.evaluate("Object.keys(window.__S().ver||{}).length")
