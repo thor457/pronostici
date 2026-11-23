@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795447235;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795457923;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -1127,6 +1127,20 @@ E.htmlTables = function (html) { const T = [], tx = c => c.replace(/<[^>]+>/g, '
 E.USLG = { 'ita.1': 'Serie_A', 'eng.1': 'EPL', 'esp.1': 'La_liga', 'ger.1': 'Bundesliga', 'fra.1': 'Ligue_1' };
 E.usParse = function (html) { const m = /teamsData\s*=\s*JSON\.parse\('([^']+)'\)/.exec(html); if (!m) return null; const raw = m[1].replace(/\\x([0-9a-fA-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16))).replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
   const D = JSON.parse(raw), out = {}; Object.values(D).forEach(t => { const H = (t.history || []).slice(-8); if (!H.length) return; const av = k => H.reduce((a, x) => a + (+x[k] || 0), 0) / H.length; out[t.title] = { n: H.length, xg: av('xG'), xga: av('xGA'), npxg: av('npxG'), npxga: av('npxGA'), ppda: H.reduce((a, x) => a + (x.ppda && x.ppda.def ? x.ppda.att / x.ppda.def : 0), 0) / H.length }; }); return out; };
+// scheda giocatore FotMob: stagione (minuti, gol, xG, tiri, falli fatti e subiti, contrasti, gialli) e ultime partite
+E.fmPlayer = async function (id) { const d = await E.fetchAny('https://www.fotmob.com/api/data/playerData?id=' + id, 20000); if (!d || !d.id) return null; const st = {}, ml = {};
+  (((d.firstSeasonStats || {}).statsSection || {}).items || []).forEach(g => (g.items || []).forEach(i => { const v = parseFloat(i.statValue); if (!isNaN(v)) st[i.title] = v; }));
+  (((d.mainLeague || {}).stats) || []).forEach(x => { ml[x.title] = +x.value || 0; });
+  const rec = (d.recentMatches || []).slice(0, 6).map(m => ({ d: ((m.matchDate || {}).utcTime || '').slice(0, 10), opp: m.opponentTeamName || '', min: m.minutesPlayed || 0, g: m.goals || 0, a: m.assists || 0, y: m.yellowCards || 0, r: m.redCards || 0, rt: m.ratingProps ? (+m.ratingProps.rating || null) : null, bench: !!m.onBench, lg: m.leagueName || '' }));
+  const inj = d.injuryInformation ? { why: d.injuryInformation.name || d.injuryInformation.type || 'infortunio', ret: ((d.injuryInformation.expectedReturn || {}).expectedReturnFallback) || d.injuryInformation.expectedReturn || '' } : null;
+  return { id, n: d.name || '', team: (d.primaryTeam || {}).teamName || '', pos: (((d.positionDescription || {}).primaryPosition) || {}).label || '', lg: (d.mainLeague || {}).leagueName || '', ss: (d.mainLeague || {}).season || '',
+    min: ml['Minutes played'] || 0, apps: ml['Matches'] || 0, st: ml['Started'] || 0, g: ml['Goals'] || st['Goals'] || 0, yc: ml['Yellow cards'] || st['Yellow cards'] || 0, rc: ml['Red cards'] || 0,
+    xg: st['xG'] || 0, npxg: st['xG excl. penalty'] != null ? st['xG excl. penalty'] : (st['xG'] || 0), sh: st['Shots'] || 0, sot: st['Shots on target'] || 0, fc: st['Fouls committed'] || 0, fw: st['Fouls won'] || 0, tk: st['Tackles'] || 0, dp: st['Dribbled past'] || 0, rec, inj }; };
+// notizie e conferenze stampa (Google News, ultimi 4 giorni)
+E.gnews = async function (q, lang) { const L = lang === 'it' ? 'hl=it&gl=IT&ceid=IT:it' : lang === 'es' ? 'hl=es&gl=ES&ceid=ES:es' : 'hl=en-GB&gl=GB&ceid=GB:en';
+  const x = await E.fetchText('https://news.google.com/rss/search?q=' + encodeURIComponent(q + ' when:4d') + '&' + L, 20000, 200), un = t => t.replace(/<!\[CDATA\[|\]\]>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+  return (String(x).match(/<item>[\s\S]*?<\/item>/g) || []).map(it => { const g = re => un((re.exec(it) || [])[1] || ''); const src = g(/<source[^>]*>([\s\S]*?)<\/source>/); let ti = g(/<title>([\s\S]*?)<\/title>/); if (src && ti.endsWith(' - ' + src)) ti = ti.slice(0, -3 - src.length);
+    return { ti, src, d: Date.parse(g(/<pubDate>([\s\S]*?)<\/pubDate>/)) || 0, u: g(/<link>([\s\S]*?)<\/link>/) }; }).filter(x => x.ti); };
 E.votes365 = async function (id) {
   const d = await E.fetchJson(B365 + 'game/?appTypeId=5&langId=1&timezoneName=Europe/Rome&userCountryId=1&gameId=' + id, 20000), g = d.game || {}, P = ((g.promotedPredictions || d.promotedPredictions || {}).predictions) || [], rows = [];
   P.forEach(p => { const tot = p.totalVotes || 0, ti = String(p.title || ''), op = p.options || [], v = o => (o.vote || {});
@@ -1629,7 +1643,7 @@ async function vMatch(ev) { root.dataset.cen = '';
     if (vn) fo += '<div class="kv"><span>Stadio</span><div>' + esc(vn) + '</div></div>';
     if (fmf.lineupType) fo += '<div class="kv"><span>FotMob</span><div class="' + (fmf.official ? 'ok' : 'warn') + '">' + (fmf.official ? 'formazioni ufficiali' : 'formazioni probabili') + (fmf.lsrc ? ' · fonte ' + esc(fmf.lsrc) : '') + ' · ' + esc(fmf.lh.formation || '?') + ' contro ' + esc(fmf.la.formation || '?') + '</div></div>';
     if (fmf.insights && fmf.insights.length) fo += '<div class="kv"><span>Note FotMob</span><div class="sm">' + fmf.insights.map(esc).join(' · ') + ' <span class="mut">(testo originale in inglese)</span></div></div>'; }
-  try { fo += siteHtml(ev); } catch (e) { }
+  try { fo += siteHtml(ev); } catch (e) { } try { fo += dossierHtml(ev); } catch (e) { }
   fo += '<div class="kv"><span>Arbitro</span><div>' + (refName ? esc(refName) + (ra ? ' · ' + ra.avg.toFixed(1) + ' gialli/gara su ' + ra.n + ' gare (descrittivo: da solo non ha predetto i cartellini dei singoli)' : ' · media gialli non ancora appresa') : 'da verificare') + '</div></div>';
   a += '<div class="card"><div class="k">Formazioni, assenti, arbitro</div>' + fo + '</div>';
   const uk = ev.list.find(x => x.key === 'UNDER25'); if (uk && uk.p >= 0.55) a += '<div class="card"><div class="k">Under ragionato</div><div class="sm">' + esc(P.reasonUnder(ev.mk, lam.lh, lam.la)) + '</div></div>';
@@ -1716,10 +1730,14 @@ function resolveCP(ev, summ) {
 
 // ---------- quadro del giorno: tutto in automatico ----------
 async function loadMatchData(ev) {
-  let summ = null, ros = null, g365 = null, ros365 = null; const d365 = new Date(ev.date), k = '365_' + ymd(d365);
+  let summ = null, ros = null, g365 = null, ros365 = null, fmf = null; const d365 = new Date(ev.date), k = '365_' + ymd(d365);
   await Promise.all([memo('s' + ev.id, () => P.fetchSummary(ev.league, ev.id), 100000).then(x => { summ = x; ros = P.rostersMap(x); }).catch(() => { }),
-    (async () => { if (!cache[k]) cache[k] = await P.fetch365Day(d365); const m = P.match365(cache[k], ev); if (m) { ev.g365id = m.id; g365 = await memo('g' + m.id, () => P.fetch365Game(m.id), 100000); ros365 = P.rosters365(g365, ev); } })().catch(() => { })]);
-  return { summ, rosEsp: ros, ros: ros || ros365, g365, src: ros ? 'XI ESPN' : ros365 ? (g365.teams.every(t => t.status === 'Confirmed') ? 'XI confermata 365' : 'XI probabile 365') : 'pre-XI storico', ref: (summ && summ.referee) || (g365 && g365.referee) };
+    (async () => { if (!cache[k]) cache[k] = await P.fetch365Day(d365); const m = P.match365(cache[k], ev); if (m) { ev.g365id = m.id; g365 = await memo('g' + m.id, () => P.fetch365Game(m.id), 100000); ros365 = P.rosters365(g365, ev); } })().catch(() => { }),
+    // FotMob: formazioni probabili (o ufficiali) e indisponibili con motivo: senza queste i nomi venivano dallo storico e potevano essere giocatori non più in squadra
+    (async () => { if (ev.src365 && !ev.fmid && !/^\d+$/.test(String(ev.id))) { } const id = ev.fmid || await P.fotmobId(ev); if (id) { ev.fmid = id; fmf = await memo('fm' + id, () => P.fotmobFull(id), 100000); } })().catch(() => { })]);
+  const c365 = !!(ros365 && g365 && g365.teams.every(t => t.status === 'Confirmed')), rfm = fmf ? fmRoster(ev, fmf) : null;
+  let rr = ros || (rfm && fmf.official ? rfm : null) || ros365 || rfm, src = ros ? 'XI ESPN' : rfm && fmf.official ? 'XI ufficiale FotMob' : ros365 ? (c365 ? 'XI confermata 365' : 'XI probabile 365') : rfm ? 'XI probabile FotMob' : 'pre-XI storico';
+  return { summ, rosEsp: ros || (rfm && fmf.official ? rfm : null), ros: rr, g365, fmf, src, ref: (summ && summ.referee) || (g365 && g365.referee) || (fmf && fmf.ref) || null };
 }
 const formPts = s => (s || '').split('').reduce((t, c) => t + (c === 'W' ? 3 : c === 'D' ? 1 : 0), 0);
 function overview(x) {
@@ -1741,12 +1759,15 @@ function overview(x) {
 const AN = {}; let pf = { run: false, done: 0, total: 0 }; window.__pf = () => pf; window.__AN = AN;
 const MM = {}; const memo = (k, f, ttl) => { const m = MM[k]; if (m && Date.now() - m.t < ttl) return m.p; const p = f(); MM[k] = { t: Date.now(), p }; p.catch(() => { if (MM[k] && MM[k].p === p) delete MM[k]; }); return p; };
 async function analyzeMatch(ev) {
-  const dt = await loadMatchData(ev); const absent = (S.absent = S.absent || {})[ev.id] || {};
+  const dt = await loadMatchData(ev); const absent = Object.assign({}, (S.absent = S.absent || {})[ev.id] || {});
+  if (dt.fmf) [dt.fmf.lh, dt.fmf.la].forEach(T => ((T && T.out) || []).forEach(o => { if (!/rientr|back in training/i.test(o.ret || '')) absent[P.norm(o.name)] = 1; }));
   const cards = P.pickCards(S, SEED, ev, dt.ros, ev.lam, absent), sc = P.pickScorers(S, ev, dt.ros, ev.lam, absent);
-  const hh = P.teamHeat(S, dt.ros, ev.home), ha = P.teamHeat(S, dt.ros, ev.away), cfA = P.cardsForecast(S, ev, ev.lam, dt.ros, dt.ref, dt.summ); snapMatch(ev, cards, sc, cfA, dt.ref, !!dt.rosEsp || /confermata/.test(dt.src));
+  const hh = P.teamHeat(S, dt.ros, ev.home), ha = P.teamHeat(S, dt.ros, ev.away), cfA = P.cardsForecast(S, ev, ev.lam, dt.ros, dt.ref, dt.summ);
+  let pd = null; if (isMajor(ev) && new Date(ev.date) - Date.now() < 72 * 3600e3) { try { pd = await enrichPlayers(ev, dt, cards, sc, cfA); } catch (e) { log('Scheda giocatori ' + ev.home + '-' + ev.away + ': ' + e.message); } }
+  snapMatch(ev, cards, sc, cfA, dt.ref, !!dt.rosEsp || /confermata|ufficiale/.test(dt.src));
   S.cp = S.cp || {}; if (!S.cp[ev.id] || (!S.cp[ev.id].official && dt.rosEsp)) S.cp[ev.id] = { lg: ev.league, official: !!dt.rosEsp, t: Date.now(), cards: cards.items.map(c => ({ n: c.name, p: c.p / 100 })), sc: ['home', 'away'].reduce((x, s) => x.concat(sc[s].slice(0, 2).map(r => ({ n: r.name, p: r.pc }))), []), done: false };
   let alertTxt = ''; if (dt.ros) { const cur = {}; Object.keys(dt.ros).forEach(t => dt.ros[t].filter(x => x.starter).forEach(x => cur[P.norm(x.name)] = t)); S.xi = S.xi || {}; const pr = S.xi[ev.id]; if (pr) { const o = Object.keys(pr).filter(k => !cur[k]); if (o.length) alertTxt = 'XI cambiata, fuori: ' + o.join(', '); } S.xi[ev.id] = cur; }
-  const r = { ev, dt, cards, sc, cf: cfA, heat: hh.y + ha.y, hk: Math.min(hh.k, ha.k), alertTxt, t: Date.now() }; AN[ev.id] = r; return r;
+  const r = { ev, dt, cards, sc, cf: cfA, pd, heat: hh.y + ha.y, hk: Math.min(hh.k, ha.k), alertTxt, t: Date.now() }; AN[ev.id] = r; return r;
 }
 // analizza TUTTE le partite del giorno in background (4 alla volta), cosi' ogni partita/squadra e' gia' pronta quando la apri e ogni pronostico viene registrato prima del calcio d'inizio
 // campionati importanti del Quadro: i 5 maggiori e le coppe europee per primi, poi tutte le leghe e coppe che i bookmaker italiani quotano sempre
@@ -1772,14 +1793,15 @@ function majorsHtml(out, pend) { const M = out.filter(x => isMajor(x.ev)).map(x 
   const ord = z => { const l = (z.x ? z.x.ev : z.e).league || ''; return l === 'ita.1' ? 0 : /^(eng|esp|ger|fra)\.1|^uefa\.champ/.test(l) ? 1 : /^uefa\.|^ita\.(2|coppa)|^fifa\./.test(l) ? 2 : /^(por|ned|tur|bel)\.1|^(eng|esp|ger|fra)\.2/.test(l) ? 3 : 4; };
   M.sort((a, b) => (day(a.d) === day(b.d) ? ord(a) - ord(b) : 0) || a.d - b.d).forEach(z => { const dl = day(z.d); if (dl !== last) { h += '<h3 class="mt">' + esc(dl[0].toUpperCase() + dl.slice(1)) + '</h3>'; last = dl; }
     const hh = z.d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-    if (!z.x) { h += '<div class="card" data-i="M' + esc(String(z.e.id)) + '"><b>' + hh + ' · ' + esc(z.e.home) + ' – ' + esc(z.e.away) + '</b> <span class="sm">' + esc(LG(z.e)) + '</span><div class="sm mut">Preanalisi in corso…</div></div>'; return; }
+    if (!z.x) { try { const e = z.e; if (!e.mk || !e.list) prepEv(e); const ab = {}, cd = P.pickCards(S, SEED, e, null, e.lam, ab), s2 = P.pickScorers(S, e, null, e.lam, ab), cf2 = P.cardsForecast(S, e, e.lam, null, ((S.refOf || {})[e.id] || {}).r || null, null); z.x = { ev: e, dt: { src: 'pre-XI storico: analisi completa in corso' }, cards: cd, sc: s2, cf: cf2 }; } catch (er) { h += '<div class="card" data-i="M' + esc(String(z.e.id)) + '"><b>' + hh + ' · ' + esc(z.e.home) + ' – ' + esc(z.e.away) + '</b> <span class="sm">' + esc(LG(z.e)) + '</span><div class="sm mut">Preanalisi in corso…</div></div>'; return; } }
     const x = z.x, ev = x.ev, D = ev.mk.dirp, te = tensionOf(ev, x.cf && x.cf.exp, x.dt && x.dt.ref); let sel = null; try { sel = selezione(ev, { LV: [], alert: x.alertTxt }); } catch (e) { }
     const best = sel && sel.ok.length ? sel.ok[0] : null, cards = (x.cards.items || []).slice(0, 3), scs = ['home', 'away'].map(s => (x.sc[s] || []).slice(0, 2)).flat().sort((a, b) => b.pc - a.pc).slice(0, 3), tf = taAgree(ev).filter(g => g.rs.length >= 2)[0];
     h += '<div class="card" data-i="M' + esc(String(ev.id)) + '"><b>' + hh + ' · ' + esc(ev.home) + ' – ' + esc(ev.away) + '</b> <span class="sm">' + esc(LG(ev)) + '</span>' +
       '<div class="chips">' + chip('Esito ' + D.esito.label + ' ' + pc0(D.esito.p)) + chip(D.tot.label + ' ' + pc0(D.tot.p)) + chip(D.goal.label + ' ' + pc0(D.goal.p)) + chip('Esatto ' + D.score + ' · alt. ' + ((ev.mk.exact.find(e => e[0] !== D.score) || [''])[0])) + chip('Tensione ' + te.lvl, te.lvl === 'ALTA' ? 'g' : '') + (S.lu && S.lu[ev.id] ? chip('XI ufficiale ✔ ' + ((S.luSrc || {})[ev.id] || ''), 'g') : (new Date(ev.date) - Date.now() < 100 * 60e3 ? chip('XI: controllo continuo') : '')) + '</div>' +
-      '<div class="sm">' + (best ? (best.c.prov ? '◐ Selezione provvisoria: ' : '<b class="ok">✔ Selezione Pro:</b> ') + '<b>' + esc(best.c.label) + '</b> ' + fp(best.c.p) : '<span class="warn">Nessuna giocata supera i filtri della Selezione Pro</span>') + '</div>' +
+      '<div class="sm">' + (best ? (best.c.prov ? '◐ Selezione provvisoria: ' : '<b class="ok">✔ Selezione Pro:</b> ') + '<b>' + esc(best.c.label) + '</b> ' + fp(best.c.p) : (() => { const nb = sel && sel.no.slice().sort((a, b) => b.c.p - a.c.p)[0]; return nb ? '◐ Pre-pronostico migliore: <b>' + esc(nb.c.label) + '</b> ' + fp(nb.c.p) + ' <span class="mut">(non ancora Selezione Pro: ' + esc(nb.bad[0] || '') + ')</span>' : '◐ Pre-pronostico: <b>' + esc(D.esito.label) + '</b> ' + fp(D.esito.p); })()) + '</div>' +
       '<div class="sm"><b>Cartellini</b> (' + (x.cf && x.cf.exp != null ? x.cf.exp.toFixed(1) + ' gialli attesi' : 'attesa n.d.') + (x.dt && x.dt.ref ? ', arbitro ' + esc(x.dt.ref) : '') + '): ' + (cards.length ? cards.map(c => esc(c.name) + ' ' + c.p.toFixed(0) + '%').join(' · ') : 'nessun nome solido') + '</div>' +
       '<div class="sm"><b>Marcatori forti:</b> ' + (scs.length ? scs.map(r => esc(r.name) + ' ' + fp(r.pc)).join(' · ') : '—') + '</div>' +
+      (x.pd ? '<div class="sm mut">📊 Nomi da ' + esc(x.pd.src) + ', con dati di stagione, ultime 5, arbitro e ' + x.pd.news.length + ' notizie' + (x.pd.conf.length ? ' (' + x.pd.conf.length + ' da conferenze stampa)' : '') + '. Tocca per la scheda dei giocatori.</div>' : x.dt && x.dt.src ? '<div class="sm mut">Nomi da ' + esc(x.dt.src) + '</div>' : '') +
       (te.why.length ? '<div class="sm mut">Tensione: ' + esc(te.why.slice(0, 3).join('; ')) + '</div>' : '') + (tf ? '<div class="sm">Fonti che combaciano: ' + taLbl(tf.k) + ' (' + tf.rs.map(r => TSRC[r.src]).join(' + ') + ')</div>' : '') + '</div>'; });
   return h; }
 async function vQuadro() {
@@ -2051,6 +2073,54 @@ addEventListener('error', e => { try { log('Errore: ' + (e.message || '') + ' @r
 addEventListener('unhandledrejection', e => { try { const r = e.reason; log('Errore non gestito: ' + ((r && r.message) || r) + (r && r.stack ? ' · ' + String(r.stack).split('\n')[1].trim().slice(0, 90) : '')); } catch (x) { } });
 const PSN = { run: 0 };
 // registra il pronostico completo di OGNI partita del palinsesto prima del calcio d'inizio (dal modello, senza rete)
+// ===== SCHEDA DEI GIOCATORI per marcatori e cartellini: stagione e ultime partite (FotMob), arbitro, avversario diretto, notizie e conferenze stampa =====
+const NEWSNEG = /infortun|lesion|\bko\b|\bstop\b|\bout\b|assent|squalific|non convocat|indisponib|affaticament|risentiment|in dubbio|\bfermo\b|operat|frattur|distorsion|stiramento|injur|ruled out|suspend|doubt|lesión|baja/i, NEWSPOS = /titolar|recuperat|rientr|convocat|\btorna\b|dal primo minuto|guarit|disponibil|start|returns|fit /i, NEWSCON = /conferenza|intervist|ha detto|ha parlato|dichiar|vigilia|alla vigilia|press conference|pre-match|rueda de prensa|entrenador:|allenatore:/i;
+async function fmPlayerC(id) { S.fmP = S.fmP || {}; const o = S.fmP[id]; if (o && Date.now() - o.t < 12 * 3600e3) return o; try { const p = await P.fmPlayer(id); if (p) { p.t = Date.now(); S.fmP[id] = p; return p; } } catch (e) { } return o || null; }
+async function matchNews(ev) { S.news = S.news || {}; const o = S.news[ev.id]; if (o && Date.now() - o.t < 2 * 3600e3) return o; const lang = /^ita\./.test(ev.league) ? 'it' : /^esp\./.test(ev.league) ? 'es' : 'en', seen = {}; let it = [];
+  for (const q of [ev.home + ' ' + ev.away, ev.home + (lang === 'it' ? ' conferenza stampa' : lang === 'es' ? ' rueda de prensa' : ' press conference'), ev.away + (lang === 'it' ? ' conferenza stampa' : lang === 'es' ? ' rueda de prensa' : ' press conference'), ev.home + (lang === 'it' ? ' infortunati squalificati' : ' injury news'), ev.away + (lang === 'it' ? ' infortunati squalificati' : ' injury news')]) {
+    try { (await P.gnews(q, lang)).forEach(x => { const k = x.ti.toLowerCase().slice(0, 60); if (!seen[k]) { seen[k] = 1; it.push(x); } }); } catch (e) { } }
+  it = it.filter(x => !x.d || Date.now() - x.d < 4 * 864e5).sort((a, b) => b.d - a.d).slice(0, 40); const r = { t: Date.now(), it }; S.news[ev.id] = r; const ks = Object.keys(S.news); if (ks.length > 300) ks.sort((a, b) => S.news[a].t - S.news[b].t).slice(0, ks.length - 300).forEach(k => delete S.news[k]); return r; }
+const surn = n => { const w = String(n || '').split(/\s+/).filter(Boolean); const l = P.norm(w[w.length - 1] || ''); return l.length >= 4 ? l : P.norm(n); };
+async function enrichPlayers(ev, dt, cards, sc, cf) {
+  const f = dt.fmf; if (!f || !f.lh || !f.la) return null; const sw = !sameT(f.home, ev.home) && sameT(f.home, ev.away), H = sw ? f.la : f.lh, A = sw ? f.lh : f.la;
+  const idx = {}; [[H, ev.home], [A, ev.away]].forEach(([T, tn]) => (T.pl || []).forEach(p => { if (p.id) idx[P.norm(p.name)] = { id: p.id, team: tn, start: !!p.start, pos: p.pos, name: p.name }; }));
+  const find = n => { const k = P.norm(n); if (idx[k]) return idx[k]; const s2 = surn(n), c = Object.keys(idx).filter(x => x.endsWith(s2)); return c.length === 1 ? idx[c[0]] : null; };
+  const cand = (cards.all || []).slice(0, 8).map(c => ({ c, m: find(c.name) })).filter(x => x.m), scs = ['home', 'away'].map(s => (sc[s + 'All'] || sc[s] || []).slice(0, 4).map(r => ({ r, s, m: find(r.name) })).filter(x => x.m)).flat();
+  const news = await matchNews(ev).catch(() => ({ it: [] })), N = (news && news.it) || [];
+  const ids = [...new Set(cand.map(x => x.m.id).concat(scs.map(x => x.m.id)))].slice(0, 16); let i = 0;
+  await Promise.all([0, 1, 2, 3].map(async () => { while (i < ids.length) { const id = ids[i++]; await fmPlayerC(id); } }));
+  const D = id => (S.fmP || {})[id], expMin = (m, d) => { if (!m.start) return 15; const L = (d && d.rec || []).filter(x => x.min > 0 && !x.bench).slice(0, 5); return L.length ? Math.min(90, L.reduce((a, x) => a + x.min, 0) / L.length) : 78; };
+  const newsOf = n => { const s2 = surn(n); return N.filter(x => P.norm(x.ti).indexOf(s2) >= 0).slice(0, 3); };
+  const refF = cf && cf.exp ? Math.max(0.75, Math.min(1.35, cf.exp / 4.2)) : 1, f1 = v => (Math.round(v * 100) / 100).toFixed(2).replace('.', ','), f0 = v => (Math.round(v * 10) / 10).toFixed(1).replace('.', ',');
+  const last = d => (d.rec || []).slice(0, 5).map(x => x.bench && !x.min ? 'P' : x.min === 0 ? '–' : (x.g ? '⚽'.repeat(Math.min(x.g, 3)) : '') + (x.r ? '🟥' : x.y ? '🟨' : '') + (!x.g && !x.y && !x.r ? '·' : '')).join(' ');
+  // chi subisce più falli fra gli attaccanti dell'avversaria (il «duello» per i cartellini)
+  const fouled = {}; scs.forEach(x => { const d = D(x.m.id); if (d && d.min > 270) { const v = d.fw / (d.min / 90), t = x.m.team; if (!fouled[t] || v > fouled[t].v) fouled[t] = { n: x.m.name, v }; } });
+  const out = { cards: [], sc: [], news: N.slice(0, 8), conf: N.filter(x => NEWSCON.test(x.ti)).slice(0, 5), t: Date.now(), src: dt.src };
+  cand.forEach(({ c, m }) => { const d = D(m.id); if (!d || !d.min) return; const n90 = d.min / 90, yc90 = (d.yc + 0.15 * 3) / (n90 + 3), fc90 = d.fc / Math.max(1, n90), em = expMin(m, d);
+    const lam = (0.6 * yc90 + 0.4 * 0.095 * fc90) * refF * em / 90, pD = 1 - Math.exp(-lam), w = Math.min(0.6, n90 / 15), p0 = c.p; let p = ((1 - w) * c.p / 100 + w * pD) * 100; const nw = newsOf(m.name), notes = [];
+    if (d.inj) { p *= 0.3; notes.push('FotMob lo segna indisponibile: ' + d.inj.why + (d.inj.ret ? ' (' + d.inj.ret + ')' : '')); }
+    if (nw.some(x => /squalific|suspend/i.test(x.ti))) { p *= 0.2; notes.push('notizia di squalifica'); } else if (nw.some(x => NEWSNEG.test(x.ti))) { p *= 0.6; notes.push('notizia negativa (infortunio o dubbio)'); }
+    const opp = fouled[m.team === ev.home ? ev.away : ev.home]; c.p = Math.round(p * 10) / 10;
+    const txt = (m.start ? (dt.src.indexOf('ufficiale') >= 0 ? 'titolare ufficiale' : 'titolare probabile') : 'in panchina') + ' · stagione ' + d.yc + ' gialli in ' + Math.round(d.min) + '\' (' + f1(d.yc / n90) + ' a gara), falli ' + f0(fc90) + ' a gara, contrasti ' + f0(d.tk / n90) + ', saltato ' + f0(d.dp / n90) + ' volte · ultime 5: ' + last(d) + (opp ? ' · contro ' + opp.n + ' che subisce ' + f0(opp.v) + ' falli a gara' : '') + (cf && cf.exp ? ' · gialli attesi in partita ' + f0(cf.exp) + (dt.ref ? ' (arbitro ' + dt.ref + ')' : '') : '') + ' · minuti attesi ' + Math.round(em);
+    out.cards.push({ n: m.name, team: m.team, p0, p: c.p, txt, notes, news: nw.map(x => x.ti + (x.src ? ' (' + x.src + ')' : '')) }); });
+  // si riordinano i nomi dei cartellini con la nuova stima
+  if (out.cards.length) { cards.all.sort((a, b) => b.p - a.p); const n = cards.items.length; cards.items = cards.all.filter(c => !c.never).slice(0, n); }
+  scs.forEach(({ r, s, m }) => { const d = D(m.id); if (!d || !d.min) return; const n90 = d.min / 90, lt = s === 'home' ? ev.lam.lh : ev.lam.la, oppF = Math.max(0.55, Math.min(1.8, lt / 1.35)), em = expMin(m, d), pen = Math.max(0, d.xg - d.npxg) / Math.max(1, n90);
+    const prior = r.eg ? r.eg * 90 / 80 : 0.2, np90 = (d.npxg + prior * 4) / (n90 + 4), g90 = (Math.max(0, d.g - Math.max(0, d.xg - d.npxg)) + prior * 4) / (n90 + 4), /* gol senza rigori: i rigori sono già in «pen» */ lam = (0.65 * np90 + 0.35 * g90 + pen) * oppF * em / 90, pD = 1 - Math.exp(-lam), w = Math.min(0.6, n90 / 12), p0 = r.pc; let p = (1 - w) * r.pc + w * pD; const nw = newsOf(m.name), notes = [];
+    if (d.inj) { p *= 0.3; notes.push('FotMob lo segna indisponibile: ' + d.inj.why); } if (nw.some(x => /squalific|suspend/i.test(x.ti))) { p *= 0.2; notes.push('notizia di squalifica'); } else if (nw.some(x => NEWSNEG.test(x.ti))) { p *= 0.6; notes.push('notizia negativa (infortunio o dubbio)'); }
+    r.pc = p; const txt = (m.start ? (dt.src.indexOf('ufficiale') >= 0 ? 'titolare ufficiale' : 'titolare probabile') : 'in panchina') + ' · stagione ' + d.g + ' gol in ' + Math.round(d.min) + '\', xG ' + f1(d.xg) + ' (' + f1(d.npxg / n90) + ' a gara senza rigori)' + (pen > 0.05 ? ', tira i rigori' : '') + ', tiri ' + d.sh + ' (' + d.sot + ' in porta) · ultime 5: ' + last(d) + ' · gol attesi della squadra in questa partita ' + f1(lt) + ' · minuti attesi ' + Math.round(em);
+    out.sc.push({ n: m.name, team: m.team, p0, p, txt, notes, news: nw.map(x => x.ti + (x.src ? ' (' + x.src + ')' : '')) }); });
+  ['home', 'away'].forEach(s => { if (sc[s]) sc[s].sort((a, b) => b.pc - a.pc); if (sc[s + 'All']) sc[s + 'All'].sort((a, b) => b.pc - a.pc); });
+  S.pd = S.pd || {}; S.pd[ev.id] = Object.assign({ kick: ev.date }, out); const ks = Object.keys(S.pd); if (ks.length > 400) ks.sort((a, b) => S.pd[a].t - S.pd[b].t).slice(0, ks.length - 400).forEach(k => delete S.pd[k]);
+  return out; }
+function dossierHtml(ev) { const pd = (AN[ev.id] && AN[ev.id].pd) || (S.pd || {})[ev.id]; if (!pd) return ''; const pc = v => (v > 1 ? v : v * 100).toFixed(0) + '%';
+  const row = (x, isC) => '<div class="kv"><span><b>' + esc(x.n) + '</b> · ' + esc(x.team) + ' · ' + pc(x.p) + (Math.abs((x.p > 1 ? x.p : x.p * 100) - (x.p0 > 1 ? x.p0 : x.p0 * 100)) >= 1 ? ' <span class="mut">(dal modello ' + pc(x.p0) + ')</span>' : '') + '</span><div class="sm">' + esc(x.txt) + (x.notes.length ? '<br><span class="warn">' + esc(x.notes.join('; ')) + '</span>' : '') + (x.news.length ? '<br>📰 ' + x.news.map(esc).join('<br>📰 ') : '') + '</div></div>';
+  let h = '<div class="k" style="margin-top:8px">Scheda dei giocatori · ' + esc(pd.src || '') + '</div><div class="sm mut">Dati di stagione e ultime 5 partite (FotMob), arbitro, avversario diretto, notizie e conferenze stampa degli ultimi 4 giorni. La stima finale unisce il modello dell\'app ai dati del giocatore; notizie di infortunio o squalifica la abbassano.</div>';
+  if (pd.cards.length) h += '<div class="k" style="margin-top:6px">Cartellini</div>' + pd.cards.slice().sort((a, b) => b.p - a.p).slice(0, 6).map(x => row(x, 1)).join('');
+  if (pd.sc.length) h += '<div class="k" style="margin-top:6px">Marcatori</div>' + pd.sc.slice().sort((a, b) => b.p - a.p).slice(0, 6).map(x => row(x, 0)).join('');
+  if (pd.conf.length) h += '<div class="k" style="margin-top:6px">Conferenze stampa e interviste</div><div class="sm">' + pd.conf.map(x => '🎙 ' + esc(x.ti) + (x.src ? ' <span class="mut">(' + esc(x.src) + ')</span>' : '')).join('<br>') + '</div>';
+  if (pd.news.length) h += '<div class="k" style="margin-top:6px">Ultime notizie</div><div class="sm">' + pd.news.map(x => '📰 ' + esc(x.ti) + (x.src ? ' <span class="mut">(' + esc(x.src) + ')</span>' : '')).join('<br>') + '</div>';
+  return h; }
 // ===== PALINSESTO QUOTIDIANO COMPLETO: pre-pronostico di ogni partita, poi XI ufficiali, poi audit =====
 const PAL = { run: 0 };
 async function palinsestoStep(days, deepMs) { if (PAL.run) return null; PAL.run = 1; const t0 = Date.now(), out = { tot: 0, light: 0, deep: 0 };
@@ -2230,7 +2300,7 @@ function vImp() {
   $('#ex').onclick = () => { const b = new Blob([JSON.stringify(S)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'pronostici_stato.json'; a.click(); };
   $('#rs').onclick = () => { if (confirm('Cancello tutto l\'addestramento?')) { localStorage.removeItem(KEY); location.reload(); } };
 }
-window.__S=()=>S;window.__T={ palinsestoStep, covStep, palHtml, siteStep, siteHtml, lsLineup, lsDay, lsFind, mktHtml, vTrain, replayStep,  cloudSync, cloudMerge, pumpVerify, queueVerify, majorsAhead, prefetchAll2: (l) => prefetchAll(l), pollLU, webStep, ytStep, tgStep, extFor, extHtml, analyzeMatch, prefetchAll, train, histStep, leagueStep, selezione, tabOf, ragiona, taSection, taSites, taOne, taStep, taRows, taConc, taMultiHtml, taSection, squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
+window.__S=()=>S;window.__T={ enrichPlayers, dossierHtml, matchNews, fmPlayerC, loadMatchData, palinsestoStep, covStep, palHtml, siteStep, siteHtml, lsLineup, lsDay, lsFind, mktHtml, vTrain, replayStep,  cloudSync, cloudMerge, pumpVerify, queueVerify, majorsAhead, prefetchAll2: (l) => prefetchAll(l), pollLU, webStep, ytStep, tgStep, extFor, extHtml, analyzeMatch, prefetchAll, train, histStep, leagueStep, selezione, tabOf, ragiona, taSection, taSites, taOne, taStep, taRows, taConc, taMultiHtml, taSection, squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
 // auto-addestramento all'apertura se ultimo > 6 ore
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').catch(() => { });
 
@@ -2280,7 +2350,7 @@ function finalP(ev, k, pm) { if (pm == null) return null; const R = taRows(ev).f
 function contra(a, b) { const ln = k => +k.slice(1); if (/^[OU]\d/.test(a) && /^[OU]\d/.test(b)) { if (a[0] === b[0]) return false; const o = a[0] === 'O' ? a : b, u = a[0] === 'O' ? b : a; return ln(o) >= ln(u); }
   if (/^(GG|NG)$/.test(a) && /^(GG|NG)$/.test(b)) return a !== b; const cov = { '1': '1', 'X': 'X', '2': '2', '1X': '1X', 'X2': 'X2', '12': '12' }; if (cov[a] && cov[b]) { const A = a.length === 1 ? [a] : a.split(''), B = b.length === 1 ? [b] : b.split(''); return !A.some(x => B.indexOf(x) >= 0); } return false; }
 const MK2TIP = { OVER25: ['O2.5'], UNDER25: ['U2.5'], OVER15: ['O1.5'], UNDER35: ['U3.5'], BTTS: ['GG'], NOBTTS: ['NG'] };
-function selezione(ev, X) { const out = { ok: [], no: [] }, Q = taOdds(ev), R = taRows(ev), min = (new Date(ev.date) - Date.now()) / 60000, xiOff = (X.LV || []).length && (X.LV || []).every(v => v.status === 'UFFICIALE');
+function selezione(ev, X) { const out = { ok: [], no: [] }, Q = taOdds(ev), R = taRows(ev), min = (new Date(ev.date) - Date.now()) / 60000, xiOff = ((X.LV || []).length && (X.LV || []).every(v => v.status === 'UFFICIALE')) || !!(S.lu && S.lu[ev.id]);
   const fav = ev.lam.lh >= ev.lam.la ? 'home' : 'away';
   const favN = ev.lam.lh >= ev.lam.la ? ev.home : ev.away; (ev.list || []).filter(c => c.p >= 0.55 && c.p <= 0.86 && !/^(COR_|OVER05$|O05_1T$|FAV_SEGNA$)/.test(c.key)).map(c => Object.assign({}, c, { label: String(c.label).replace(/^Favorita/, favN) })).forEach(c => { const why = [], bad = [];
     let tk = MK2TIP[c.key] || (c.key === 'FAV_WIN' ? [fav === 'home' ? '1' : '2'] : c.key === 'FAV_NOLOSE' ? [fav === 'home' ? '1X' : 'X2'] : null);
@@ -3093,12 +3163,13 @@ const UPDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/index.
 let updReady = 0;
 // ================= ADDESTRAMENTO 24 SU 24 NEL CLOUD: il telefono scarica il modello addestrato e lo unisce al suo =================
 const CLOUDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/state/';
-const CL_LOCAL = ['wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
+const CL_LOCAL = ['news', 'wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
 const CL_UNION = ['snap', 'snapPre', 'ver', 'lu', 'luSrc', 'fmIng', 'seen', 'resolvedIds', 'refOf', 'cp', 'fmSeen', 'fmTeamT'];
 const trScore = X => Object.values((X && X.tracker) || {}).reduce((a, t) => a + (t.n || 0), 0);
 function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C);
   Object.keys(C).forEach(k => { const v = C[k];
     // pagine web lette dal cloud con un browser vero (es. MondoPengwin, che dal telefono può non rispondere)
+    if ((k === 'pd' || k === 'fmP') && v) { S[k] = S[k] || {}; Object.keys(v).forEach(id => { const a = S[k][id], b = v[id]; if (b && (!a || (b.t || 0) > (a.t || 0))) { S[k][id] = b; n++; } }); return; }
     if (k === 'cov' && v) { S.cov = S.cov || {}; Object.keys(v).forEach(d => { const a = S.cov[d], b = v[d]; if (b && (!a || (b.tot || 0) + (b.ver || 0) + (b.xi || 0) > (a.tot || 0) + (a.ver || 0) + (a.xi || 0))) { S.cov[d] = b; n++; } }); return; }
     if (k === 'tmInj' && v) { S.tmInj = S.tmInj || {}; Object.keys(v).forEach(lg => { const a = S.tmInj[lg], b = v[lg]; if (b && b.L && b.L.length && (!a || !a.L || b.t > a.t)) { S.tmInj[lg] = b; n++; } }); return; }
     if (k === 'ytw' && v) { const Y = ytState(); Y.w = Y.w || {}; Object.keys(v).forEach(u => { const a = Y.w[u], b = v[u]; if (b && b.ok && (!a || !a.ok || b.t > a.t)) { Y.w[u] = Object.assign({}, b, { via: 'cloud' }); n++; } }); return; }

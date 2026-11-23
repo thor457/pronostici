@@ -13,10 +13,10 @@ import asyncio, json, os, sys, time
 from playwright.async_api import async_playwright
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN = float(sys.argv[1]) if len(sys.argv) > 1 else 20
-OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com', 'prod-cdn-public-api.livescore.com', 'www.transfermarkt.it']
+OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com', 'prod-cdn-public-api.livescore.com', 'www.transfermarkt.it', 'news.google.com']
 # siti che rispondono solo a un browser vero (pagina con JavaScript), non a curl: si aprono con Chromium attraverso il proxy
 REAL = ['www.mondopengwin.it']
-LOCAL = ['wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
+LOCAL = ['news', 'wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
 
 async def main():
     t0 = time.time(); st_path = os.path.join(ROOT, 'state', 'state.json')
