@@ -182,6 +182,45 @@ E.lgFactor = function (S, ev) { const v = (S.lg || {})[E.lgKey(ev)]; if (!v || v
   const f = (mine * w + glob * (1 - w)) / (glob || 2.7);
   const hs = v[2] / Math.max(1, v[1]), hw = v[0] / (v[0] + 40);
   return { f: Math.max(0.78, Math.min(1.28, f)), n: v[0], avg: mine, glob, hShare: hs * hw + 0.545 * (1 - hw) }; };
+// ---------- QUOTE DEI BOOKMAKER (ESPN/DraftKings) ----------
+// Test su 45.145 partite 2019-2026 (22 campionati): esito secco giusto 50,9% con le quote contro 49,4% con la sola forza Elo;
+// le quote sono tarate (favorito dato al 69% vince il 73%). Quando ci sono, entrano nei gol attesi con un peso che l'app impara da sola.
+const amDec = v => { const x = parseFloat(String(v == null ? '' : v).replace('+', '')); if (!isFinite(x) || x === 0) return null; return x > 0 ? 1 + x / 100 : 1 + 100 / -x; };
+E.parseOdds = function (arr) { try { const o = (arr || [])[0]; if (!o) return null; const ml = o.moneyline || {}, pick = (side) => { const z = ml[side] || {}; return amDec((z.close || {}).odds || (z.open || {}).odds); };
+  let h = pick('home'), a = pick('away'), d = pick('draw'); if (!d && o.drawOdds) d = amDec(o.drawOdds.moneyLine); if (!h && o.homeTeamOdds) h = amDec(o.homeTeamOdds.moneyLine); if (!a && o.awayTeamOdds) a = amDec(o.awayTeamOdds.moneyLine);
+  if (!(h > 1 && d > 1 && a > 1)) return null; const tt = o.total || {}; let ov = null, un = null, line = null;
+  ['close', 'open'].some(w => { const O = (tt.over || {})[w], U = (tt.under || {})[w]; if (O && U && O.odds && U.odds) { ov = amDec(O.odds); un = amDec(U.odds); line = parseFloat(String(O.line || '').replace(/[^0-9.]/g, '')); return ov > 1 && un > 1 && line > 0; } return false; });
+  return { h, d, a, ou: line > 0 && ov > 1 && un > 1 ? line : null, ov, un, src: ((o.provider || {}).name) || 'bookmaker' }; } catch (e) { return null; } };
+E.oddsProbs = function (od) { if (!od) return null; const ih = 1 / od.h, id = 1 / od.d, ia = 1 / od.a, s3 = ih + id + ia; const r = { h: ih / s3, d: id / s3, a: ia / s3 };
+  if (od.ou && od.ov && od.un) { const io = 1 / od.ov, iu = 1 / od.un; r.un = iu / (io + iu); r.ou = od.ou; } return r; };
+const MLC = {};
+E.marketLam = function (od) { const q = E.oddsProbs(od); if (!q) return null; const key = [q.h, q.a, q.un, q.ou].map(x => x == null ? '' : (+x).toFixed(3)).join('|'); const lim = q.ou ? Math.floor(q.ou) : 2; if (MLC[key]) return MLC[key];
+  const f = [1]; for (let k = 1; k < 11; k++) f[k] = f[k - 1] * k; let best = null;
+  for (let lh = 0.2; lh <= 3.6; lh += 0.04) for (let la = 0.15; la <= 3.4; la += 0.04) { let H = 0, A = 0, U = 0; const eh = Math.exp(-lh), ea = Math.exp(-la);
+    for (let i = 0; i < 11; i++) { const pi = eh * Math.pow(lh, i) / f[i]; for (let j = 0; j < 11; j++) { const pr = pi * ea * Math.pow(la, j) / f[j]; if (i > j) H += pr; else if (i < j) A += pr; if (i + j <= lim) U += pr; } }
+    let err = (H - q.h) ** 2 + (A - q.a) ** 2; if (q.un != null) err += (U - q.un) ** 2; else err += 0.02 * (lh + la - 2.65) ** 2; if (!best || err < best[0]) best = [err, lh, la]; }
+  return (MLC[key] = { lh: best[1], la: best[2], p: q }); };
+const p3 = (lh, la) => { const M = E.matrix(lh, la); let H = 0, D = 0, A = 0; for (let i = 0; i < M.length; i++) for (let j = 0; j < M.length; j++) { if (i > j) H += M[i][j]; else if (i < j) A += M[i][j]; else D += M[i][j]; } return [H, D, A]; };
+// peso delle quote imparato dalle partite verificate: si sceglie il peso che avrebbe dato l'errore (Brier) piu basso, partendo da 0,85
+E.mktWeight = function (S) { const L = (S.mwL || []); if (L.length < 20) return { w: 0.85, n: L.length, learned: false };
+  let best = [1e9, 0.85]; for (let w = 0; w <= 1.0001; w += 0.05) { let b = 0; L.forEach(r => { for (let k = 0; k < 3; k++) { const pp = w * r.k[k] + (1 - w) * r.m[k]; b += (pp - (r.o === k ? 1 : 0)) ** 2; } }); if (b < best[0]) best = [b, w]; }
+  const n = L.length, w = (n * best[1] + 60 * 0.85) / (n + 60); return { w, n, learned: true, wb: best[1] }; };
+// ---------- CARTELLINI PER SQUADRA (modello tarato su 151.740 squadre-partita 2012-2021, verificato su 75.870 del 2021-2026) ----------
+// lambda squadra = media lega x exp(0,049 - 0,096 casa + 0,200 ln(cartellini propri/lega) + 0,235 ln(cartellini provocati dall'avversaria/lega) - 0,195 (prob. vittoria propria - avversaria))
+// test: Brier "almeno 3 alla squadra" 0,218 contro 0,229 della media fissa; previsti 35%, reali 35%. Totale partita: almeno 4 previsto 58% reale 60%.
+const LGC = { 'eng.1': 2.06, 'eng.2': 1.95, 'eng.3': 1.96, 'eng.4': 2.01, 'eng.5': 1.99, 'ita.1': 2.06, 'ita.2': 2.52, 'esp.1': 2.38, 'esp.2': 2.53, 'ger.1': 2.05, 'ger.2': 2.36, 'fra.1': 2.0, 'fra.2': 1.96, 'ned.1': 1.59, 'por.1': 2.59, 'bel.1': 1.99, 'tur.1': 2.37, 'gre.1': 2.75, 'sco.1': 1.93, 'sco.2': 2.06, 'arg.1': 2.6, 'bra.1': 2.45, 'conmebol.libertadores': 2.7, 'conmebol.sudamericana': 2.7 };
+E.lgCards = function (S, ev) { const k = ev.league || ''; const L = (S.lgc || {})[k]; const base = LGC[k] || 2.13; if (L && L[0] >= 10) return (L[1] / (2 * L[0]) * L[0] + base * 20) / (L[0] + 20); return base; };
+E.teamCards = function (S, ev, lam) { const lg = E.lgCards(S, ev); const own = t => { const v = (S.tc || {})[E.tkey(S.tc, t)]; if (v && v[0] >= 4) return [(v[1] + lg * 3) / (v[0] + 3), v[0]];
+    const T = E.SPT[E.keyName(t)]; if (T) { const P0 = Object.values(T.players); const g = Math.max(...P0.map(x => x.ap), 0); if (g >= 6) return [(P0.reduce((a, x) => a + x.y + x.r, 0) / g + lg) / 2, g]; } return [lg, 0]; };
+  const prov = t => { const v = (S.tc || {})[E.tkey(S.tc, t)]; return v && v[2] >= 4 ? [(v[3] + lg * 3) / (v[2] + 3), v[2]] : [lg, 0]; };
+  let pw = null; const q = ev.odds ? E.oddsProbs(ev.odds) : null; if (q) pw = [q.h, q.a]; else if (lam) { const t3 = p3(lam.lh, lam.la); pw = [t3[0], t3[2]]; }
+  if (!pw) pw = [0.42, 0.3]; const [oh, nh] = own(ev.home), [oa, na] = own(ev.away), [ph, mh] = prov(ev.home), [pa, ma] = prov(ev.away);
+  const f = (o, pv, home, pd) => lg * Math.exp(0.0489 - 0.0961 * home + 0.2003 * Math.log(Math.max(0.2, o) / lg) + 0.2352 * Math.log(Math.max(0.2, pv) / lg) - 0.1947 * pd);
+  const lh = f(oh, pa, ev.neutral ? 0.5 : 1, pw[0] - pw[1]), la = f(oa, ph, ev.neutral ? 0.5 : 0, pw[1] - pw[0]);
+  return { lh, la, lg, n: [nh, na, mh, ma], pw, src: q ? 'quote' : 'modello' }; };
+const poisGE = (l, k) => { let c = 0, t = Math.exp(-l); for (let i = 0; i < k; i++) { c += t; t *= l / (i + 1); } return Math.max(0, 1 - c); };
+const nbGE = (l, k, a) => { if (!(a > 0.002)) return poisGE(l, k); const n = 1 / a, p = n / (n + l); let c = 0, t = Math.pow(p, n); for (let i = 0; i < k; i++) { c += t; t *= (i + n) / (i + 1) * (1 - p); } return Math.max(0, 1 - c); };
+E.nbGE = nbGE;
 E.lambdas = function (S, seed, ev, adj) {
   const nat = E.isNation(ev.league), p = nat ? S.pNT : S.pCL;
   const h = E.strength(S, seed, ev.home, ev.league), a = E.strength(S, seed, ev.away, ev.league);
@@ -199,7 +238,9 @@ E.lambdas = function (S, seed, ev, adj) {
   let TR = null; if (S.tres) { const g = (t, f) => { const k = E.tkey(S.tres, t), o = S.tres[k]; return o && o.n ? o[f] * o.n / (o.n + 4) : 0; }; const ah = g(ev.home, 'att') + g(ev.away, 'def'), aa = g(ev.away, 'att') + g(ev.home, 'def'), c = v => Math.max(-0.18, Math.min(0.18, v));
     if (ah || aa) { lh *= Math.exp(c(ah)); la *= Math.exp(c(aa)); TR = { h: Math.exp(c(ah)), a: Math.exp(c(aa)) }; } }
   if (adj) { lh *= adj.h || 1; la *= adj.a || 1; }
-  return { tr: TR, lh, la, dElo: h.r - a.r + (hm ? 70 : 0), known: h.known && a.known, hr: h.r, ar: a.r, lg: LF ? { n: LF.n, f: LF.f, avg: LF.avg } : null, xg: XH && XA ? { h: XH, a: XA, g: XG } : null };
+  const m3 = p3(lh, la); let MK = null; const ML = ev.odds ? E.marketLam(ev.odds) : null;
+  if (ML) { const W = E.mktWeight(S); lh = W.w * ML.lh + (1 - W.w) * lh; la = W.w * ML.la + (1 - W.w) * la; MK = { lh: ML.lh, la: ML.la, p: ML.p, w: W.w, n: W.n, learned: W.learned, src: ev.odds.src }; }
+  return { m3, mk: MK, tr: TR, lh, la, dElo: h.r - a.r + (hm ? 70 : 0), known: h.known && a.known, hr: h.r, ar: a.r, lg: LF ? { n: LF.n, f: LF.f, avg: LF.avg } : null, xg: XH && XA ? { h: XH, a: XA, g: XG } : null };
 };
 
 // ---------- calibrazione per mercato (il sistema si corregge con i risultati reali) ----------
@@ -286,6 +327,14 @@ E.cardCandidate = function (S, name, pos, status) {
   if (sp && sp.ap >= 4 && sp.ap > n) { n = sp.ap; ypg = (sp.y + sp.r) / sp.ap; fpg = sp.f > 0 ? sp.f / sp.ap : null; never = n >= 5 && sp.y + sp.r === 0; src = 'stagione (' + sp.by.join(', ') + ')'; }
   let factor = 1;
   if (n >= 4) { const f = fpg == null ? 13.5 : fpg >= 2 ? 30.6 : fpg >= 1.4 ? 19.6 : fpg >= 0.8 ? 12.6 : 11.2; const y = ypg >= 0.34 ? 24.4 : ypg >= 0.2 ? 14.0 : ypg > 0 ? 11.2 : 11.9; factor = ((f + y) / 2) / 13.5; }
+  // AUTOADDESTRAMENTO: quando le verifiche sono abbastanza, i pesi vengono dai risultati reali dell'app (FEAT) e non dalle tabelle fisse.
+  // Dati al 23/11 su 9.429 candidati: gialli/gara alto 25,4%, medio 19,0%, basso 11,7% (base 17,1%); squadra sfavorita 15,7%, partita equilibrata 18,2%, favorita 13,5%.
+  const F = S.feat || {}, all0 = F.c_all;
+  if (all0 && all0[0] >= 1500) { const r0 = all0[1] / all0[0], lf = key => { const v = F[key]; return v && v[0] >= 100 ? ((v[1] + 150 * r0) / (v[0] + 150)) / r0 : 1; };
+    base = BASE_ROLE[g][1] * lf('c_st:' + status);
+    const yl = n >= 4 ? (ypg >= 0.34 ? 'alto' : ypg >= 0.2 ? 'medio' : 'basso') : 'nd', fl = n >= 4 && fpg != null ? (fpg >= 1.4 ? 'alto' : fpg >= 0.8 ? 'medio' : 'basso') : 'nd';
+    const ff = F['c_f:' + fl] && F['c_f:' + fl][0] >= 200 ? lf('c_f:' + fl) : (n >= 4 && fpg != null ? Math.pow((fpg >= 2 ? 30.6 : fpg >= 1.4 ? 19.6 : fpg >= 0.8 ? 12.6 : 11.2) / 13.5, 0.35) : 1);
+    factor = lf('c_y:' + yl) * Math.sqrt(ff); }
   if (never) factor = Math.min(factor, 0.8);
   const pRaw = Math.max(3, Math.min(40, base * factor)) / 100, ck = (S.tracker['CG_' + g] && S.tracker['CG_' + g].n >= 30) ? 'CG_' + g : 'CARD1'; let p = E.calibrate(S, ck, pRaw) * 100;
   const score = (fpg || 0) + 3 * (ypg || 0);
@@ -434,7 +483,7 @@ E.fetchDay = async function (lg, ymd) {
   const d = await E.fetchJson(BASE + lg + '/scoreboard?dates=' + ymd + (lg === 'all' ? '&limit=1000' : ''), 30000);
   return (d.events || []).map(e => { const c = e.competitions[0], H = c.competitors.find(x => x.homeAway === 'home') || c.competitors[0], A = c.competitors.find(x => x.homeAway === 'away') || c.competitors[1];
     return { id: e.id, league: lg, date: e.date, name: e.name, home: H.team.displayName, away: A.team.displayName, hs: parseInt(H.score || 0, 10), as: parseInt(A.score || 0, 10),
-      state: e.status.type.state, done: !!e.status.type.completed, status: e.status.type.shortDetail || e.status.type.description, neutral: !!c.neutralSite, venue: (c.venue || {}).fullName }; });
+      state: e.status.type.state, done: !!e.status.type.completed, status: e.status.type.shortDetail || e.status.type.description, neutral: !!c.neutralSite, venue: (c.venue || {}).fullName, odds: E.parseOdds(c.odds) }; });
 };
 E.fetchSummary = async function (lg, id) {
   const d = await E.fetchJson(BASE + lg + '/summary?event=' + id, 25000);
@@ -786,7 +835,9 @@ E.truth = function (summ, e365) { summ = summ || {};
 };
 const FEAT = (S, k, hit) => { if (S.__noPl) return; S.feat = S.feat || {}; const f = S.feat[k] || (S.feat[k] = [0, 0]); f[0]++; if (hit) f[1]++; };
 E.gradePicks = function (S, ev, summ) { summ = summ || {}; const pk = (S.picks || {})[ev.id]; if (!pk || !pk.pr || pk.graded) return 0; const res = { hs: ev.hs, as: ev.as, ht: summ && summ.ht || null, cor: summ && summ.cor || null }; let n = 0;
-  Object.keys(pk.pr).forEach(k => { const hit = E.resolveMarket(k, { favHome: pk.favHome }, res); if (hit === null) return; E.record(S, 'PRE_' + k, pk.pr[k], hit); n++; }); pk.graded = 1; return n; };
+  Object.keys(pk.pr).forEach(k => { const hit = E.resolveMarket(k, { favHome: pk.favHome }, res); if (hit === null) return; E.record(S, 'PRE_' + k, pk.pr[k], hit); n++; });
+  if (pk.m3 && pk.k3 && ev.hs >= 0 && ev.as >= 0) { S.mwL = S.mwL || []; S.mwL.push({ m: pk.m3, k: pk.k3, o: ev.hs > ev.as ? 0 : ev.hs === ev.as ? 1 : 2 }); if (S.mwL.length > 800) S.mwL = S.mwL.slice(-800); }
+  pk.graded = 1; return n; };
 E.audit = function (S, ev, summ, e365, snap) { summ = summ || {};
   const T = E.truth(summ, e365), L = [], tags = [], hs = ev.hs, as = ev.as, tot = hs + as, pc = x => Math.round(x * 100) + '%';
   const rep = { id: ev.id, home: ev.home, away: ev.away, score: hs + '-' + as, t: Date.now(), kick: ev.date, lines: L, tags, src: T.two ? 'ESPN + 365Scores' : 'solo ESPN' };
@@ -812,6 +863,7 @@ E.audit = function (S, ev, summ, e365, snap) { summ = summ || {};
   if (snap.safe) { const h = E.resolveMarket(snap.safe.key, { favHome: snap.favHome }, { hs, as, ht: (summ && summ.ht) || null, cor: (summ && summ.cor) || null }); if (h !== null) chk('SAFE', 'Più sicuro: ' + snap.safe.label, snap.safe.p, h, 'score'); }
   // ---- cartellini
   const yc = T.cards.length, cfx = snap.cf || {}; S.cf = S.cf || { n: 0, act: 0, exp0: 0, exp: 0, lev: {} };
+  if (cfx.exp != null) { S.cf2 = S.cf2 || { n: 0, act: 0, exp: 0 }; if (cfx.e0 != null) { S.cf2.n++; S.cf2.act += yc; S.cf2.exp += cfx.e0; } S.lgc = S.lgc || {}; const lk = ev.league || ''; const lc = S.lgc[lk] || (S.lgc[lk] = [0, 0]); lc[0]++; lc[1] += yc; }
   if (cfx.exp != null) { S.cf.n++; S.cf.act += yc; S.cf.exp += cfx.exp; if (cfx.r0 != null) S.cf.exp0 += cfx.r0; const lv = S.cf.lev[cfx.level] || (S.cf.lev[cfx.level] = [0, 0]); lv[0]++; lv[1] += yc;
     if (cfx.p3 != null) { E.record(S, 'CF_GE3', cfx.p3, yc >= 3); E.record(S, 'CF_GE4', cfx.p4, yc >= 4); }
     const d = yc - cfx.exp, fo = ((summ && summ.rosters) || []).reduce((a, r) => a + r.players.reduce((b, p) => b + p.fouls, 0), 0);
@@ -820,7 +872,7 @@ E.audit = function (S, ev, summ, e365, snap) { summ = summ || {};
     const sb = ((summ && summ.events) || []).find(e => /Substitution/i.test(e.type) && e.who[1] && norm(e.who[1]) === n); if (sb) { const c2 = T.cards.find(x => norm(x.who) === norm(sb.who[0])); if (c2) return { ok: true, how: 'sostituto ' + sb.who[0] + ' ' + c2.min + '\'' }; } return { ok: false, how: '' }; };
   const pl = name => { let f = null; (summ.rosters || []).forEach(r => r.players.forEach(p => { if (norm(p.name) === norm(name)) f = Object.assign({ team: r.team }, p); })); return f; };
   const ca = (snap.cards && snap.cards.all) || [], picks = (snap.cards && snap.cards.items) || [];
-  ca.forEach((c, i) => { const ok = own(c.n).ok, pr = c.pR != null ? c.pR : c.p / 100; E.record(S, 'CG_' + c.g, pr, ok); E.record(S, 'C_CG_' + c.g, (c.p != null ? (c.p > 1 ? c.p / 100 : c.p) : pr), ok); FEAT(S, 'c_all', ok); FEAT(S, 'c_duel:' + c.duel, ok); FEAT(S, 'c_st:' + c.st, ok); FEAT(S, 'c_y:' + (c.gp >= 4 ? (c.ypg >= 0.34 ? 'alto' : c.ypg >= 0.2 ? 'medio' : 'basso') : 'nd'), ok); FEAT(S, 'c_pick:' + (picks.indexOf(c.n) >= 0 ? 1 : 0), ok); });
+  ca.forEach((c, i) => { const ok = own(c.n).ok, pr = c.pR != null ? c.pR : c.p / 100; E.record(S, 'CG_' + c.g, pr, ok); E.record(S, 'C_CG_' + c.g, (c.p != null ? (c.p > 1 ? c.p / 100 : c.p) : pr), ok); FEAT(S, 'c_all', ok); FEAT(S, 'c_f:' + (c.gp >= 4 && c.fpg != null ? (c.fpg >= 1.4 ? 'alto' : c.fpg >= 0.8 ? 'medio' : 'basso') : 'nd'), ok); FEAT(S, 'c_duel:' + c.duel, ok); FEAT(S, 'c_st:' + c.st, ok); FEAT(S, 'c_y:' + (c.gp >= 4 ? (c.ypg >= 0.34 ? 'alto' : c.ypg >= 0.2 ? 'medio' : 'basso') : 'nd'), ok); FEAT(S, 'c_pick:' + (picks.indexOf(c.n) >= 0 ? 1 : 0), ok); });
   picks.forEach(n => { const r = own(n); E.record(S, 'CARD_TOP', (ca.find(c => c.n === n) || { p: 20 }).pR || 0.2, r.ok);
     if (r.ok) L.push('✅ Ammonito scelto ' + n + ': ' + r.how + '.');
     else { const p = pl(n), c = ca.find(x => x.n === n); let w; if (!p || (!p.starter && !p.subIn)) w = 'non ha giocato: la formazione reale era diversa dal previsto'; else if (p.subOut) w = 'è uscito per un cambio (' + p.fouls + ' falli)'; else w = p.fouls ? 'ha commesso ' + p.fouls + ' falli senza ammonizione (arbitro tollerante con lui)' : 'nessun fallo commesso'; const oth = T.cards.filter(x => c && sameTeam(x.team, c.t)).filter((x, i, ar) => ar.findIndex(y => norm(y.who) === norm(x.who)) === i).map(x => x.who + ' ' + x.min + '\''); L.push('❌ Ammonito scelto ' + n + ' (' + (c ? c.p.toFixed(0) + '%' : '?') + ') non preso: ' + w + (oth.length ? '. La sua squadra ha avuto cartellini su altri: ' + oth.join(', ') : '. La sua squadra non ha avuto cartellini') + '.'); fail('CARD_TOP'); } });
@@ -901,12 +953,12 @@ E.fmIngest = function (S, f, nameH, nameA) { if (!f || !f.pstats || !f.pstats.le
     a[0]++; a[1] += p.start ? 1 : 0; a[2] += p.fouls; a[3] += yc; a[4] += p.goals; a[5] += p.shots; a[6] += p.sot;
     a[7] = p.side === 'h' ? tH : tA; if (p.pos) a[8] = p.pos; if (p.xg) E.pxgAdd(S, p.name, p.xg, p.shots); n++; });
   if (f.xg) { E.xgAdd(S, tH, f.xg.h, f.xg.a); E.xgAdd(S, tA, f.xg.a, f.xg.h); }
-  E.tcAdd(S, tH, yh); E.tcAdd(S, tA, ya); return n; };
+  E.tcAdd(S, tH, yh, ya); E.tcAdd(S, tA, ya, yh); return n; };
 // ultime partite finite di una squadra (pagina squadra FotMob)
 E.fmTeamRecent = async function (teamId, k) { const d = await E.fetchAny('https://www.fotmob.com/api/data/teams?id=' + teamId, 20000);
   const L = (((d || {}).fixtures || {}).allFixtures || {}).fixtures || [];
   return L.filter(m => (m.status || {}).finished && !(m.status || {}).cancelled).slice(-(k || 5)).map(m => m.id); };
-E.tcAdd = function (S, team, y) { if (!team || !(y >= 0)) return; S.tc = S.tc || {}; const k = E.keyName(team); const v = S.tc[k] || [0, 0]; v[0]++; v[1] += y; S.tc[k] = v; };
+E.tcAdd = function (S, team, y, opp) { if (!team || !(y >= 0)) return; S.tc = S.tc || {}; const k = E.keyName(team); const v = S.tc[k] || [0, 0, 0, 0]; if (v.length < 4) { v[2] = 0; v[3] = 0; } v[0]++; v[1] += y; if (opp >= 0) { v[2]++; v[3] += opp; } S.tc[k] = v; };
 E.tcAvg = function (S, team) { const v = (S.tc || {})[E.tkey(S.tc, team)]; if (!v || v[0] < 3) return null; return { n: v[0], y: v[1] / v[0] }; };
 E.teamHeat = function (S, rosters, team) { let y = 0, f = 0, k = 0; const pool = rosters && rosters[team] ? rosters[team].filter(x => x.starter).map(x => norm(x.name)) : []; const ck = E.keyName(team);
   let arr = pool.length ? pool : E.teamPool(S, team).filter(r => r.starts >= 3).slice(0, 11).map(r => r.pk);
@@ -942,6 +994,13 @@ E.cardsForecast = function (S, ev, lam, rosters, refName, summ) { summ = summ ||
     const C = [[roster, 1, 'rose']]; if (teamAvg != null && teamN >= 3) C.push([teamAvg, Math.min(1.6, teamN / 6), 'storico delle due squadre (' + teamN + '+ gare)']); if (rv.avg != null && !rv.thin) C.push([rv.avg, Math.min(1.2, rv.n / 10), 'arbitro (' + rv.n + ' gare)']);
     const W = C.reduce((a, c) => a + c[1], 0); exp = C.reduce((a, c) => a + c[0] * c[1], 0) / W; how = C.length > 1 ? 'media pesata: ' + C.map(c => c[2] + ' ' + Math.round(c[1] / W * 100) + '%').join(', ') : 'solo dalle rose' + (rv.avg != null ? ' (arbitro con meno di 5 gare viste: non pesato)' : ''); }
   else if (rv.avg != null) { exp = rv.avg; how = 'solo dall\'arbitro (rose senza dati sufficienti)'; }
+  // modello per squadra tarato (quote/forza, storico proprio e provocato, media lega) + arbitro + correzione appresa dalle verifiche
+  const TCm = E.teamCards(S, ev, lam); let tcExp = TCm.lh + TCm.la; const refF = rv.avg != null && rv.lg ? Math.pow(rv.avg / rv.lg, 0.5 * rv.n / (rv.n + 10)) : 1; tcExp *= refF;
+  const C2 = S.cf2 && S.cf2.n >= 15 ? Math.max(0.75, Math.min(1.3, (S.cf2.act + 30) / (S.cf2.exp + 30))) : 1; tcExp *= C2;
+  const others = exp; exp = tcExp; how = 'modello per squadra tarato su 227.000 squadre-partita (' + TCm.src + ' per la forza, storico cartellini presi e provocati, media del campionato ' + (TCm.lg * 2).toFixed(1) + ')' + (refF !== 1 ? ', arbitro x' + refF.toFixed(2) : '') + (C2 !== 1 ? ', correzione appresa da ' + S.cf2.n + ' verifiche x' + C2.toFixed(2) : '') + (others != null ? ' · stima precedente da rose/arbitro ' + others.toFixed(1) : '');
+  const tH = TCm.lh * refF * C2, tA = TCm.la * refF * C2;
+  R.unshift('Per squadra: ' + ev.home + ' ≈ ' + tH.toFixed(1) + ' (almeno 2: ' + E.fmtP(poisGE(tH, 2)) + ', almeno 3: ' + E.fmtP(poisGE(tH, 3)) + ') · ' + ev.away + ' ≈ ' + tA.toFixed(1) + ' (almeno 2: ' + E.fmtP(poisGE(tA, 2)) + ', almeno 3: ' + E.fmtP(poisGE(tA, 3)) + '). La squadra sfavorita ne prende di più.');
+  ev.tcx = { exp, h: tH, a: tA };
   // media falli di riferimento: tutti i giocatori con 4+ gare
   const fRef = gmf * 22;
   if (okR) R.push((calSrc === 'audit' ? 'Autoapprendimento: nelle ' + S.cf.n + ' partite verificate l\'app ha previsto ' + S.cf.exp0.toFixed(1) + ' cartellini (dalle sole rose) contro ' + S.cf.act + ' reali: stima moltiplicata per ' + cal.toFixed(2) + '. ' : cal !== 1 ? 'Calibrazione: nelle ' + gR + ' gare con arbitro viste dall\'app la media reale è ' + rv.lg.toFixed(1) + ' cartellini a gara contro ' + (gmy * 22).toFixed(1) + ' attesi dai soli dati giocatore (che includono i panchinari): stima rose moltiplicata per ' + cal.toFixed(2) + '. ' : 'Attenzione: l\'app ha visto meno di 10 gare con arbitro, quindi la stima dalle rose è grezza e tende a essere bassa (i dati giocatore includono i panchinari). ') + 'Rose: gialli attesi ' + ev.home + ' ' + tm(hh, 'y', gmy).toFixed(1) + ', ' + ev.away + ' ' + tm(ha, 'y', gmy).toFixed(1) + ' (media dei gialli/gara dei titolari con 4+ gare, ' + hh.k + ' e ' + ha.k + ' giocatori, riportata a 11 e avvicinata alla media generale); falli attesi circa ' + foulsE.toFixed(0) + ' contro ' + fRef.toFixed(0) + ' di riferimento.');
@@ -958,7 +1017,7 @@ E.cardsForecast = function (S, ev, lam, rosters, refName, summ) { summ = summ ||
   T.push([neg.length > 0, 'Serie negativa', neg.length ? neg.map(k => k + ' ' + fm[k]).join(', ') : Object.keys(fm).length ? 'nessuna squadra sotto i 4 punti nelle ultime 5' : 'forma non disponibile']);
   T.push([Math.abs(lam.dElo) < 100, 'Partita equilibrata', 'differenza di forza ' + Math.round(Math.abs(lam.dElo)) + ' (sotto 100 = contrasti alla pari)']);
   const cnt = T.filter(t => t[0]).length, level = cnt >= 4 ? 'Alta' : cnt >= 2 ? 'Media' : 'Bassa';
-  return { r0: roster0, exp, how, p3: exp != null ? poisAtLeast(exp, 3) : null, p4: exp != null ? poisAtLeast(exp, 4) : null, p5: exp != null ? poisAtLeast(exp, 5) : null, reasons: R, tension: T, level, cnt, rv, hh, ha };
+  return { r0: roster0, exp, e0: (TCm.lh + TCm.la) * refF, how, th: tH, ta: tA, th3: poisGE(tH, 3), ta3: poisGE(tA, 3), p3: exp != null ? nbGE(exp, 3, 0.033) : null, p4: exp != null ? nbGE(exp, 4, 0.033) : null, p5: exp != null ? nbGE(exp, 5, 0.033) : null, reasons: R, tension: T, level, cnt, rv, hh, ha };
 };
 E.fmtP = p => (p * 100).toFixed(p >= 0.995 ? 0 : 1).replace('.', ',') + '%';
 // ---------- TIPSTER AUTOMATICI: voti degli utenti 365Scores e consenso dei tipster OLBG ----------
@@ -1315,7 +1374,7 @@ async function loadDay(force) { const dk = ymd(curDate) + '|' + LGSEL().join(','
     extra.forEach(L => L.forEach(x => { const m = events.find(e => near(e, x)); if (m) { if (!m.lgName && x.lgName) m.lgName = x.lgName; if (x.g365id) m.g365id = m.g365id || x.g365id; if (x.sid) m.sid = m.sid || x.sid; if (!m.venue && x.venue) m.venue = x.venue; if (x.done && !m.done && (x.hs || x.as)) { m.hs = x.hs; m.as = x.as; m.done = true; m.state = 'post'; } } else events.push(x); })); }
   events.sort((a, b) => a.date.localeCompare(b.date));
   events.forEach(ev => { const lam = P.lambdas(S, SEED, ev); const mk = P.markets(lam.lh, lam.la); ev.lam = lam; ev.mk = mk; ev.list = P.marketList(S, mk, lam.lh, lam.la, SEED, ev); ev.list.forEach(x => { if (!MLBL[x.key]) MLBL[x.key] = x.label; }); ev.favHome = lam.lh >= lam.la;
-    if (!ev.done && ev.state === 'pre') S.picks[ev.id] = S.picks[ev.id] || { lg: ev.league, favHome: ev.favHome, pr: Object.fromEntries(ev.list.map(x => [x.key, x.pRaw])), t: Date.now(), kick: ev.date }; });
+    if (!ev.done && ev.state === 'pre') S.picks[ev.id] = S.picks[ev.id] || { lg: ev.league, favHome: ev.favHome, pr: Object.fromEntries(ev.list.map(x => [x.key, x.pRaw])), t: Date.now(), kick: ev.date, m3: ev.lam && ev.lam.m3, k3: ev.lam && ev.lam.mk ? [ev.lam.mk.p.h, ev.lam.mk.p.d, ev.lam.mk.p.a] : null, tcx: ev.tcx || null }; });
   { const k = '365_' + ymd(curDate); try { if (!cache[k]) { const l = await Promise.race([P.fetch365Day(curDate), new Promise(r => setTimeout(() => r(null), 9000))]); if (l) cache[k] = l; } const l = cache[k]; if (l) events.forEach(ev => { if (ev.league === 'all' && !ev.lgName) { const m = P.match365(l, ev); if (m && m.comp) ev.lgName = m.comp; } }); } catch (e) { } }
   save(); tipGrade(); preSnapAll();
 }
@@ -1438,7 +1497,7 @@ async function vMatch(ev) { root.dataset.cen = '';
   let a = alert;
   a += '<div class="hero"><div class="hero-t">' + av(ev.home) + '<b>' + esc(ev.home) + '</b></div><div class="hero-vs">' + (ev.done ? ev.hs + ' – ' + ev.as : ev.state === 'in' ? ev.hs + ' – ' + ev.as : tmOf(ev)) + '</div><div class="hero-t">' + av(ev.away) + '<b>' + esc(ev.away) + '</b></div></div>' + bar3(mk);
   a += '<div class="tiles"><div class="tile"><span>Gol attesi</span><b>' + lam.lh.toFixed(2) + ' – ' + lam.la.toFixed(2) + '</b></div><div class="tile"><span>Forza</span><b>' + Math.round(lam.hr) + ' / ' + Math.round(lam.ar) + '</b></div><div class="tile"><span>Arbitro</span><b>' + (refName ? esc(refName) : '—') + '</b></div></div>';
-  a += '<div class="card dir"><div class="k">Direzione della partita</div><div class="big">' + esc(D.esito.label) + ' <small>' + fp(D.esito.p) + '</small></div><div class="chips">' + chip(D.tot.label + ' ' + fp(D.tot.p)) + chip(D.goal.label + ' ' + fp(D.goal.p)) + chip('Esatto ' + D.score + ' ' + fp(D.scoreP)) + '</div>' +
+  a += '<div class="card dir"><div class="k">Direzione della partita</div><div class="big">' + esc(D.esito.label) + ' <small>' + fp(D.esito.p) + '</small></div><div class="chips">' + chip(D.tot.label + ' ' + fp(D.tot.p)) + chip(D.goal.label + ' ' + fp(D.goal.p)) + chip('Esatto ' + D.score + ' ' + fp(D.scoreP)) + '</div>' + (ev.lam && ev.lam.mk ? '<div class="sm"><b>Quote ' + esc(ev.lam.mk.src) + '</b> (senza margine): 1 ' + fp(ev.lam.mk.p.h) + ' · X ' + fp(ev.lam.mk.p.d) + ' · 2 ' + fp(ev.lam.mk.p.a) + '. Peso delle quote nei gol attesi ' + Math.round(ev.lam.mk.w * 100) + '% ' + (ev.lam.mk.learned ? '(imparato da ' + ev.lam.mk.n + ' partite verificate)' : '(iniziale, test su 45.145 partite; si aggiorna da solo con le verifiche)') + '; modello senza quote: 1 ' + fp(ev.lam.m3[0]) + ' · X ' + fp(ev.lam.m3[1]) + ' · 2 ' + fp(ev.lam.m3[2]) + '.</div>' : '<div class="sm mut">Quote del bookmaker non disponibili per questa partita: solo modello.</div>') +
     '<div class="sm">Lettura: ' + (D.balanced ? 'partita equilibrata, nessun esito secco convince' : 'l\'esito più sostenuto dai dati è ' + esc(D.esito.label)) + ', con ' + esc(D.tot.label) + ' e ' + esc(D.goal.label) + (D.same ? '' : '. Lo score più probabile in assoluto, ' + D.top + ' (' + fp(D.topP) + '), non è in linea con l\'esito più probabile: l\'esatto in linea è ' + D.score + ' (' + fp(D.scoreP) + ')') + '. La doppia chance ' + D.cop.label + ' (' + fp(D.cop.p) + ', quota giusta ' + fq(D.cop.p) + ') è solo una rete di sicurezza: è alta quasi sempre, quindi non indica una direzione.</div></div>';
   a += '<div class="card safe2"><div class="k">Pronostico più sicuro (non doppia chance)</div><div class="big">' + esc(sf.top.label) + ' <small>' + fp(sf.top.p) + '</small></div><div class="sm">Quota giusta ' + fq(sf.top.p) + ' (1 diviso la probabilità; scelgo solo mercati con quota giusta da 1,30 in su, sotto non vale la pena): gioca solo se il bookmaker paga di più.' + (sf.alt ? '<br>Alternativa con più quota: ' + esc(sf.alt.label) + ' ' + fp(sf.alt.p) + ' · quota giusta ' + fq(sf.alt.p) : '') + '</div></div>';
   a += '<div class="card" data-go="arbitro"><div class="k">Cartellini previsti</div><div class="big">≈ ' + (cf.exp != null ? fd1(cf.exp) : '—') + ' <small>tensione ' + cf.level + '</small></div><div class="sm">' + (cf.exp != null ? 'Almeno 3: ' + pcs(cf.p3) + ' · almeno 4: ' + pcs(cf.p4) + ' · almeno 5: ' + pcs(cf.p5) + '. ' : '') + 'Arbitro: ' + (refName ? esc(refName) + ' (' + esc(cf.rv.label) + ')' : 'da verificare') + '. <b>Tocca per il perché ›</b></div></div>';
@@ -1526,7 +1585,7 @@ function snapMatch(ev, cards, sc, cf, refName, official, rec) {
     dir: { esito: D.esito, score: D.score, scoreP: D.scoreP, tot: D.tot, goal: D.goal, same: D.same }, ex3: ev.mk.exact.slice(0, 3).map(x => [x[0], q(x[1])]), safe: sf ? { key: sf.key, label: sf.label, p: q(sf.p) } : null, alt: (() => { const a = safest(ev).alt; return a ? { key: a.key, label: a.label, p: q(a.p) } : null; })(),
     rec: rec || 0,
     cards: { weak: cards.weak, items: cards.items.map(c => c.name), all: cards.all.slice().sort((x, y) => y.p - x.p).slice(0, 14).map(c => ({ n: c.name, t: c.team, g: c.group, pos: c.pos, p: q(c.p), pR: q(c.pRaw), st: c.status, duel: c.duel ? 1 : 0, ypg: c.ypg == null ? null : q(c.ypg), fpg: c.fpg == null ? null : q(c.fpg), gp: c.n })) },
-    cf: { exp: cf.exp, r0: cf.r0, p3: cf.p3, p4: cf.p4, level: cf.level, ref: refName || null },
+    cf: { exp: cf.exp, e0: cf.e0, th: cf.th, ta: cf.ta, r0: cf.r0, p3: cf.p3, p4: cf.p4, level: cf.level, ref: refName || null },
     sc: { home: sc.homeAll.slice(0, 6).map(r => ({ n: r.name, g: r.g, pos: r.pos, p: q(r.pc), pR: q(r.p), pen: r.pen ? 1 : 0, spg: q(r.spg), recG: r.recG })), away: sc.awayAll.slice(0, 6).map(r => ({ n: r.name, g: r.g, pos: r.pos, p: q(r.pc), pR: q(r.p), pen: r.pen ? 1 : 0, spg: q(r.spg), recG: r.recG })) } };
   const ks = Object.keys(S.snap); if (ks.length > 700) ks.sort((x, y) => (S.snap[y].audited ? 1 : 0) - (S.snap[x].audited ? 1 : 0) || S.snap[x].t - S.snap[y].t).slice(0, ks.length - 700).forEach(k => delete S.snap[k]);
 }
