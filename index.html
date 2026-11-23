@@ -221,6 +221,20 @@ E.teamCards = function (S, ev, lam) { const lg = E.lgCards(S, ev); const own = t
 const poisGE = (l, k) => { let c = 0, t = Math.exp(-l); for (let i = 0; i < k; i++) { c += t; t *= l / (i + 1); } return Math.max(0, 1 - c); };
 const nbGE = (l, k, a) => { if (!(a > 0.002)) return poisGE(l, k); const n = 1 / a, p = n / (n + l); let c = 0, t = Math.pow(p, n); for (let i = 0; i < k; i++) { c += t; t *= (i + n) / (i + 1) * (1 - p); } return Math.max(0, 1 - c); };
 E.nbGE = nbGE;
+// ---------- STATISTICHE DI SQUADRA: corner, tiri in porta, tiri, falli ----------
+// Modelli tarati su 2012-2021 e verificati su 71.220 squadre-partita 2021-2026 (22 campionati). Tutti battono la media fissa e sono tarati:
+// corner squadra almeno 5: previsto 49,9% reale 50,5%; tiri in porta squadra almeno 4: 56,8% / 57,6%; tiri squadra almeno 12: 50,1% / 50,8%; falli squadra almeno 12: 52,1% / 52,4%.
+const STM = {"corner":{"c":[-0.0513,0.0773,0.1578,0.1824,0.4276],"a":0.0823,"at":0.0164,"all":4.91,"lg":{"bel.1":5.01,"ger.1":4.89,"ger.2":5.16,"eng.1":5.18,"eng.2":5.2,"eng.3":5.02,"eng.4":4.99,"eng.5":5.03,"fra.1":4.73,"fra.2":4.68,"gre.1":4.38,"ita.1":4.62,"ita.2":4.69,"ned.1":5.17,"por.1":4.83,"sco.1":5.35,"sco.2":5.05,"sco.3":4.85,"sco.4":4.84,"esp.1":4.77,"esp.2":4.68,"tur.1":4.76}},"tiriporta":{"c":[-0.0489,0.0595,0.2182,0.1828,0.5063],"a":0.033,"at":0.0138,"all":4.27,"lg":{"bel.1":4.58,"ger.1":4.79,"ger.2":4.72,"eng.1":4.55,"eng.2":4.05,"eng.3":3.97,"eng.4":4.06,"eng.5":4.68,"fra.1":4.51,"fra.2":4.09,"gre.1":4.14,"ita.1":4.08,"ita.2":4.13,"ned.1":5.0,"por.1":4.16,"sco.1":4.35,"sco.2":3.8,"sco.3":4.28,"sco.4":4.04,"esp.1":4.24,"esp.2":4.1,"tur.1":4.4}},"tiri":{"c":[-0.0592,0.1084,0.3605,0.3876,0.3206],"a":0.047,"at":0.0121,"all":12.28,"lg":{"bel.1":13.19,"ger.1":13.28,"ger.2":13.53,"eng.1":13.09,"eng.2":12.36,"eng.3":11.83,"eng.4":12.21,"eng.5":8.8,"fra.1":12.54,"fra.2":11.62,"gre.1":11.66,"ita.1":12.41,"ita.2":12.92,"ned.1":13.81,"por.1":11.83,"sco.1":12.79,"sco.2":9.18,"sco.3":9.48,"sco.4":9.32,"esp.1":12.2,"esp.2":12.3,"tur.1":12.61}},"falli":{"c":[0.0118,-0.0207,0.4671,0.4583,-0.0408],"a":0.0067,"at":0.0067,"all":11.99,"lg":{"bel.1":11.08,"ger.1":10.79,"ger.2":11.89,"eng.1":10.97,"eng.2":11.04,"eng.3":11.38,"eng.4":11.36,"eng.5":12.16,"fra.1":12.16,"fra.2":13.43,"gre.1":14.4,"ita.1":12.39,"ita.2":14.37,"ned.1":10.26,"por.1":13.68,"sco.1":11.25,"sco.2":10.83,"sco.3":10.89,"sco.4":11.42,"esp.1":12.63,"esp.2":13.16,"tur.1":12.78}}};
+const STN = { corner: 'corner', tiriporta: 'tiri in porta', tiri: 'tiri', falli: 'falli' };
+E.tsAdd = function (S, ev, tst) { if (!tst) return; S.tsSeen = S.tsSeen || {}; if (S.tsSeen[ev.id]) return; const H = tst[0], A = tst[1]; if (!H || !A) return; S.tsSeen[ev.id] = 1; S.ts = S.ts || {};
+  const up = (team, me, opp) => { const k = E.keyName(team), T = S.ts[k] || (S.ts[k] = {}); Object.keys(STM).forEach(st => { if (!(me[st] >= 0) || !(opp[st] >= 0)) return; const v = T[st] || [0, 0, 0]; v[0] = v[0] * 0.9 + 1; v[1] = v[1] * 0.9 + me[st]; v[2] = v[2] * 0.9 + opp[st]; T[st] = v; }); };
+  up(ev.home, H, A); up(ev.away, A, H); };
+E.statModel = function (S, ev, lam, st) { const M = STM[st]; if (!M) return null; const base = (M.lg[ev.league] || M.all), T = k => ((S.ts || {})[E.tkey(S.ts || {}, k)] || {})[st];
+  const own = t => { const v = T(t); return v && v[0] >= 3 ? [(v[1] + base * 2) / (v[0] + 2), v[0]] : [base, 0]; }, cons = t => { const v = T(t); return v && v[0] >= 3 ? [(v[2] + base * 2) / (v[0] + 2), v[0]] : [base, 0]; };
+  let pw = null; const q = ev.odds ? E.oddsProbs(ev.odds) : null; if (q) pw = [q.h, q.a]; else if (lam) { const t3 = p3(lam.lh, lam.la); pw = [t3[0], t3[2]]; } if (!pw) pw = [0.42, 0.3];
+  const c = M.c, f = (o, cv, home, pd) => base * Math.exp(c[0] + c[1] * home + c[2] * Math.log(Math.max(0.3, o) / base) + c[3] * Math.log(Math.max(0.3, cv) / base) + c[4] * pd);
+  const [oh, nh] = own(ev.home), [oa, na] = own(ev.away), [ch] = cons(ev.home), [ca] = cons(ev.away);
+  return { lh: f(oh, ca, ev.neutral ? 0.5 : 1, pw[0] - pw[1]), la: f(oa, ch, ev.neutral ? 0.5 : 0, pw[1] - pw[0]), a: M.a, at: M.at, n: Math.min(nh, na), base }; };
 E.lambdas = function (S, seed, ev, adj) {
   const nat = E.isNation(ev.league), p = nat ? S.pNT : S.pCL;
   const h = E.strength(S, seed, ev.home, ev.league), a = E.strength(S, seed, ev.away, ev.league);
@@ -277,6 +291,8 @@ E.cornersModel = function (SEED, home, away) {
 };
 E.reasonUnder = function (mk, lh, la) { const t = lh + la; return 'Gol attesi totali ' + t.toFixed(2) + ' (' + lh.toFixed(2) + ' + ' + la.toFixed(2) + '); 0 gol ' + E.fmtP(mk.M[0][0]) + ', massimo 1 gol ' + E.fmtP(mk['under1.5']) + ', massimo 2 gol ' + E.fmtP(mk['under2.5']) + '. Da giocare solo se la partita è chiusa: controlla assenze offensive, ritmo e rischio di espulsioni.'; };
 E.unreliable = function (S, key) { const c = S.tracker['C_' + key]; if (c && c.n >= 60) return (c.hits / c.n) < (c.sumP / c.n) - 0.06; const t = S.tracker[key]; if (!t || t.n < 30 || t.n >= 300) return false; return (t.hits / t.n) < (t.sumP / t.n) - 0.07; };
+E.bestSolid = function (S, L) { const fams = {}; L.forEach(x => { if (x.thin || x.bad) return; const t = S.tracker[x.key], ok = !(t && t.n >= 25 && t.hits / t.n < x.p - 0.08); if (!ok) return; (fams[x.fam] = fams[x.fam] || []).push(x); });
+  Object.keys(fams).forEach(f => { const A = fams[f].filter(x => x.p >= 0.72).sort((a, b) => a.p - b.p); if (A.length) A[0].solidBest = true; const B = fams[f].filter(x => x.p >= 0.55 && x.p < 0.72).sort((a, b) => a.p - b.p); if (B.length) B[0].valueBest = true; }); };
 E.marketList = function (S, mk, lh, la, SEED, ev) {
   // mercati candidati con chiave per il tracker; fav = squadra con piu gol attesi
   const fav = lh >= la ? 'home' : 'away', favL = Math.max(lh, la);
@@ -301,6 +317,34 @@ E.marketList = function (S, mk, lh, la, SEED, ev) {
   add('O05_1T', 'Over 0,5 primo tempo', fh.o05); add('O15_1T', 'Over 1,5 primo tempo', fh.o15);
   if (SEED && ev) { const c = E.cornersModel(SEED, ev.home, ev.away); const ex = { corners: true, n: c.n, mean: c.mean };
     add('COR_O85', 'Corner totali Over 8,5', c.o85, ex); add('COR_O95', 'Corner totali Over 9,5', c.o95, ex); add('COR_O105', 'Corner totali Over 10,5', c.o105, ex); }
+  // ----- LA MACCHINA: tutti i mercati dei bookmaker che si possono calcolare, ognuno con la sua chiave di autoaddestramento -----
+  { const hm = 'Casa', aw = 'Ospite', hn = ev ? ev.home : hm, an = ev ? ev.away : aw, s2 = (i, j) => sum(M, (a, b) => (i == null || i(a, b)) && (j == null || j(a, b)));
+    add('X1_H', '1 (' + hn + ')', mk.home, { fam: 'Esito' }); add('X1_D', 'X (pareggio)', mk.draw, { fam: 'Esito' }); add('X1_A', '2 (' + an + ')', mk.away, { fam: 'Esito' });
+    add('DC_12', '12 (non finisce pari)', 1 - mk.draw, { fam: 'Doppia chance' });
+    add('DNB_FAV', 'Draw no bet ' + (fvh ? hn : an), (fvh ? mk.home : mk.away) / Math.max(1e-6, 1 - mk.draw), { fam: 'Esito' });
+    add('HC_FAV1', 'Handicap ' + (fvh ? hn : an) + ' -1 (vince con 2+ gol di scarto)', cmb((w, l) => w - l >= 2), { fam: 'Handicap' });
+    add('HC_DOG1', 'Handicap ' + (fvh ? an : hn) + ' +1 (non perde con 2+ gol di scarto)', cmb((w, l) => w - l <= 1), { fam: 'Handicap' });
+    [[0.5, 'TH_05'], [1.5, 'TH_15'], [2.5, 'TH_25']].forEach(([l, k]) => { add(k, hn + ' Over ' + String(l).replace('.', ','), s2((i) => i > l), { fam: 'Gol squadra' }); add(k.replace('TH', 'TA'), an + ' Over ' + String(l).replace('.', ','), s2((i, j) => j > l), { fam: 'Gol squadra' }); });
+    add('OVER35', 'Over 3,5', s2((i, j) => i + j >= 4), { fam: 'Gol' }); add('UNDER45', 'Under 4,5', s2((i, j) => i + j <= 4), { fam: 'Gol' });
+    add('MG12', 'Multigol 1-2', s2((i, j) => i + j >= 1 && i + j <= 2), { fam: 'Gol' }); add('MG23', 'Multigol 2-3', s2((i, j) => i + j >= 2 && i + j <= 3), { fam: 'Gol' }); add('MG35', 'Multigol 3-5', s2((i, j) => i + j >= 3 && i + j <= 5), { fam: 'Gol' });
+    add('FW_BTTS', 'Favorita vince + Goal', cmb((w, l) => w > l && l > 0), { fam: 'Combo' }); add('FW_NOBTTS', 'Favorita vince + No Goal', cmb((w, l) => w > l && l === 0), { fam: 'Combo' });
+    add('FN_BTTS', 'Favorita non perde + Goal', cmb((w, l) => w >= l && l > 0 && w > 0), { fam: 'Combo' }); add('BTTS_O25', 'Goal + Over 2,5', s2((i, j) => i > 0 && j > 0 && i + j >= 3), { fam: 'Combo' });
+    const h1 = E.matrix(lh * E.HT, la * E.HT), h2 = E.matrix(lh * (1 - E.HT), la * (1 - E.HT)), sm1 = f => sum(h1, f), sm2 = f => sum(h2, f);
+    add('U15_1T', 'Under 1,5 primo tempo', sm1((i, j) => i + j <= 1), { fam: 'Tempi' }); add('O05_2T', 'Over 0,5 secondo tempo', sm2((i, j) => i + j >= 1), { fam: 'Tempi' }); add('O15_2T', 'Over 1,5 secondo tempo', sm2((i, j) => i + j >= 2), { fam: 'Tempi' });
+    { let p2 = 0, pe = 0; for (let a = 0; a < 8; a++) for (let b = 0; b < 8; b++) { const t1 = a, t2 = b, pr = (sum(h1, (i, j) => i + j === t1)) * (sum(h2, (i, j) => i + j === t2)); if (t2 > t1) p2 += pr; else if (t2 === t1) pe += pr; }
+      add('HMG_2T', 'Tempo con più gol: secondo', p2, { fam: 'Tempi' }); add('HMG_X2', 'Tempo con più gol: secondo o pari', p2 + pe, { fam: 'Tempi' }); }
+    add('HT_FAVNL', 'Primo tempo: favorita non perde', sm1((i, j) => fvh ? i >= j : j >= i), { fam: 'Tempi' });
+    if (ev) Object.keys(STM).forEach(st => { const m = E.statModel(S, ev, { lh, la }, st); if (!m) return; const nm = STN[st], thin = m.n < 3 && !ev.odds;
+      const lines = l => { const c = Math.floor(l); return [c - 1.5, c - 0.5, c + 0.5].filter(x => x > 0); };
+      lines(m.lh).forEach(l => add('ST_' + st + '_H_' + l, hn + ' Over ' + String(l).replace('.', ',') + ' ' + nm, nbGE(m.lh, Math.ceil(l), m.a), { fam: nm, stat: true, thin, mean: m.lh }));
+      lines(m.la).forEach(l => add('ST_' + st + '_A_' + l, an + ' Over ' + String(l).replace('.', ',') + ' ' + nm, nbGE(m.la, Math.ceil(l), m.a), { fam: nm, stat: true, thin, mean: m.la }));
+      const t = m.lh + m.la; lines(t).concat([Math.floor(t) + 1.5]).forEach(l => { add('ST_' + st + '_T_' + l, 'Over ' + String(l).replace('.', ',') + ' ' + nm + ' totali', nbGE(t, Math.ceil(l), m.at), { fam: nm, stat: true, thin, mean: t }); add('ST_' + st + '_U_' + l, 'Under ' + String(l).replace('.', ',') + ' ' + nm + ' totali', 1 - nbGE(t, Math.ceil(l), m.at), { fam: nm, stat: true, thin, mean: t }); });
+      add('ST_' + st + '_MH', 'Più ' + nm + ': ' + hn, (() => { let pp = 0; const ph = [], pa = []; for (let k = 0; k < 40; k++) { ph.push(nbGE(m.lh, k, m.a) - nbGE(m.lh, k + 1, m.a)); pa.push(nbGE(m.la, k, m.a) - nbGE(m.la, k + 1, m.a)); } for (let i = 0; i < 40; i++) for (let j = 0; j < i; j++) pp += ph[i] * pa[j]; return pp; })(), { fam: nm, stat: true, thin }); });
+    if (ev && ev.tcx) { const ch = ev.tcx.h, ca = ev.tcx.a, ct = ev.tcx.exp; [0.5, 1.5, 2.5].forEach(l => { add('CD_H_' + l, hn + ' Over ' + String(l).replace('.', ',') + ' cartellini', poisGE(ch, Math.ceil(l)), { fam: 'cartellini', stat: true }); add('CD_A_' + l, an + ' Over ' + String(l).replace('.', ',') + ' cartellini', poisGE(ca, Math.ceil(l)), { fam: 'cartellini', stat: true }); });
+      [2.5, 3.5, 4.5, 5.5].forEach(l => { add('CD_T_' + l, 'Over ' + String(l).replace('.', ',') + ' cartellini totali', nbGE(ct, Math.ceil(l), 0.033), { fam: 'cartellini', stat: true }); add('CD_U_' + l, 'Under ' + String(l).replace('.', ',') + ' cartellini totali', 1 - nbGE(ct, Math.ceil(l), 0.033), { fam: 'cartellini', stat: true }); }); } }
+  L.forEach(x => { x.fair = x.p > 0 ? 1 / x.p : null; if (!x.fam) x.fam = /COR_/.test(x.key) ? 'corner' : /1T|2T/.test(x.key) ? 'Tempi' : /OVER|UNDER|MG|BTTS/.test(x.key) ? 'Gol' : 'Esito'; });
+  // quota e solidita: per ogni famiglia il mercato con la quota giusta piu alta tra quelli sopra la soglia di solidita (aggiornata dalle verifiche)
+  E.bestSolid(S, L);
   L.forEach(x => x.base = x.p >= 0.85 && !(S.tracker[x.key] && S.tracker[x.key].n >= 20 && S.tracker[x.key].hits / S.tracker[x.key].n < 0.80) && (x.baseOnly === undefined || x.baseOnly));
   L.forEach(x => { if (E.unreliable(S, x.key)) { x.base = false; x.bad = true; } });
   L.forEach(x => { if (x.key === 'OVER05') x.base = x.p >= 0.85; if (x.corners && x.n < 8) { x.thin = true; x.base = false; } });
@@ -459,6 +503,7 @@ E.record = function (S, key, p, hit) {
   const v = t.bd[b]; v[0]++; v[1] += hit ? 1 : 0; v[2] += p;
 };
 E.resolveMarket = function (key, ev, sc) { // sc: {hs, as}
+  if (sc && Array.isArray(sc.cor)) sc = Object.assign({}, sc, { cor: sc.cor[0] + sc.cor[1] }); // i corner arrivano come [casa, ospite]: prima il confronto con 8,5 falliva sempre
   const h = sc.hs, a = sc.as, tot = h + a, favHome = ev.favHome;
   const w = favHome ? h : a, l = favHome ? a : h;
   switch (key) {
@@ -469,6 +514,17 @@ E.resolveMarket = function (key, ev, sc) { // sc: {hs, as}
     case 'COR_O85': return sc.cor == null ? null : sc.cor > 8.5; case 'COR_O95': return sc.cor == null ? null : sc.cor > 9.5; case 'COR_O105': return sc.cor == null ? null : sc.cor > 10.5;
     case 'UNDER15': return tot < 1.5; case 'FW_U35': return w > l && tot <= 3; case 'FN_U35': return w >= l && tot <= 3; case 'FW_O15': return w > l && tot >= 2; case 'FN_O15': return w >= l && tot >= 2;
     case 'EX1': return sc.ex1; case 'EX3': return sc.ex3;
+    case 'X1_H': return h > a; case 'X1_D': return h === a; case 'X1_A': return h < a; case 'DC_12': return h !== a; case 'DNB_FAV': return w === l ? null : w > l; case 'HC_FAV1': return w - l >= 2; case 'HC_DOG1': return w - l <= 1;
+    case 'TH_05': return h > 0.5; case 'TH_15': return h > 1.5; case 'TH_25': return h > 2.5; case 'TA_05': return a > 0.5; case 'TA_15': return a > 1.5; case 'TA_25': return a > 2.5;
+    case 'OVER35': return tot >= 4; case 'UNDER45': return tot <= 4; case 'MG12': return tot >= 1 && tot <= 2; case 'MG23': return tot >= 2 && tot <= 3; case 'MG35': return tot >= 3 && tot <= 5;
+    case 'FW_BTTS': return w > l && l > 0; case 'FW_NOBTTS': return w > l && l === 0; case 'FN_BTTS': return w >= l && l > 0 && w > 0; case 'BTTS_O25': return h > 0 && a > 0 && tot >= 3;
+    case 'U15_1T': return sc.ht ? sc.ht[0] + sc.ht[1] <= 1 : null; case 'O05_2T': return sc.ht ? tot - sc.ht[0] - sc.ht[1] >= 1 : null; case 'O15_2T': return sc.ht ? tot - sc.ht[0] - sc.ht[1] >= 2 : null;
+    case 'HMG_2T': return sc.ht ? tot - 2 * (sc.ht[0] + sc.ht[1]) > 0 : null; case 'HMG_X2': return sc.ht ? tot - 2 * (sc.ht[0] + sc.ht[1]) >= 0 : null; case 'HT_FAVNL': return sc.ht ? (favHome ? sc.ht[0] >= sc.ht[1] : sc.ht[1] >= sc.ht[0]) : null;
+  }
+  { const m = /^ST_([a-z]+)_([HATU])_([0-9.]+)$/.exec(key) || /^ST_([a-z]+)_(MH)$/.exec(key); if (m) { const T = sc.tst; if (!T || !T[0] || !T[1] || !(T[0][m[1]] >= 0) || !(T[1][m[1]] >= 0)) return null; const x = T[0][m[1]], y = T[1][m[1]], L0 = parseFloat(m[3]);
+      return m[2] === 'H' ? x > L0 : m[2] === 'A' ? y > L0 : m[2] === 'T' ? x + y > L0 : m[2] === 'U' ? x + y < L0 : x > y; } }
+  { const m = /^CD_([HATU])_([0-9.]+)$/.exec(key); if (m) { if (!sc.cd) return null; const L0 = parseFloat(m[2]), x = sc.cd[0], y = sc.cd[1]; return m[1] === 'H' ? x > L0 : m[1] === 'A' ? y > L0 : m[1] === 'T' ? x + y > L0 : x + y < L0; } }
+  switch (key) {
     case 'BTTS': return h > 0 && a > 0; case 'NOBTTS': return !(h > 0 && a > 0);
   } return null;
 };
@@ -501,7 +557,7 @@ E.fetchSummary = async function (lg, id) {
   try { out.form = {}; (d.lastFiveGames || []).forEach(t => { out.form[t.team.displayName] = (t.events || []).map(e => e.gameResult || '?').join(''); }); } catch (e) { out.form = {}; }
   try { const cp = d.header.competitions[0].competitors, hh = cp.find(x => x.homeAway === 'home') || cp[0], aa = cp.find(x => x.homeAway === 'away') || cp[1];
     if (hh.linescores && hh.linescores.length >= 2 && aa.linescores && aa.linescores.length >= 2) out.ht = [parseFloat(hh.linescores[0].displayValue), parseFloat(aa.linescores[0].displayValue)];
-    const cs = (d.boxscore.teams || []).map(t => { const x = (t.statistics || []).find(z => z.name === 'wonCorners'); return x ? parseFloat(x.displayValue) : NaN; }); if (cs.length === 2 && cs.every(v => v === v)) out.cor = cs[0] + cs[1]; } catch (e) { }
+    const cs = (d.boxscore.teams || []).map(t => { const x = (t.statistics || []).find(z => z.name === 'wonCorners'); return x ? parseFloat(x.displayValue) : NaN; }); if (cs.length === 2 && cs.every(v => v === v)) out.cor = cs; try { const bt = (d.boxscore || {}).teams || [], gv = (t, n) => { const x = (t.statistics || []).find(z => z.name === n); return x ? parseFloat(x.displayValue) : NaN; }; if (bt.length === 2 && bt.every(t => (t.statistics || []).some(z => z.name === 'wonCorners'))) { const hi = bt.findIndex(t => t.homeAway === 'home'), o = hi === 1 ? [bt[1], bt[0]] : bt; out.tst = o.map(t => ({ corner: gv(t, 'wonCorners'), tiriporta: gv(t, 'shotsOnTarget'), tiri: gv(t, 'totalShots'), falli: gv(t, 'foulsCommitted') })); out.cd = o.map(t => (gv(t, 'yellowCards') || 0) + (gv(t, 'redCards') || 0)); } } catch (e) { }[0] + cs[1]; } catch (e) { }
   return out;
 };
 // ---------- STAGIONE DEI GIOCATORI (ESPN): presenze, gialli, rossi, falli fatti e subiti in coppa + campionato nazionale ----------
@@ -834,8 +890,10 @@ E.truth = function (summ, e365) { summ = summ || {};
   return { cards: cards.sort((a, b) => a.min - b.min), goals: goals.sort((a, b) => a.min - b.min), diff, two: !!e365 };
 };
 const FEAT = (S, k, hit) => { if (S.__noPl) return; S.feat = S.feat || {}; const f = S.feat[k] || (S.feat[k] = [0, 0]); f[0]++; if (hit) f[1]++; };
-E.gradePicks = function (S, ev, summ) { summ = summ || {}; const pk = (S.picks || {})[ev.id]; if (!pk || !pk.pr || pk.graded) return 0; const res = { hs: ev.hs, as: ev.as, ht: summ && summ.ht || null, cor: summ && summ.cor || null }; let n = 0;
-  Object.keys(pk.pr).forEach(k => { const hit = E.resolveMarket(k, { favHome: pk.favHome }, res); if (hit === null) return; E.record(S, 'PRE_' + k, pk.pr[k], hit); n++; });
+E.gradePicks = function (S, ev, summ) { summ = summ || {}; const pk = (S.picks || {})[ev.id]; if (!pk || !pk.pr || pk.graded) return 0; const res = { hs: ev.hs, as: ev.as, ht: summ && summ.ht || null, cor: summ && summ.cor ? (Array.isArray(summ.cor) ? summ.cor[0] + summ.cor[1] : summ.cor) : null, tst: summ && summ.tst || null, cd: summ && summ.cd || null }; let n = 0; pk.gk = pk.gk || {};
+  if (summ && summ.tst) E.tsAdd(S, ev, summ.tst);
+  Object.keys(pk.pr).forEach(k => { if (pk.gk[k]) return; const hit = E.resolveMarket(k, { favHome: pk.favHome }, res); if (hit === null) return; pk.gk[k] = 1; E.record(S, 'PRE_' + k, pk.pr[k], hit); n++; });
+  if (!(summ && summ.tst) && Object.keys(pk.pr).some(k => /^(ST_|CD_|COR_)/.test(k) && !pk.gk[k])) return n; // statistiche: si riprova quando arriva il riepilogo
   if (pk.m3 && pk.k3 && ev.hs >= 0 && ev.as >= 0) { S.mwL = S.mwL || []; S.mwL.push({ m: pk.m3, k: pk.k3, o: ev.hs > ev.as ? 0 : ev.hs === ev.as ? 1 : 2 }); if (S.mwL.length > 800) S.mwL = S.mwL.slice(-800); }
   pk.graded = 1; return n; };
 E.audit = function (S, ev, summ, e365, snap) { summ = summ || {};
@@ -1539,7 +1597,11 @@ async function vMatch(ev) { root.dataset.cen = '';
     S1.arbitro = r; }
   // ---- MERCATI
   S1.mercati = '<div class="sm">Probabilità calibrate con i risultati reali. Verde = oltre l\'85% e confermato dai test. q. = quota giusta. * = pochi dati · ✖ = sta sbagliando nei test. Le combo sono un unico evento della stessa partita.</div>' +
-    ev.list.map(x => '<div class="mr' + (x.base ? ' b' : '') + '"><div class="mr-l"><b>' + esc(x.label) + (x.thin ? ' *' : '') + (x.bad ? ' ✖' : '') + '</b>' + bar(x.p, x.base ? 'g' : '') + '</div><div class="mr-r"><b>' + fp(x.p) + '</b><span>q. ' + fq(x.p) + '</span></div></div>').join('');
+    (() => { const row = x => '<div class="mr' + (x.base ? ' b' : '') + '"><div class="mr-l"><b>' + esc(x.label) + (x.solidBest ? ' 🛡' : '') + (x.valueBest ? ' 💎' : '') + (x.thin ? ' *' : '') + (x.bad ? ' ✖' : '') + '</b>' + bar(x.p, x.base ? 'g' : '') + '</div><div class="mr-r"><b>' + fp(x.p) + '</b><span>q. ' + fq(x.p) + '</span></div></div>';
+      const best = ev.list.filter(x => x.solidBest || x.valueBest).sort((a, b) => b.p - a.p), fams = {}; ev.list.forEach(x => (fams[x.fam || 'Altro'] = fams[x.fam || 'Altro'] || []).push(x));
+      const tr = k => { const t = S.tracker[k]; return t && t.n >= 20 ? ' (reale ' + Math.round(t.hits / t.n * 100) + '% su ' + t.n + ')' : ''; };
+      return '<div class="card dir"><div class="k">Quota e solidità: il migliore di ogni tipo (' + ev.list.length + ' mercati calcolati)</div><div class="sm">🛡 = il più solido sopra il 72% con la quota più alta · 💎 = quota più alta tra 55% e 72%. Ogni mercato si verifica a fine partita e corregge la sua taratura da solo; un mercato che sbaglia nei test viene escluso.</div>' + best.map(x => '<div class="sm">' + (x.solidBest ? '🛡 ' : '💎 ') + '<b>' + esc(x.label) + '</b> ' + fp(x.p) + ' · q. giusta ' + fq(x.p) + tr(x.key) + '</div>').join('') + '</div>' +
+        Object.keys(fams).map(f => '<details class="why"' + (f === 'Esito' || f === 'Gol' ? ' open' : '') + '><summary>' + esc(f.charAt(0).toUpperCase() + f.slice(1)) + ' (' + fams[f].length + ')</summary>' + fams[f].map(row).join('') + '</details>').join(''); })();
   // ---- ESATTI
   S1.esatti = '<div class="card dir"><div class="k">Risultato esatto più probabile</div><div class="big">' + D.top + ' <small>' + fp(D.topP) + '</small></div><div class="sm">Reale misurato dall\'app: ' + exT('EX1') + ' · primi 3 insieme ' + fp(mk.ex3) + ' (' + exT('EX3') + ')</div>' + (D.same ? '' : '<div class="sm warn">Attenzione: non è in linea con l\'esito più probabile (' + esc(D.esito.label) + '). Esatto in linea con la direzione: <b>' + D.score + ' ' + fp(D.scoreP) + '</b>.</div>') + '</div>' +
     '<div class="card"><div class="k">Direzione che sostiene l\'esatto ' + D.score + '</div><div class="chips">' + chip(esc(D.esito.label) + ' ' + fp(D.esito.p), 'g') + chip(D.tot.label + ' ' + fp(D.tot.p), 'g') + chip(D.goal.label + ' ' + fp(D.goal.p), 'g') + '</div><div class="sm">Copertura (solo rete di sicurezza): ' + D.cop.label + ' ' + fp(D.cop.p) + '.</div></div>' +
@@ -1949,12 +2011,12 @@ function queueRebuild(ev) { if (!ev || !ev.done || RQ.seen[ev.id]) return; RQ.se
 function tcRec(ev, sm) { if (!sm || !sm.events || !sm.events.length) return; S.tcSeen = S.tcSeen || {}; if (S.tcSeen[ev.id]) return;
   const hasC = sm.events.some(e => /Yellow|Red Card/i.test(e.type)); if (!hasC && sm.events.length < 6) return; S.tcSeen[ev.id] = 1;
   P.tcAdd(S, ev.home, sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length); P.tcAdd(S, ev.away, sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length); }
-function learnEvent(ev, sm) { P.lgLearn(S, ev);
+function learnEvent(ev, sm) { P.lgLearn(S, ev); if (sm && sm.tst && ev.done) { /* le statistiche si imparano dopo aver usato i dati precedenti nel test */ }
   { const age = Date.now() - new Date(ev.date).getTime(); if (age < 5 * 864e5) { const l0 = P.lambdas(S, SEED, ev); S.preLam = S.preLam || {}; S.preLam[ev.id] = [+l0.lh.toFixed(4), +l0.la.toFixed(4), new Date(ev.date).getTime()]; } } if (sm && sm.events && sm.events.length) { const yh = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length, ya = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length;
-  if (sm.events.some(e => /Yellow|Red Card/i.test(e.type)) || sm.events.length > 6) { P.tcAdd(S, ev.home, yh); P.tcAdd(S, ev.away, ya); } } if (ev.done && !(S.snap && S.snap[ev.id]) && !S.seen[ev.id]) rebuildSnap(ev, sm, 'pre'); const lam = P.lambdas(S, SEED, ev), mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), fav = lam.lh >= lam.la;
-  if (lam.known) lst.forEach(x => { const hit = P.resolveMarket(x.key, { favHome: fav }, { hs: ev.hs, as: ev.as, ht: sm ? sm.ht : null, cor: sm ? sm.cor : null }); if (hit !== null) { P.record(S, x.key, x.pRaw, hit); P.record(S, 'C_' + x.key, x.p, hit); P.ctrAdd(S, ev, x.key, x.pRaw, hit); } });
+  if (sm.events.some(e => /Yellow|Red Card/i.test(e.type)) || sm.events.length > 6) { P.tcAdd(S, ev.home, yh, ya); P.tcAdd(S, ev.away, ya, yh); } } if (ev.done && !(S.snap && S.snap[ev.id]) && !S.seen[ev.id]) rebuildSnap(ev, sm, 'pre'); const lam = P.lambdas(S, SEED, ev), mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), fav = lam.lh >= lam.la;
+  if (lam.known) lst.forEach(x => { const hit = P.resolveMarket(x.key, { favHome: fav }, { hs: ev.hs, as: ev.as, ht: sm ? sm.ht : null, cor: sm ? sm.cor : null, tst: sm ? sm.tst : null, cd: sm ? sm.cd : null }); if (hit !== null) { P.record(S, x.key, x.pRaw, hit); P.record(S, 'C_' + x.key, x.p, hit); P.ctrAdd(S, ev, x.key, x.pRaw, hit); } });
   if (lam.known) { const top = mk.exact[0][0], t3 = mk.exact.slice(0, 3).map(x => x[0]), res = ev.hs + '-' + ev.as; P.record(S, 'EX1', mk.exact[0][1], res === top); P.record(S, 'EX3', mk.ex3, t3.indexOf(res) >= 0); }
-  P.updateElo(S, SEED, ev); S.seen[ev.id] = 1; S.hist = S.hist || {}; const dd = String(ev.date || '').slice(0, 16); if (!S.hist.lastMatch || dd > S.hist.lastMatch) S.hist.lastMatch = dd; }
+  P.updateElo(S, SEED, ev); if (sm && sm.tst) P.tsAdd(S, ev, sm.tst); S.seen[ev.id] = 1; S.hist = S.hist || {}; const dd = String(ev.date || '').slice(0, 16); if (!S.hist.lastMatch || dd > S.hist.lastMatch) S.hist.lastMatch = dd; }
 // ---- storico: tutte le partite internazionali dal 2024 (archivio pubblico GitHub, CORS aperto) ----
 async function importIntl(say) {
   say = say || (() => { }); say('Scarico lo storico delle nazionali…'); const r = await fetch('https://raw.githubusercontent.com/martj42/international_results/master/results.csv'); if (!r.ok) throw new Error('HTTP ' + r.status); const txt = await r.text();
