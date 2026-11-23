@@ -13,11 +13,20 @@ import asyncio, json, os, sys, time
 from playwright.async_api import async_playwright
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN = float(sys.argv[1]) if len(sys.argv) > 1 else 20
-OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com']
-LOCAL = ['settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
+OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com', 'prod-cdn-public-api.livescore.com']
+LOCAL = ['lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
 
 async def main():
     t0 = time.time(); st_path = os.path.join(ROOT, 'state', 'state.json')
+    print('0. tutti i mercati dei bookmaker (statistiche ufficiali football-data.co.uk)')
+    mk = None
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import markets
+        mk = markets.run()['t']
+    except Exception as e:
+        print('   mercati non aggiornati:', e)
+        try: mk = json.load(open(os.path.join(ROOT, 'state', 'markets.json')))['t']
+        except Exception: mk = None
     prev = open(st_path).read() if os.path.exists(st_path) else 'null'
     async with async_playwright() as p:
         b = await p.chromium.launch(); pg = await b.new_page()
@@ -74,7 +83,7 @@ async def main():
         await b.close()
     os.makedirs(os.path.join(ROOT, 'state'), exist_ok=True)
     open(st_path, 'w').write(out)
-    meta = {'t': int(time.time() * 1000), 'score': score, 'verificate': nver, 'size': len(out), 'minuti': round((time.time() - t0) / 60, 1)}
+    meta = {'t': int(time.time() * 1000), 'score': score, 'verificate': nver, 'size': len(out), 'minuti': round((time.time() - t0) / 60, 1), 'mk': mk}
     open(os.path.join(ROOT, 'state', 'meta.json'), 'w').write(json.dumps(meta))
     print('FATTO', json.dumps(meta))
 

@@ -25,6 +25,10 @@ Il testo integrale della chat resta comunque conservato da Claude: si recupera c
 | YouTube sottotitoli (Tipzone_TV) | «conferma di non essere un bot» | sì, quando ci sono i sottotitoli (dopo la fine della diretta) |
 | MondoPengwin | anti-bot dell'hosting | da verificare |
 | Telegram canale privato t.me/c/… | no | solo inoltrando i messaggi a un bot dell'utente (codice in Altro → Tipster) |
+| football-data.co.uk (statistiche ufficiali partita per partita + quote apertura/chiusura, 22 campionati) | sì | lo riceve dal cloud (state/markets.json) |
+| LiveScore (formazioni, indisponibili, incidenti, statistiche con xG) | sì | sì (CORS aperto) |
+| Understat, Transfermarkt, OddsPortal, BetExplorer, Flashscore (pagina) | raggiungibili, non ancora usati | — |
+| FBref, WhoScored, footystats, bet365 | anti-bot | — |
 
 ## Richieste dell'utente in questa chat (parole sue, in ordine)
 
@@ -76,6 +80,8 @@ Dalla seconda parte (testo integrale):
 
 42. (23/11 11:41, screenshot Addestramento) «In questa sezione vanno caricati tutti i campionati 2025-2026, inclusi quelli che verranno, per avere un quadro ancora più completo, con audit, pre-pronostici e poi confronto finale, in modo tale di addestrare tutti i metodi, ragionamento e precisione.»
 
+43. (23/11 11:46) «Epsilon e footmob. Dobbiamo aggiungere altre fonti molto dettagliate, altri siti, tipo SoftScore, tutti i siti che hanno dettagli esatti e ufficiali, in modo tale da essere precisi al 100% e acquisire ancora più dati. L'addestramento deve essere completo su tutti i tipi di pronostici che offrono i bookmakers, eccetera, eccetera.»
+
 ## Cosa è stato fatto (sintesi per richiesta)
 
 - 17-18: dati FotMob su tutte le partite (ultime 5 di ogni squadra, rose, falli, cartellini, xG), ammoniti e marcatori ricalcolati; Brasile coperto.
@@ -94,6 +100,7 @@ Dalla seconda parte (testo integrale):
 - 40: questo file + riga nella memoria che obbliga a leggerlo.
 - 41: collaudo completo automatico `cloud/test_app.py` (22 controlli: avvio, tutte le schede, tre multiple, tutte le pagine di Altro, tutte le sezioni di una partita, centro live con tutte le schede, tasto indietro): 22 su 22. Addestramento del ragionamento: registro `S.rag` dei fattori (dati dell'app, bookmaker, accordo/disaccordo e chi aveva ragione, quote in calo, tipster concordi, video, tensione e gialli, ammoniti con/senza XI, gol attesi alti/bassi) aggiornato a ogni verifica; il pronostico finale si sposta verso il mercato o verso i dati secondo chi ha avuto più ragione nei disaccordi (da 15 casi); sezione «Ragionamento appreso» nella partita e in Errori e correzioni. Lavoro in sottofondo in pausa mentre si apre una partita dal vivo.
 - 42: ripasso delle stagioni 2025-26 e 2026-27 (`replayStep`, stato `S.rp`): modello ombra dal 1/7/2025, giorno per giorno, tutti i campionati ESPN (maggiori a parte), pre-pronostico con i soli dati di prima (anche quote pre-partita ESPN), confronto e poi apprendimento; statistiche per stagione, campionati maggiori e mese per mese nella pagina Addestramento; gira nel ciclo dell'app (4 giorni ogni 2 minuti) e nel cloud (fino a un terzo di ogni giro). Prova: 20 giorni di luglio 2025, 851 partite.
+- 43: `cloud/markets.py` (gira all'inizio di ogni addestramento orario): statistiche ufficiali football-data.co.uk di 22 campionati, 2025-26 e 2026-27 (10.096 partite al 23/11): per ogni gara, con i soli dati di prima, pronostico e verifica di 161 mercati (gol totali e di squadra 0,5-4,5, 1° e 2° tempo, tempo con più gol, 1X2 solo dati / dati+quote / solo quote, doppia chance, Goal/No Goal, esatto e uno dei 3, handicap asiatico, corner/gialli/tiri/tiri in porta/falli totali e di squadra su più linee, chi ne fa di più e doppia chance della statistica, rosso sì/no), taratura imparata in corsa, arbitro per i gialli. Esce `state/markets.json` (medie squadra casa/fuori, arbitri, tabelle di taratura, risultati per mercato e campionato); `meta.json` porta `mk`. L'app lo scarica (`window.FDM`, IndexedDB `fdm`), usa le medie ufficiali in `E.statModel` quando mancano quelle ESPN e i gialli di squadra per i mercati cartellini; nuova sezione «Tutti i mercati dei bookmaker» in Addestramento con scelta del campionato. LiveScore aggiunto come quarta fonte delle formazioni ufficiali (entro 80' dal via) con elenco indisponibili (`S.lsOut`). Risultato onesto: sull'1X2 le quote battono il modello solo dati, per questo si uniscono.
 
 ## Limiti dichiarati all'utente (da non nascondere)
 
