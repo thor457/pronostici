@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795435105;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795436380;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -3032,6 +3032,9 @@ const DIRT = async (u, re) => { const ctl = new AbortController(), to = setTimeo
  ['trmkt', 'Transfermarkt', 'infortuni e squalifiche', 'https://www.transfermarkt.it/serie-a/verletztespieler/wettbewerb/IT1', /items|spieler/i],
  ['mpeng', 'MondoPengwin', 'studio dei campionati', 'https://www.mondopengwin.it/studio-top-campionati/', /PengWin/i]
 ].forEach(([k, n, d, u, re]) => FSRC.push({ k, n, d, f: () => DIRT(u, re), ok: t => Math.round(t.length / 1024) + ' kB' }));
+// la prova che conta per SofaScore: trovare l'id di una partita vera anche quando il palinsesto completo è rifiutato (via partite in corso e ricerca per squadra)
+FSRC.splice(FSRC.findIndex(x => x.k === 'sofad') + 1, 0, { k: 'sofaid', n: 'SofaScore ricerca partita', d: 'id SofaScore di una partita di oggi, anche senza palinsesto completo', f: async () => { const L = (events || []).filter(e => e.home && e.away && Math.abs(new Date(e.date) - Date.now()) < 20 * 3600e3).slice(0, 3); for (const e of L) { const id = await P.sofaId(e.home, e.away, e.date).catch(() => null); if (id) return e.home + '-' + e.away + ' trovata (id ' + id + ')'; } throw new Error('nessuna partita trovata (' + L.length + ' provate)'); }, ok: r => r });
+FSRC.forEach(x => { if (x.k === 'fbref') x.d += ' · NON USATO: chiede la verifica «sono umano» anche dal telefono; gli stessi dati Opta arrivano da FotMob'; if (x.k === 'under') x.d += ' · NON USATO: il sito dà una pagina di errore a tutti; gli xG arrivano da FotMob, LiveScore e football-data'; if (x.k === 'sofad') x.d += ' · se è rosso non importa: vale la riga «SofaScore ricerca partita»'; });
 const FST = {};
 // controllo automatico: se c'e' una versione nuova all'indirizzo impostato, la scarica e avvisa
 const UPDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/index.html';
