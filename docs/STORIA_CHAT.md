@@ -88,6 +88,8 @@ Dalla seconda parte (testo integrale):
 
 46. (23/11 13:19, screenshot Fonti: SofaScore palinsesto 403, FBref anti-bot, Understat senza dati, il resto OK) senza testo.
 
+47. (23/11 14:24, screenshot Fonti con molte righe «non ancora provata») «Dobbiamo risolvere a uno tutti questi problemi. Deve essere tutto completamente e perfettamente funzionante.»
+
 ## Cosa è stato fatto (sintesi per richiesta)
 
 - 17-18: dati FotMob su tutte le partite (ultime 5 di ogni squadra, rose, falli, cartellini, xG), ammoniti e marcatori ricalcolati; Brasile coperto.
@@ -110,6 +112,7 @@ Dalla seconda parte (testo integrale):
 - 44: prove dal cloud (23/11): SofaScore 403 anche dai proxy pubblici; FBref, FootyStats, Forebet con verifica Cloudflare interattiva anche con browser vero; WhoScored blocco Cloudflare; MondoPengwin risponde a un browser vero → aggiunto al cloud (fase 2c) e passato al telefono. Non si aggirano CAPTCHA o verifiche anti-bot. Telefono: SofaScore era interrotto a 6 s (palinsesto di alcuni MB) → 25 s; in Altro → Fonti la prova diretta di SofaScore, FBref, FootyStats, Forebet, WhoScored, Understat, Transfermarkt, MondoPengwin, con esito anche nel «Rapporto per Claude», per collegare i lettori dei siti che dal telefono rispondono.
 - 45: ESPN 403 dal telefono = troppe richieste dallo stesso telefono → pausa automatica di 10 minuti (`E.espnOff`) e il telefono salta lo storico pesante (campionati, ripasso stagioni, storico, archivio arbitri) quando ha un modello del cloud di meno di 4 ore (`cloudFresh`). SofaScore: se il palinsesto risponde 403 la partita si cerca fra quelle in corso e poi per squadra (`search/teams`, `team/{id}/events/next|last`). Transfermarkt: infortunati di 13 campionati con ruolo, infortunio e rientro (`P.tmInjuries`, `S.tmInj`, anche dal cloud, unione per data). FootyStats e WhoScored: lettura delle tabelle della pagina dal telefono ogni 12 ore (`siteStep`, `S.wt`, solo telefono), righe della squadra nella scheda «Formazioni, assenti, arbitro» con gli indisponibili LiveScore (`siteHtml`). Forebet e MondoPengwin erano già letti. FBref (anti-bot anche dal telefono) e Understat (pagina di errore per tutti): sostituiti da FotMob (statistiche Opta), football-data e LiveScore (xG).
 - 46: in Fonti nuova prova «SofaScore ricerca partita» (quella che conta: id trovato anche senza palinsesto); FBref e Understat marcati come NON USATI con la fonte che li sostituisce.
+- 47: causa: le prove in Fonti erano in fila e la ricerca SofaScore passava per 4 proxy pubblici con 25 s ciascuno, bloccando le prove successive. Ora: tutte in parallelo con massimo 35 s ciascuna (`cloud/test_fonti.py`: tutte concluse entro 40 s); SofaScore solo via diretta (niente proxy pubblici); id delle squadre SofaScore imparati da ogni elenco live e salvati (`pp_sofat`), ricerca con `search/all` e `search/teams`, poi `team/{id}/events/next|last` per casa e ospite.
 
 ## Limiti dichiarati all'utente (da non nascondere)
 

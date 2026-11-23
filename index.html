@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795436380;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795440284;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -654,7 +654,7 @@ E.fetch365Game = async function (id) {
 // ---------- FORMAZIONI UFFICIALI: piu' fonti, verdetto per squadra ----------
 const PROXIES = ['', 'https://corsproxy.io/?url=', 'https://api.allorigins.win/raw?url=', 'https://api.codetabs.com/v1/proxy?quest='];
 E.fetchAny = async function (url, ms) { ms = Math.min(ms || 6000, /sofascore/.test(url) ? 25000 : 6000); // il palinsesto SofaScore pesa alcuni MB: con 6 secondi sul cellulare veniva interrotto («signal is aborted»)
-  let last; for (const px of PROXIES) { try { return await E.fetchJson(px ? px + encodeURIComponent(url) : url, ms); } catch (e) { last = e; } } throw last; };
+  let last; for (const px of (/sofascore/.test(url) ? [''] : PROXIES)) { try { return await E.fetchJson(px ? px + encodeURIComponent(url) : url, ms); } catch (e) { last = e; } } throw last; }; // i proxy pubblici con SofaScore falliscono sempre: si prova solo la via diretta
 const FMD = {};
 E.fotmobDay = async function (d) { const k = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
   if (FMD[k] && Date.now() - FMD[k].t < 300000) return FMD[k].L;
@@ -802,13 +802,19 @@ const SJ = async (path, ms) => { let last; for (let i = 0; i < SOFA_H.length; i+
   throw last; };
 const sofaIso = d => d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
 const SIDC = {};
+// id delle squadre SofaScore imparati da ogni elenco visto (partite in corso, ricerche): servono quando il palinsesto del giorno è rifiutato
+let SOFAT = {}; try { SOFAT = JSON.parse(localStorage.getItem('pp_sofat') || '{}') || {}; } catch (e) { }
+const sofaLearn = L => { let ch = 0; (L || []).forEach(x => [x.homeTeam, x.awayTeam].forEach(t => { if (t && t.id && t.name) { const k = norm(t.name); if (SOFAT[k] !== t.id) { SOFAT[k] = t.id; ch = 1; } } })); if (ch) try { localStorage.setItem('pp_sofat', JSON.stringify(SOFAT)); } catch (e) { } };
+const sofaTeamId = async name => { const k = norm(name); if (SOFAT[k]) return SOFAT[k]; const hit = Object.keys(SOFAT).find(x => sameTeam(x, name)); if (hit) return SOFAT[hit];
+  for (const path of ['search/all?q=' + encodeURIComponent(name) + '&page=0', 'search/teams?q=' + encodeURIComponent(name) + '&page=0']) { try { const q = await SJ(path, 10000), R = (q.results || q.teams || []).map(r => r.entity ? Object.assign({ _type: r.type }, r.entity) : r);
+      const tm = R.find(t => t && (!t._type || t._type === 'team') && (!t.sport || t.sport.slug === 'football') && sameTeam(t.name, name)); if (tm) { SOFAT[k] = tm.id; try { localStorage.setItem('pp_sofat', JSON.stringify(SOFAT)); } catch (e) { } return tm.id; } } catch (e) { } } return null; };
 E.sofaId = async function (home, away, start) { const d = new Date(start), iso = sofaIso(d), key = norm(home) + '|' + norm(away) + '|' + iso; if (SIDC[key] && (SIDC[key].id || Date.now() - SIDC[key].t < 120e3)) return SIDC[key].id;
   let L = [];
   try { if (!dayCache['s' + iso] || Date.now() - dayCache['s' + iso].t > 3600e3) dayCache['s' + iso] = { t: Date.now(), d: await SJ('sport/football/scheduled-events/' + iso, 25000) }; L = dayCache['s' + iso].d.events || []; }
   catch (e) { // il palinsesto completo a volte risponde 403 dal telefono: si cerca la partita fra quelle in corso e poi per squadra
-    try { if (!dayCache.live || Date.now() - dayCache.live.t > 60e3) dayCache.live = { t: Date.now(), d: await SJ('sport/football/events/live', 15000) }; L = dayCache.live.d.events || []; } catch (x) { }
-    if (!L.some(x => sameTeam(x.homeTeam.name, home) || sameTeam(x.awayTeam.name, home))) { try { const q = await SJ('search/teams?q=' + encodeURIComponent(home) + '&page=0', 12000), tm = ((q.results || q.teams || []).map(r => r.entity || r).find(t => t && (!t.sport || t.sport.slug === 'football') && sameTeam(t.name, home))) || null;
-        if (tm) { for (const w of ['next', 'last']) { try { const r = await SJ('team/' + tm.id + '/events/' + w + '/0', 12000); L = L.concat(r.events || []); } catch (x) { } } } } catch (x) { } }
+    try { if (!dayCache.live || Date.now() - dayCache.live.t > 60e3) dayCache.live = { t: Date.now(), d: await SJ('sport/football/events/live', 15000) }; L = dayCache.live.d.events || []; sofaLearn(L); } catch (x) { }
+    if (!L.some(x => sameTeam(x.homeTeam.name, home) || sameTeam(x.awayTeam.name, home))) { for (const nm of [home, away]) { const tid = await sofaTeamId(nm); if (!tid) continue;
+        for (const w of ['next', 'last']) { try { const r = await SJ('team/' + tid + '/events/' + w + '/0', 12000); L = L.concat(r.events || []); sofaLearn(r.events); } catch (x) { } } if (L.some(x => sameTeam(x.homeTeam.name, home) && sameTeam(x.awayTeam.name, away))) break; } }
     if (!L.length) throw e; }
   const near = x => Math.abs(x.startTimestamp * 1000 - d.getTime()) < 4 * 3600e3;
   const ev = L.find(x => near(x) && sameTeam(x.homeTeam.name, home) && sameTeam(x.awayTeam.name, away)) || L.find(x => near(x) && sameTeam(x.homeTeam.name, away) && sameTeam(x.awayTeam.name, home));
@@ -848,7 +854,7 @@ E.sofaSlow = async function (id) {
     best: bp ? { h: (bp.bestHomeTeamPlayer || {}).player ? { n: bp.bestHomeTeamPlayer.player.name, v: bp.bestHomeTeamPlayer.value } : null, a: (bp.bestAwayTeamPlayer || {}).player ? { n: bp.bestAwayTeamPlayer.player.name, v: bp.bestAwayTeamPlayer.value } : null } : null }; };
 E.fetchSofaLive = async function (home, away, start) { const id = await E.sofaId(home, away, start); if (!id) return null; const sl = await E.sofaSlow(id); return { src: 'SofaScore', id, mom: sl.mom, shots: sl.shots, slow: sl }; };
 // elenco partite in diretta SofaScore (per punteggio e minuto piu' rapidi)
-E.fetchSofaList = async function () { const d = await SJ('sport/football/events/live', 6000); return (d.events || []).map(e => E.sofaNorm(e, null, null)); };
+E.fetchSofaList = async function () { const d = await SJ('sport/football/events/live', 15000); sofaLearn(d.events); return (d.events || []).map(e => E.sofaNorm(e, null, null)); };
 // ---- SofaScore: cronaca completa (commento minuto per minuto) e partita intera come fonte principale del live ----
 const SCOM = { goal: 'GOL', owngoal: 'Autogol', penaltygoal: 'Rigore segnato', penaltymissed: 'Rigore sbagliato', penaltysaved: 'Rigore parato', penalty: 'Rigore', penaltyawarded: 'Rigore assegnato', yellowcard: 'Ammonizione', redcard: 'Espulsione', secondyellow: 'Doppia ammonizione', substitution: 'Cambio', injury: 'Infortunio', injurytime: 'Recupero', var: 'VAR', vardecision: 'VAR', bookingvar: 'VAR cartellino', corner: "Calcio d'angolo", cornerkick: "Calcio d'angolo", goalkick: 'Rimessa dal fondo', throwin: 'Rimessa laterale', freekick: 'Punizione', freekickwon: 'Punizione guadagnata', offside: 'Fuorigioco', foul: 'Fallo', handball: 'Fallo di mano', shotontarget: 'Tiro in porta', shotofftarget: 'Tiro fuori', shotblocked: 'Tiro respinto', blockedshot: 'Tiro respinto', shotsaved: 'Tiro parato', savedshot: 'Tiro parato', save: 'Parata', missedshot: 'Tiro fuori', post: 'Palo', woodwork: 'Palo', attack: 'Attacco', dangerousattack: 'Attacco pericoloso', possession: 'Possesso', kickoff: "Calcio d'inizio", matchstarted: "Calcio d'inizio", halftime: 'Fine primo tempo', periodstart: 'Inizio tempo', periodend: 'Fine tempo', fulltime: 'Fine partita', matchended: 'Fine partita', whistle: 'Fischio', delay: 'Interruzione', lineup: 'Formazioni', assist: 'Assist', bigchancemissed: 'Grande occasione fallita', bigchancecreated: 'Grande occasione', bigchance: 'Grande occasione' };
 const SXY = { goalkick: [7, 50], throwin: [50, 4], corner: [98, 3], cornerkick: [98, 3], freekick: [58, 46], freekickwon: [58, 46], offside: [72, 40], foul: [50, 50], handball: [60, 50], shotontarget: [86, 50], shotofftarget: [84, 40], shotblocked: [82, 56], shotsaved: [87, 48], savedshot: [87, 48], save: [88, 50], missedshot: [84, 44], post: [86, 50], woodwork: [86, 50], goal: [88, 50], owngoal: [12, 50], penalty: [88, 50], penaltygoal: [88, 50], penaltymissed: [88, 50], penaltysaved: [88, 50], attack: [68, 50], dangerousattack: [80, 46], possession: [55, 50], kickoff: [50, 50], bigchancemissed: [86, 52], bigchance: [84, 48], assist: [80, 50] };
@@ -3104,11 +3110,12 @@ function vFonti() {
   root.innerHTML = head('Fonti', 'Prova diretta dal telefono: quali siti rispondono e quali no') + '<div id="fo"></div><button class="pri" id="fgo" style="width:100%;margin-top:10px">Prova tutte le fonti adesso</button><div class="card"><div class="sm">Se una fonte è bloccata dalla rete del telefono l\'app continua con le altre e lo scrive. Le formazioni ufficiali escono di solito circa un\'ora prima del calcio d\'inizio: prima di allora ogni sito pubblica solo probabili.</div></div>';
   const draw = () => { const el = $('#fo'); if (!el) return;
     el.innerHTML = FSRC.map(s => { const r = FST[s.k];
-      return '<div class="card"><div class="kv"><span>' + esc(s.n) + '</span><div class="' + (!r ? 'mut' : r.ok ? 'ok' : 'warn') + '">' + (!r ? 'non ancora provata' : r.ok ? 'OK · ' + esc(r.msg) + ' · ' + r.ms + ' ms' : 'non raggiungibile · ' + esc(r.msg)) + '</div></div><div class="sm mut">' + esc(s.d) + '</div></div>'; }).join(''); };
+      return '<div class="card"><div class="kv"><span>' + esc(s.n) + '</span><div class="' + (!r || r.run ? 'mut' : r.ok ? 'ok' : 'warn') + '">' + (!r ? 'non ancora provata' : r.run ? r.msg : r.ok ? 'OK · ' + esc(r.msg) + ' · ' + r.ms + ' ms' : 'non raggiungibile · ' + esc(r.msg)) + '</div></div><div class="sm mut">' + esc(s.d) + '</div></div>'; }).join(''); };
   draw();
-  const run = async () => { for (const s of FSRC) { const t0 = Date.now();
-      try { const r = await s.f(); FST[s.k] = { ok: true, msg: s.ok(r), ms: Date.now() - t0 }; } catch (e) { FST[s.k] = { ok: false, msg: e.message || 'errore', ms: Date.now() - t0 }; }
-      if (tab === 'fonti') draw(); } };
+  // tutte le prove insieme, ognuna con 35 secondi al massimo: una fonte lenta non blocca più le altre («non ancora provata»)
+  const run = async () => { await Promise.all(FSRC.map(async s => { const t0 = Date.now(); FST[s.k] = { ok: false, run: 1, msg: 'prova in corso…', ms: 0 }; if (tab === 'fonti') draw();
+      try { const r = await Promise.race([s.f(), new Promise((_, rej) => setTimeout(() => rej(new Error('nessuna risposta in 35 secondi')), 35000))]); FST[s.k] = { ok: true, msg: s.ok(r), ms: Date.now() - t0 }; } catch (e) { FST[s.k] = { ok: false, msg: e.message || 'errore', ms: Date.now() - t0 }; }
+      if (tab === 'fonti') draw(); })); };
   $('#fgo').onclick = () => { Object.keys(DOWN).forEach(k => delete DOWN[k]); Object.keys(FST).forEach(k => delete FST[k]); draw(); run(); };
   run();
 }
