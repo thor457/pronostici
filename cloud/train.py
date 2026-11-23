@@ -14,6 +14,8 @@ from playwright.async_api import async_playwright
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN = float(sys.argv[1]) if len(sys.argv) > 1 else 20
 OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com', 'prod-cdn-public-api.livescore.com']
+# siti che rispondono solo a un browser vero (pagina con JavaScript), non a curl: si aprono con Chromium attraverso il proxy
+REAL = ['www.mondopengwin.it']
 LOCAL = ['lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
 
 async def main():
@@ -30,10 +32,20 @@ async def main():
     prev = open(st_path).read() if os.path.exists(st_path) else 'null'
     async with async_playwright() as p:
         b = await p.chromium.launch(); pg = await b.new_page()
+        rb = await p.chromium.launch(proxy={'server': os.environ.get('HTTPS_PROXY') or os.environ.get('https_proxy') or 'http://127.0.0.1:36429'}, args=['--disable-blink-features=AutomationControlled'])
+        rbc = await rb.new_context(user_agent='Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Mobile Safari/537.36', locale='it-IT')
+        async def real(u):
+            q = await rbc.new_page()
+            try:
+                await q.goto(u, timeout=45000); await q.wait_for_timeout(6000); return (await q.content()).encode('utf-8')
+            finally: await q.close()
         H = {'access-control-allow-origin': '*', 'content-type': 'application/json'}
         async def route(r):
             u = r.request.url
             if u.startswith('file:'): return await r.continue_()
+            if any(h in u for h in REAL):
+                try: return await r.fulfill(status=200, body=await real(u), headers={'access-control-allow-origin': '*', 'content-type': 'text/html; charset=utf-8'})
+                except Exception: return await r.abort()
             if not any(h in u for h in OK): return await r.abort()
             pr = await asyncio.create_subprocess_exec('curl', '-sS', '--compressed', '-m', '45', '-A', 'Mozilla/5.0 (Linux; Android 13) Chrome/120 Mobile', u, stdout=asyncio.subprocess.PIPE)
             out, _ = await pr.communicate(); await r.fulfill(status=200, body=out, headers=H)
@@ -59,6 +71,8 @@ async def main():
         print('2b. tipster (OLBG e voti/quote 365Scores) sulle partite delle prossime 48 ore')
         print('  ', await ev("""async()=>{const T=window.__T,S=window.__S(); let L=T.getEvents().slice(); try{L=L.concat(await T.majorsAhead())}catch(e){} const seen={}; L=L.filter(e=>!e.done&&(seen[e.id]?0:(seen[e.id]=1)));
           const n=await T.taStep(120,L); const o=(S.tsrc||{}).OLBG; return n+' partite con voti/quote; OLBG '+(o?(o.ok?o.list.length+' consigli':'errore '+o.err):'-')}""", 900))
+        print('2c. pagine web dei tipster (MondoPengwin) con browser vero')
+        print('  ', await ev("async()=>{const n=await window.__T.webStep(true); const w=(window.__S().yt||{}).w||{}; return n+' pagine lette; '+Object.keys(w).map(u=>u.replace(/https?:\\/\\/(www\\.)?/,'').slice(0,40)+' '+(w[u].ok?'ok '+(w[u].m||[]).length+' partite':'no '+(w[u].why||''))).join(' | ')}", 300))
         print('3. formazioni ufficiali'); print('  ', await ev("async()=>{await window.__T.pollLU(); return Object.keys(window.__S().lu||{}).length}", 300))
         print('4. verifica partite finite')
         r = await ev("""async()=>{const T=window.__T,S=window.__S(); let L=[]; for(const k of [0,-1]){try{L=L.concat(await T.dayEvents(new Date(Date.now()+k*86400e3)))}catch(e){}}
@@ -74,13 +88,13 @@ async def main():
         while left() > 90:
             await ev("async()=>{await window.__T.histStep()}", 300)
             await ev("async()=>await window.__T.leagueStep(25)", 300)
-        out = await pg.evaluate("""(L)=>{const S=window.__S(),o={};Object.keys(S).forEach(k=>{if(L.indexOf(k)<0)o[k]=S[k]});
+        out = await pg.evaluate("""(L)=>{const S=window.__S(),o={};Object.keys(S).forEach(k=>{if(L.indexOf(k)<0)o[k]=S[k]}); if(S.yt&&S.yt.w)o.ytw=S.yt.w;
           // archivi per id: solo gli ultimi 10 giorni
           const cut=Date.now()-10*864e5; ['snap','snapPre'].forEach(k=>{if(o[k]){const x={};Object.keys(o[k]).forEach(id=>{const v=o[k][id];if(!v||!v.kick||new Date(v.kick)>cut)x[id]=v});o[k]=x}});
           return JSON.stringify(o)}""", LOCAL)
         score = await pg.evaluate("Object.values(window.__S().tracker||{}).reduce((a,t)=>a+(t.n||0),0)")
         nver = await pg.evaluate("Object.keys(window.__S().ver||{}).length")
-        await b.close()
+        await b.close(); await rb.close()
     os.makedirs(os.path.join(ROOT, 'state'), exist_ok=True)
     open(st_path, 'w').write(out)
     meta = {'t': int(time.time() * 1000), 'score': score, 'verificate': nver, 'size': len(out), 'minuti': round((time.time() - t0) / 60, 1), 'mk': mk}

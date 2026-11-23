@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795431577;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795433460;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -648,7 +648,8 @@ E.fetch365Game = async function (id) {
 
 // ---------- FORMAZIONI UFFICIALI: piu' fonti, verdetto per squadra ----------
 const PROXIES = ['', 'https://corsproxy.io/?url=', 'https://api.allorigins.win/raw?url=', 'https://api.codetabs.com/v1/proxy?quest='];
-E.fetchAny = async function (url, ms) { ms = Math.min(ms || 6000, 6000); let last; for (const px of PROXIES) { try { return await E.fetchJson(px ? px + encodeURIComponent(url) : url, ms); } catch (e) { last = e; } } throw last; };
+E.fetchAny = async function (url, ms) { ms = Math.min(ms || 6000, /sofascore/.test(url) ? 25000 : 6000); // il palinsesto SofaScore pesa alcuni MB: con 6 secondi sul cellulare veniva interrotto («signal is aborted»)
+  let last; for (const px of PROXIES) { try { return await E.fetchJson(px ? px + encodeURIComponent(url) : url, ms); } catch (e) { last = e; } } throw last; };
 const FMD = {};
 E.fotmobDay = async function (d) { const k = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
   if (FMD[k] && Date.now() - FMD[k].t < 300000) return FMD[k].L;
@@ -797,7 +798,7 @@ const SJ = async (path, ms) => { let last; for (let i = 0; i < SOFA_H.length; i+
 const sofaIso = d => d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
 const SIDC = {};
 E.sofaId = async function (home, away, start) { const d = new Date(start), iso = sofaIso(d), key = norm(home) + '|' + norm(away) + '|' + iso; if (SIDC[key] && (SIDC[key].id || Date.now() - SIDC[key].t < 120e3)) return SIDC[key].id;
-  if (!dayCache['s' + iso] || Date.now() - dayCache['s' + iso].t > 3600e3) dayCache['s' + iso] = { t: Date.now(), d: await SJ('sport/football/scheduled-events/' + iso, 6000) };
+  if (!dayCache['s' + iso] || Date.now() - dayCache['s' + iso].t > 3600e3) dayCache['s' + iso] = { t: Date.now(), d: await SJ('sport/football/scheduled-events/' + iso, 25000) };
   const L = dayCache['s' + iso].d.events || [], near = x => Math.abs(x.startTimestamp * 1000 - d.getTime()) < 4 * 3600e3;
   const ev = L.find(x => near(x) && sameTeam(x.homeTeam.name, home) && sameTeam(x.awayTeam.name, away)) || L.find(x => near(x) && sameTeam(x.homeTeam.name, away) && sameTeam(x.awayTeam.name, home));
   SIDC[key] = { t: Date.now(), id: ev ? ev.id : null }; return SIDC[key].id; };
@@ -1958,6 +1959,7 @@ function rapporto() {
   if (few.length) L.push('POCHI DATI (' + few.length + '): ' + few.slice(0, 12).join(', '));
   const err = (S.log || []).filter(l => /Cannot read|not a function|non riuscito|undefined/.test(l)).slice(0, 4);
   L.push(err.length ? 'ERRORI RECENTI: ' + err.join(' | ') : 'errori recenti: nessuno');
+  const fk = Object.keys(FST); L.push('FONTI DAL TELEFONO (' + (fk.length ? 'provate' : 'apri Altro → Fonti per provarle') + '): ' + fk.map(k => k + ' ' + (FST[k].ok ? 'OK ' + FST[k].msg : 'NO ' + String(FST[k].msg).slice(0, 40))).join(' | '));
   return L.join('\n');
 }
 function vRapporto() {
@@ -2090,7 +2092,7 @@ async function train(days, maxSum, to) {
           await Promise.all([0, 1, 2, 3].map(async () => { while (iy < pg.length) { const ev = pg[iy++]; let s4 = null; try { s4 = await P.fetchSummary(lg, ev.id); } catch (e) { } P.gradePicks(S, ev, s4); } })); }
         { const pm = evs.filter(ev => ev.done && multNeeds(ev)); for (const ev of pm) { try { const s3 = await P.fetchSummary(lg, ev.id); multGrade(ev, s3); } catch (e) { multGrade(ev, null); } } }
         const PRE = {}; { let budget = (maxSum || 40) - sumN; const need = evs.filter(ev => ev.done && ((S.snap && S.snap[ev.id] && !S.snap[ev.id].audited) || (S.cp && S.cp[ev.id] && !S.cp[ev.id].done) || (!S.seen[ev.id] && budget-- > 0))); let iz = 0;
-          await Promise.all([0, 1, 2, 3, 4, 5].map(async () => { while (iz < need.length) { await yieldFg(); const ev = need[iz++]; try { PRE[ev.id] = await P.fetchSummary(lg, ev.id); } catch (e) { PRE[ev.id] = null; } if (busy()) await zz(300); } })); }
+          await Promise.all([0, 1, 2, 3, 4, 5].map(async () => { while (iz < need.length) { await yieldFg(); const ev = need[iz++]; if (!ev) break; try { PRE[ev.id] = await P.fetchSummary(lg, ev.id); } catch (e) { PRE[ev.id] = null; } if (busy()) await zz(300); } })); }
         let yc = 0; for (const ev of evs) { if (!ev.done) continue; if (++yc % 40 === 0) await yieldUI();
           let sm = null; if (ev.id in PRE) { sm = PRE[ev.id]; if (sm) sumN++; }
           if (sm && S.snap && S.snap[ev.id] && !S.snap[ev.id].audited) await auditMatch(ev, sm);
@@ -2976,6 +2978,17 @@ const FSRC = [
   { k: 'sofa', n: 'SofaScore', d: 'live, statistiche complete, cronaca, pressione', f: () => P.fetchSofaList(), ok: r => (r || []).length + ' partite in corso' },
   { k: 'lsco', n: 'LiveScore', d: 'formazioni e live', f: () => P.fetchLivescore({ home: 'x', away: 'y', date: new Date().toISOString() }), ok: () => 'risponde' },
   { k: 'ghub', n: 'GitHub (storico nazionali)', d: 'risultati storici delle nazionali', f: async () => { const r = await fetch('https://raw.githubusercontent.com/martj42/international_results/master/results.csv', { method: 'GET' }); if (!r.ok) throw new Error('HTTP ' + r.status); const t = await r.text(); return t; }, ok: r => Math.round(String(r).length / 1024) + ' KB di storico' }];
+// siti che respingono i server del cloud: qui si prova la via diretta dal telefono (rete di casa o mobile), senza proxy
+const DIRT = async (u, re) => { const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 25000); try { const r = await fetch(u, { signal: ctl.signal }); const t = await r.text(); if (/cf-chl|challenge-platform|Just a moment|Ci siamo quasi|Attention Required/i.test(t.slice(0, 6000))) throw new Error('protezione anti-bot (HTTP ' + r.status + ')'); if (!r.ok) throw new Error('HTTP ' + r.status); if (re && !re.test(t)) throw new Error('pagina senza dati (' + t.length + ' caratteri)'); return t; } finally { clearTimeout(to); } };
+[['sofad', 'SofaScore palinsesto (diretto)', 'tutte le partite del giorno con id SofaScore', 'https://api.sofascore.com/api/v1/sport/football/scheduled-events/' + new Date().toISOString().slice(0, 10), /"events"/],
+ ['fbref', 'FBref', 'statistiche avanzate Opta di squadre e giocatori', 'https://fbref.com/en/comps/11/Serie-A-Stats', /stats_squads|Squad/],
+ ['fstat', 'FootyStats', 'medie di gol, corner, cartellini per squadra', 'https://footystats.org/italy/serie-a', /corner|Corners/i],
+ ['frbet', 'Forebet', 'pronostici matematici', 'https://www.forebet.com/en/football-tips-and-predictions-for-italy/serie-a', /rcnt|forepr/],
+ ['whosc', 'WhoScored', 'voti e statistiche dei giocatori', 'https://www.whoscored.com/Regions/108/Tournaments/5/Italy-Serie-A', /Serie A/],
+ ['under', 'Understat', 'xG di squadre e giocatori', 'https://understat.com/league/Serie_A', /teamsData|datesData/],
+ ['trmkt', 'Transfermarkt', 'infortuni e squalifiche', 'https://www.transfermarkt.it/serie-a/verletztespieler/wettbewerb/IT1', /items|spieler/i],
+ ['mpeng', 'MondoPengwin', 'studio dei campionati', 'https://www.mondopengwin.it/studio-top-campionati/', /PengWin/i]
+].forEach(([k, n, d, u, re]) => FSRC.push({ k, n, d, f: () => DIRT(u, re), ok: t => Math.round(t.length / 1024) + ' kB' }));
 const FST = {};
 // controllo automatico: se c'e' una versione nuova all'indirizzo impostato, la scarica e avvisa
 const UPDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/index.html';
@@ -2986,7 +2999,10 @@ const CL_LOCAL = ['settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt'
 const CL_UNION = ['snap', 'snapPre', 'ver', 'lu', 'luSrc', 'fmIng', 'seen', 'resolvedIds', 'refOf', 'cp', 'fmSeen', 'fmTeamT'];
 const trScore = X => Object.values((X && X.tracker) || {}).reduce((a, t) => a + (t.n || 0), 0);
 function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C);
-  Object.keys(C).forEach(k => { if (CL_LOCAL.indexOf(k) >= 0) return; const v = C[k];
+  Object.keys(C).forEach(k => { const v = C[k];
+    // pagine web lette dal cloud con un browser vero (es. MondoPengwin, che dal telefono può non rispondere)
+    if (k === 'ytw' && v) { const Y = ytState(); Y.w = Y.w || {}; Object.keys(v).forEach(u => { const a = Y.w[u], b = v[u]; if (b && b.ok && (!a || !a.ok || b.t > a.t)) { Y.w[u] = Object.assign({}, b, { via: 'cloud' }); n++; } }); return; }
+    if (CL_LOCAL.indexOf(k) >= 0) return;
     // fonti dei tipster: il cloud raggiunge siti che dal telefono non rispondono (es. OLBG); si tiene la lettura valida piu' recente
     if (k === 'tsrc' && v) { S.tsrc = S.tsrc || {}; Object.keys(v).forEach(c => { const a = S.tsrc[c], b = v[c]; if (b && b.ok && (!a || !a.ok || b.t > a.t)) { S.tsrc[c] = Object.assign({}, b, { via: 'cloud' }); n++; } }); if (S.tsrc.OLBG) S.olbg = S.tsrc.OLBG; return; }
     if (k === 'tipA' && v) { S.tipA = S.tipA || {}; Object.keys(v).forEach(id => { const a = S.tipA[id], b = v[id]; if (b && (!a || (b.t || 0) > (a.t || 0))) { S.tipA[id] = Object.assign({}, b, a && a.sf && !b.sf ? { sf: a.sf } : {}); n++; } }); return; }
