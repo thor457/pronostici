@@ -92,6 +92,8 @@ Dalla seconda parte (testo integrale):
 
 48. (23/11 14:31) «Ti ripeto che tutto deve funzionare esattamente. Se c'è bisogno per la prima volta di una verifica umana, eccetera, dammi il link, lo faccio io, poi devi proseguire tutto automaticamente e completamente.»
 
+49. (23/11 14:37, screenshot Quadro con solo Monza-Fiorentina, Brentford-Everton, Levante-Elche oggi) «Tutte le partite importanti di oggi si sono ridotte a queste tre? No, non sta funzionando assolutamente per niente bene. Devi ottimizzare tutto. Ricerca cose che già abbiamo detto in tutta la chat.»
+
 ## Cosa è stato fatto (sintesi per richiesta)
 
 - 17-18: dati FotMob su tutte le partite (ultime 5 di ogni squadra, rose, falli, cartellini, xG), ammoniti e marcatori ricalcolati; Brasile coperto.
@@ -116,6 +118,7 @@ Dalla seconda parte (testo integrale):
 - 46: in Fonti nuova prova «SofaScore ricerca partita» (quella che conta: id trovato anche senza palinsesto); FBref e Understat marcati come NON USATI con la fonte che li sostituisce.
 - 47: causa: le prove in Fonti erano in fila e la ricerca SofaScore passava per 4 proxy pubblici con 25 s ciascuno, bloccando le prove successive. Ora: tutte in parallelo con massimo 35 s ciascuna (`cloud/test_fonti.py`: tutte concluse entro 40 s); SofaScore solo via diretta (niente proxy pubblici); id delle squadre SofaScore imparati da ogni elenco live e salvati (`pp_sofat`), ricerca con `search/all` e `search/teams`, poi `team/{id}/events/next|last` per casa e ospite.
 - 48: Understat risponde a tutti «We will come back soon» (manutenzione, non una verifica): lettore `P.usParse` (teamsData, xG/xGA/npxG/PPDA ultime 8 gare) che riprova ogni 6 ore e si attiva da solo quando il sito torna; dati nella scheda partita. FBref: spiegato all'utente che una verifica fatta una volta non può reggere la lettura automatica (permesso legato a telefono e rete, scade, e il cloud non può usarlo) e che non costruisco un modo per far passare letture automatiche oltre una verifica anti-bot; dati Opta da FotMob. SofaScore palinsesto: rifiuto dell'API, non una verifica; coperto dalla ricerca partita.
+- 49: verificato su FotMob/ESPN: lunedì 23/11 i 5 campionati maggiori avevano davvero solo quelle 3 partite; ma il Quadro escludeva le altre importanti. Ora `IMPLG` (Quadro e priorità di analisi): 5 maggiori, coppe europee e mondiali, Serie B e seconde divisioni di Inghilterra/Spagna/Germania/Francia, Portogallo, Olanda, Turchia, Belgio, Scozia, Grecia, Austria, Svizzera, Danimarca, coppe nazionali, AFC Champions, Libertadores/Sudamericana, Brasile, Argentina, MLS, Messico, Arabia; ordine Serie A → big 4 + Champions → altre UEFA/Serie B/Coppa Italia → seconde e medie leghe → resto. Le partite ESPN del flusso «tutti i campionati» prendono il codice di lega da 365Scores (`E.C365`, id competizione → codice ESPN); doppioni con nomi diversi (Inter/Internazionale, Slavia Praha/Prague, PSG) fusi (`near2`). Analisi in sottofondo con 5 lavori insieme invece di 3. Prova (`cloud/test_quadro.py`): oggi 16 partite importanti, domani 26, nessun doppione.
 
 ## Limiti dichiarati all'utente (da non nascondere)
 
