@@ -72,6 +72,8 @@ Dalla seconda parte (testo integrale):
 39. (23/11 09:37) «Allora, dobbiamo raggiungere tutti i siti. Ho abilitato i domini, quindi inserisci anche tutti i tipster che avevamo detto prima, le pagine dei tipster, e in più tutti i limiti che hai messo devono essere tutti abilitati.»
 40. (23/11 09:52) «Tutta questa chat va conservata, nel senso che non devi perdere alcuna parola detta quando comprimi la chat, quindi fai in modo tale che tu riesca a ricordare ogni singola parola detta dall'inizio di questa chat, sempre, in modo tale da avere un filo continuo. Trovo un metodo, la soluzione, ma deve essere sempre estesa al 100% per non perdere i dettagli della conversazione.»
 
+41. (23/11 09:56) «Ok, testa ogni cosa dell'app, deve essere funzionante al 100%, in più deve addestrare anche il ragionamento, oltre a tutti i fattori già detti.»
+
 ## Cosa è stato fatto (sintesi per richiesta)
 
 - 17-18: dati FotMob su tutte le partite (ultime 5 di ogni squadra, rose, falli, cartellini, xG), ammoniti e marcatori ricalcolati; Brasile coperto.
@@ -88,6 +90,7 @@ Dalla seconda parte (testo integrale):
 - 37-38: addestramento orario nel cloud attivo (vedi sopra).
 - 39: OLBG letto dal cloud e passato al telefono; voti e quote 365Scores su tutte le partite delle prossime 48 ore; gli altri siti respingono i server (tabella fonti).
 - 40: questo file + riga nella memoria che obbliga a leggerlo.
+- 41: collaudo completo automatico `cloud/test_app.py` (22 controlli: avvio, tutte le schede, tre multiple, tutte le pagine di Altro, tutte le sezioni di una partita, centro live con tutte le schede, tasto indietro): 22 su 22. Addestramento del ragionamento: registro `S.rag` dei fattori (dati dell'app, bookmaker, accordo/disaccordo e chi aveva ragione, quote in calo, tipster concordi, video, tensione e gialli, ammoniti con/senza XI, gol attesi alti/bassi) aggiornato a ogni verifica; il pronostico finale si sposta verso il mercato o verso i dati secondo chi ha avuto più ragione nei disaccordi (da 15 casi); sezione «Ragionamento appreso» nella partita e in Errori e correzioni. Lavoro in sottofondo in pausa mentre si apre una partita dal vivo.
 
 ## Limiti dichiarati all'utente (da non nascondere)
 
