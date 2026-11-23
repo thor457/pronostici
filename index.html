@@ -2910,11 +2910,14 @@ const UPDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/index.
 let updReady = 0;
 // ================= ADDESTRAMENTO 24 SU 24 NEL CLOUD: il telefono scarica il modello addestrato e lo unisce al suo =================
 const CLOUDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/state/';
-const CL_LOCAL = ['settings', 'log', 'yt', 'tg', 'tipA', 'tsrc', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
+const CL_LOCAL = ['settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
 const CL_UNION = ['snap', 'snapPre', 'ver', 'lu', 'luSrc', 'fmIng', 'seen', 'resolvedIds', 'refOf', 'cp', 'fmSeen', 'fmTeamT'];
 const trScore = X => Object.values((X && X.tracker) || {}).reduce((a, t) => a + (t.n || 0), 0);
 function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C);
   Object.keys(C).forEach(k => { if (CL_LOCAL.indexOf(k) >= 0) return; const v = C[k];
+    // fonti dei tipster: il cloud raggiunge siti che dal telefono non rispondono (es. OLBG); si tiene la lettura valida piu' recente
+    if (k === 'tsrc' && v) { S.tsrc = S.tsrc || {}; Object.keys(v).forEach(c => { const a = S.tsrc[c], b = v[c]; if (b && b.ok && (!a || !a.ok || b.t > a.t)) { S.tsrc[c] = Object.assign({}, b, { via: 'cloud' }); n++; } }); if (S.tsrc.OLBG) S.olbg = S.tsrc.OLBG; return; }
+    if (k === 'tipA' && v) { S.tipA = S.tipA || {}; Object.keys(v).forEach(id => { const a = S.tipA[id], b = v[id]; if (b && (!a || (b.t || 0) > (a.t || 0))) { S.tipA[id] = Object.assign({}, b, a && a.sf && !b.sf ? { sf: a.sf } : {}); n++; } }); return; }
     if (CL_UNION.indexOf(k) >= 0 && v && typeof v === 'object' && !Array.isArray(v)) { S[k] = S[k] || {}; Object.keys(v).forEach(id => { if (S[k][id] === undefined) { S[k][id] = v[id]; n++; } }); return; }
     if (theirs >= mine || S[k] === undefined) { S[k] = v; n++; } });
   if (P.pidxClear) P.pidxClear(); return { n, mine, theirs }; }

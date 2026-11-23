@@ -13,8 +13,8 @@ import asyncio, json, os, sys, time
 from playwright.async_api import async_playwright
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN = float(sys.argv[1]) if len(sys.argv) > 1 else 20
-OK = ['webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com']
-LOCAL = ['settings', 'log', 'yt', 'tg', 'tipA', 'tsrc', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
+OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com']
+LOCAL = ['settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
 
 async def main():
     t0 = time.time(); st_path = os.path.join(ROOT, 'state', 'state.json')
@@ -47,6 +47,9 @@ async def main():
           L.sort((a,b)=>(/^(ita|eng|esp|ger|fra|por|ned)\\.|^uefa\\./.test(b.league||'')-/^(ita|eng|esp|ger|fra|por|ned)\\.|^uefa\\./.test(a.league||''))||new Date(a.date)-new Date(b.date)); L=L.slice(0,160);
           let i=0,n=0; await Promise.all([0,1,2,3].map(async()=>{while(i<L.length){const e=L[i++];try{T.prepEv(e);await T.analyzeMatch(e);await T.refreshSnap(e);n++}catch(x){}}})); return n+' su '+L.length}""", 900)
         print('  analizzate', r)
+        print('2b. tipster (OLBG e voti/quote 365Scores) sulle partite delle prossime 48 ore')
+        print('  ', await ev("""async()=>{const T=window.__T,S=window.__S(); let L=T.getEvents().slice(); try{L=L.concat(await T.majorsAhead())}catch(e){} const seen={}; L=L.filter(e=>!e.done&&(seen[e.id]?0:(seen[e.id]=1)));
+          const n=await T.taStep(120,L); const o=(S.tsrc||{}).OLBG; return n+' partite con voti/quote; OLBG '+(o?(o.ok?o.list.length+' consigli':'errore '+o.err):'-')}""", 900))
         print('3. formazioni ufficiali'); print('  ', await ev("async()=>{await window.__T.pollLU(); return Object.keys(window.__S().lu||{}).length}", 300))
         print('4. verifica partite finite')
         r = await ev("""async()=>{const T=window.__T,S=window.__S(); let L=[]; for(const k of [0,-1]){try{L=L.concat(await T.dayEvents(new Date(Date.now()+k*86400e3)))}catch(e){}}
