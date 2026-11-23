@@ -16,7 +16,7 @@ MIN = float(sys.argv[1]) if len(sys.argv) > 1 else 20
 OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com', 'prod-cdn-public-api.livescore.com', 'www.transfermarkt.it', 'news.google.com']
 # siti che rispondono solo a un browser vero (pagina con JavaScript), non a curl: si aprono con Chromium attraverso il proxy
 REAL = ['www.mondopengwin.it']
-LOCAL = ['news', 'wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
+LOCAL = ['wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
 
 async def main():
     t0 = time.time(); st_path = os.path.join(ROOT, 'state', 'state.json')
@@ -60,7 +60,7 @@ async def main():
             except Exception as e: print('  !', str(e)[:160]); return None
         print('1. campionati principali'); 
         for _ in range(40):
-            if left() < MIN * 60 * 0.65: break
+            if left() < MIN * 60 * 0.75: break
             n = await ev("async()=>await window.__T.leagueStep(25)", 300)
             if not n: break
         # formazioni ufficiali in continuo per tutto il giro (escono circa 60' prima: un giro ogni ora le prende tutte prima del via)
@@ -72,8 +72,8 @@ async def main():
                     if stop['v']: break
                     await asyncio.sleep(5)
         lu_task = asyncio.create_task(lu_loop())
-        print('2. palinsesto completo di oggi e domani: pre-pronostico di ogni partita, poi analisi profonda finché c\'è tempo')
-        print('  ', await ev("async()=>JSON.stringify(await window.__T.palinsestoStep([0,1], %d))" % int(MIN * 60 * 1000 * 0.3), 1200))
+        print('2. palinsesto completo di oggi, domani e dopodomani: pre-pronostico di ogni partita, poi analisi profonda finché c\'è tempo')
+        print('  ', await ev("async()=>JSON.stringify(await window.__T.palinsestoStep([0,1,2], %d))" % int(MIN * 60 * 1000 * 0.35), 1800))
         print('   ', await ev(SNAPN))
         print('2b. tipster (OLBG e voti/quote 365Scores) sulle partite delle prossime 48 ore')
         print('  ', await ev("""async()=>{const T=window.__T,S=window.__S(); let L=T.getEvents().slice(); try{L=L.concat(await T.majorsAhead())}catch(e){} const seen={}; L=L.filter(e=>!e.done&&(seen[e.id]?0:(seen[e.id]=1)));

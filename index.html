@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795457923;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795459114;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -3163,13 +3163,13 @@ const UPDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/index.
 let updReady = 0;
 // ================= ADDESTRAMENTO 24 SU 24 NEL CLOUD: il telefono scarica il modello addestrato e lo unisce al suo =================
 const CLOUDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/state/';
-const CL_LOCAL = ['news', 'wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
+const CL_LOCAL = ['wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
 const CL_UNION = ['snap', 'snapPre', 'ver', 'lu', 'luSrc', 'fmIng', 'seen', 'resolvedIds', 'refOf', 'cp', 'fmSeen', 'fmTeamT'];
 const trScore = X => Object.values((X && X.tracker) || {}).reduce((a, t) => a + (t.n || 0), 0);
 function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C);
   Object.keys(C).forEach(k => { const v = C[k];
     // pagine web lette dal cloud con un browser vero (es. MondoPengwin, che dal telefono può non rispondere)
-    if ((k === 'pd' || k === 'fmP') && v) { S[k] = S[k] || {}; Object.keys(v).forEach(id => { const a = S[k][id], b = v[id]; if (b && (!a || (b.t || 0) > (a.t || 0))) { S[k][id] = b; n++; } }); return; }
+    if ((k === 'pd' || k === 'fmP' || k === 'news') && v) { S[k] = S[k] || {}; Object.keys(v).forEach(id => { const a = S[k][id], b = v[id]; if (b && (!a || (b.t || 0) > (a.t || 0))) { S[k][id] = b; n++; } }); return; }
     if (k === 'cov' && v) { S.cov = S.cov || {}; Object.keys(v).forEach(d => { const a = S.cov[d], b = v[d]; if (b && (!a || (b.tot || 0) + (b.ver || 0) + (b.xi || 0) > (a.tot || 0) + (a.ver || 0) + (a.xi || 0))) { S.cov[d] = b; n++; } }); return; }
     if (k === 'tmInj' && v) { S.tmInj = S.tmInj || {}; Object.keys(v).forEach(lg => { const a = S.tmInj[lg], b = v[lg]; if (b && b.L && b.L.length && (!a || !a.L || b.t > a.t)) { S.tmInj[lg] = b; n++; } }); return; }
     if (k === 'ytw' && v) { const Y = ytState(); Y.w = Y.w || {}; Object.keys(v).forEach(u => { const a = Y.w[u], b = v[u]; if (b && b.ok && (!a || !a.ok || b.t > a.t)) { Y.w[u] = Object.assign({}, b, { via: 'cloud' }); n++; } }); return; }

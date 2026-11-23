@@ -1,6 +1,6 @@
 # Addestramento 24 su 24
 
-Ogni ora un'attività programmata esegue `python3 cloud/train.py 20`:
+Ogni ora un'attività programmata esegue `python3 cloud/train.py 38`:
 apre l'app senza schermo, carica `state/state.json`, lavora 20 minuti
 (campionati principali, pronostici pre-partita, formazioni ufficiali, verifiche,
 storico) e salva il nuovo `state/state.json` con `state/meta.json`.
