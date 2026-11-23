@@ -55,6 +55,12 @@ async def main():
         r = await ev("""async()=>{const T=window.__T,S=window.__S(); let L=[]; for(const k of [0,-1]){try{L=L.concat(await T.dayEvents(new Date(Date.now()+k*86400e3)))}catch(e){}}
           const F=L.filter(e=>e.done&&S.snap&&S.snap[e.id]&&!(S.ver&&S.ver[e.id])); let n=0; for(const e of F){try{T.prepEv(e);await T.verifyMatch(e);n++}catch(x){}} return n+' verificate su '+F.length}""", 900)
         print('  ', r)
+        print('4b. ripasso stagioni 2025-26 e 2026-27 (pre-pronostico e confronto)')
+        t1=time.time()
+        while left() > MIN*60*0.25 and time.time()-t1 < MIN*60*0.35:
+            n = await ev("async()=>await window.__T.replayStep(10)", 600)
+            if not n: break
+        print('  ', await ev("JSON.stringify({giorno:(window.__S().rp||{}).day, partite:(window.__S().rp||{}).n})"))
         print('5. storico')
         while left() > 90:
             await ev("async()=>{await window.__T.histStep()}", 300)

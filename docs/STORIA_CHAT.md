@@ -74,6 +74,8 @@ Dalla seconda parte (testo integrale):
 
 41. (23/11 09:56) «Ok, testa ogni cosa dell'app, deve essere funzionante al 100%, in più deve addestrare anche il ragionamento, oltre a tutti i fattori già detti.»
 
+42. (23/11 11:41, screenshot Addestramento) «In questa sezione vanno caricati tutti i campionati 2025-2026, inclusi quelli che verranno, per avere un quadro ancora più completo, con audit, pre-pronostici e poi confronto finale, in modo tale di addestrare tutti i metodi, ragionamento e precisione.»
+
 ## Cosa è stato fatto (sintesi per richiesta)
 
 - 17-18: dati FotMob su tutte le partite (ultime 5 di ogni squadra, rose, falli, cartellini, xG), ammoniti e marcatori ricalcolati; Brasile coperto.
@@ -91,6 +93,7 @@ Dalla seconda parte (testo integrale):
 - 39: OLBG letto dal cloud e passato al telefono; voti e quote 365Scores su tutte le partite delle prossime 48 ore; gli altri siti respingono i server (tabella fonti).
 - 40: questo file + riga nella memoria che obbliga a leggerlo.
 - 41: collaudo completo automatico `cloud/test_app.py` (22 controlli: avvio, tutte le schede, tre multiple, tutte le pagine di Altro, tutte le sezioni di una partita, centro live con tutte le schede, tasto indietro): 22 su 22. Addestramento del ragionamento: registro `S.rag` dei fattori (dati dell'app, bookmaker, accordo/disaccordo e chi aveva ragione, quote in calo, tipster concordi, video, tensione e gialli, ammoniti con/senza XI, gol attesi alti/bassi) aggiornato a ogni verifica; il pronostico finale si sposta verso il mercato o verso i dati secondo chi ha avuto più ragione nei disaccordi (da 15 casi); sezione «Ragionamento appreso» nella partita e in Errori e correzioni. Lavoro in sottofondo in pausa mentre si apre una partita dal vivo.
+- 42: ripasso delle stagioni 2025-26 e 2026-27 (`replayStep`, stato `S.rp`): modello ombra dal 1/7/2025, giorno per giorno, tutti i campionati ESPN (maggiori a parte), pre-pronostico con i soli dati di prima (anche quote pre-partita ESPN), confronto e poi apprendimento; statistiche per stagione, campionati maggiori e mese per mese nella pagina Addestramento; gira nel ciclo dell'app (4 giorni ogni 2 minuti) e nel cloud (fino a un terzo di ogni giro). Prova: 20 giorni di luglio 2025, 851 partite.
 
 ## Limiti dichiarati all'utente (da non nascondere)
 
