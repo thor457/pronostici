@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795433460;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795435105;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -536,7 +536,12 @@ E.resolveMarket = function (key, ev, sc) { // sc: {hs, as}
 
 // ---------- ESPN ----------
 const BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/';
+E.espnOff = 0;
 E.fetchJson = async function (url, ms) {
+  const isE = /espn\.com\//.test(url); if (isE && Date.now() < E.espnOff) throw new Error('ESPN in pausa: troppe richieste dal telefono, riprovo tra ' + Math.ceil((E.espnOff - Date.now()) / 60e3) + ' min');
+  try { return await E.fetchJson0(url, ms); } catch (e) { if (isE && /HTTP (403|429)/.test(e.message)) { E.espnOff = Date.now() + 10 * 60e3; } throw e; } };
+// ESPN risponde 403 quando dallo stesso telefono arrivano troppe richieste: pausa di 10 minuti invece di insistere (poi si sblocca da solo)
+E.fetchJson0 = async function (url, ms) {
   const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, to = ctl ? setTimeout(() => ctl.abort(), ms || 20000) : null;
   try { const r = await fetch(url, ctl ? { signal: ctl.signal } : {}); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { if (to) clearTimeout(to); }
 };
@@ -798,8 +803,14 @@ const SJ = async (path, ms) => { let last; for (let i = 0; i < SOFA_H.length; i+
 const sofaIso = d => d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
 const SIDC = {};
 E.sofaId = async function (home, away, start) { const d = new Date(start), iso = sofaIso(d), key = norm(home) + '|' + norm(away) + '|' + iso; if (SIDC[key] && (SIDC[key].id || Date.now() - SIDC[key].t < 120e3)) return SIDC[key].id;
-  if (!dayCache['s' + iso] || Date.now() - dayCache['s' + iso].t > 3600e3) dayCache['s' + iso] = { t: Date.now(), d: await SJ('sport/football/scheduled-events/' + iso, 25000) };
-  const L = dayCache['s' + iso].d.events || [], near = x => Math.abs(x.startTimestamp * 1000 - d.getTime()) < 4 * 3600e3;
+  let L = [];
+  try { if (!dayCache['s' + iso] || Date.now() - dayCache['s' + iso].t > 3600e3) dayCache['s' + iso] = { t: Date.now(), d: await SJ('sport/football/scheduled-events/' + iso, 25000) }; L = dayCache['s' + iso].d.events || []; }
+  catch (e) { // il palinsesto completo a volte risponde 403 dal telefono: si cerca la partita fra quelle in corso e poi per squadra
+    try { if (!dayCache.live || Date.now() - dayCache.live.t > 60e3) dayCache.live = { t: Date.now(), d: await SJ('sport/football/events/live', 15000) }; L = dayCache.live.d.events || []; } catch (x) { }
+    if (!L.some(x => sameTeam(x.homeTeam.name, home) || sameTeam(x.awayTeam.name, home))) { try { const q = await SJ('search/teams?q=' + encodeURIComponent(home) + '&page=0', 12000), tm = ((q.results || q.teams || []).map(r => r.entity || r).find(t => t && (!t.sport || t.sport.slug === 'football') && sameTeam(t.name, home))) || null;
+        if (tm) { for (const w of ['next', 'last']) { try { const r = await SJ('team/' + tm.id + '/events/' + w + '/0', 12000); L = L.concat(r.events || []); } catch (x) { } } } } catch (x) { } }
+    if (!L.length) throw e; }
+  const near = x => Math.abs(x.startTimestamp * 1000 - d.getTime()) < 4 * 3600e3;
   const ev = L.find(x => near(x) && sameTeam(x.homeTeam.name, home) && sameTeam(x.awayTeam.name, away)) || L.find(x => near(x) && sameTeam(x.homeTeam.name, away) && sameTeam(x.awayTeam.name, home));
   SIDC[key] = { t: Date.now(), id: ev ? ev.id : null }; return SIDC[key].id; };
 // ---- SofaScore: partita completa (riferimento live) ----
@@ -1091,6 +1102,18 @@ E.fetchText = async function (url, ms, minLen) { const min = minLen != null ? mi
     fetch(u, Object.assign(ctl ? { signal: ctl.signal } : {}, opt || {})).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }).then(t => { clearTimeout(to); if (t && t.length > min && !/cf-chl|challenge-platform|Just a moment\.\.\./i.test(t.slice(0, 4000))) res(t); else rej(new Error(t && t.length > min ? 'protezione anti-bot' : 'risposta vuota')); }).catch(e => { clearTimeout(to); rej(e); }); });
   const tries = [one(url)]; if (!/^https:\/\/(api\.telegram|webws\.365scores|site\.api\.espn|www\.fotmob)/.test(url)) { tries.push(new Promise(r => setTimeout(r, 1500)).then(() => one('https://r.jina.ai/' + url, { headers: { 'X-Return-Format': 'html' } }))); PROXIES.slice(1).forEach((px, i) => tries.push(new Promise(r => setTimeout(r, 2500 + i * 1000)).then(() => one(px + encodeURIComponent(url))))); }
   return new Promise((res, rej) => { let left = tries.length; const errs = []; tries.forEach(p => p.then(res, e => { errs.push(String(e && e.message || e)); if (--left === 0) rej(new Error(errs[0] + (errs.length > 1 ? ' (anche le vie alternative: ' + [...new Set(errs.slice(1))].join(', ') + ')' : ''))); })); }); };
+// Transfermarkt: elenco infortunati del campionato (giocatore, ruolo, squadra, infortunio, rientro previsto)
+E.TMLG = { 'ita.1': 'IT1', 'ita.2': 'IT2', 'eng.1': 'GB1', 'eng.2': 'GB2', 'esp.1': 'ES1', 'ger.1': 'L1', 'fra.1': 'FR1', 'por.1': 'PO1', 'ned.1': 'NL1', 'tur.1': 'TR1', 'bel.1': 'BE1', 'sco.1': 'SC1', 'gre.1': 'GR1' };
+E.tmParse = function (html) { const out = [], i = html.indexOf('class="items"'); if (i < 0) return out; const body = html.slice(i).split('</tbody>')[0];
+  body.split(/<tr class="(?:odd|even)">/).slice(1).forEach(r => { const nm = (/class="hauptlink">\s*<a title="([^"]+)"/.exec(r) || [])[1]; if (!nm) return;
+    const pos = (/<\/tr>\s*<tr>\s*<td>([^<]+)<\/td>/.exec(r) || [])[1], club = (/class="tiny_wappen"[^>]*>|<a title="([^"]+)" href="\/[^"]*\/startseite\/verein/.exec(r) || [])[1];
+    const tail = r.split('</table>').slice(1).join(''), cells = (tail.match(/<td[^>]*>([\s\S]*?)<\/td>/g) || []).map(c => c.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
+    out.push({ name: nm, pos: pos ? pos.trim() : '', club: club || '', why: cells[1] || '', until: cells[2] || '' }); }); return out; };
+E.tmInjuries = async function (lg) { const c = E.TMLG[lg]; if (!c) return null; return E.tmParse(await E.fetchText('https://www.transfermarkt.it/x/verletztespieler/wettbewerb/' + c, 25000)); };
+// tabelle di una pagina qualsiasi (FootyStats, WhoScored): intestazioni e righe in testo semplice
+E.htmlTables = function (html) { const T = [], tx = c => c.replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim().slice(0, 40);
+  (String(html).match(/<table[\s\S]*?<\/table>/gi) || []).slice(0, 25).forEach(t => { const rows = (t.match(/<tr[\s\S]*?<\/tr>/gi) || []).map(r => (r.match(/<t[hd][^>]*>[\s\S]*?<\/t[hd]>/gi) || []).map(tx)).filter(r => r.length >= 2);
+    if (rows.length < 3) return; const head = rows[0], cap = ((/<caption[^>]*>([\s\S]*?)<\/caption>/i.exec(t) || [])[1] || '').replace(/<[^>]+>/g, '').trim().slice(0, 60); T.push({ cap, head, rows: rows.slice(1, 41) }); }); return T.slice(0, 12); };
 E.votes365 = async function (id) {
   const d = await E.fetchJson(B365 + 'game/?appTypeId=5&langId=1&timezoneName=Europe/Rome&userCountryId=1&gameId=' + id, 20000), g = d.game || {}, P = ((g.promotedPredictions || d.promotedPredictions || {}).predictions) || [], rows = [];
   P.forEach(p => { const tot = p.totalVotes || 0, ti = String(p.title || ''), op = p.options || [], v = o => (o.vote || {});
@@ -1588,6 +1611,7 @@ async function vMatch(ev) { root.dataset.cen = '';
     if (vn) fo += '<div class="kv"><span>Stadio</span><div>' + esc(vn) + '</div></div>';
     if (fmf.lineupType) fo += '<div class="kv"><span>FotMob</span><div class="' + (fmf.official ? 'ok' : 'warn') + '">' + (fmf.official ? 'formazioni ufficiali' : 'formazioni probabili') + (fmf.lsrc ? ' · fonte ' + esc(fmf.lsrc) : '') + ' · ' + esc(fmf.lh.formation || '?') + ' contro ' + esc(fmf.la.formation || '?') + '</div></div>';
     if (fmf.insights && fmf.insights.length) fo += '<div class="kv"><span>Note FotMob</span><div class="sm">' + fmf.insights.map(esc).join(' · ') + ' <span class="mut">(testo originale in inglese)</span></div></div>'; }
+  try { fo += siteHtml(ev); } catch (e) { }
   fo += '<div class="kv"><span>Arbitro</span><div>' + (refName ? esc(refName) + (ra ? ' · ' + ra.avg.toFixed(1) + ' gialli/gara su ' + ra.n + ' gare (descrittivo: da solo non ha predetto i cartellini dei singoli)' : ' · media gialli non ancora appresa') : 'da verificare') + '</div></div>';
   a += '<div class="card"><div class="k">Formazioni, assenti, arbitro</div>' + fo + '</div>';
   const uk = ev.list.find(x => x.key === 'UNDER25'); if (uk && uk.p >= 0.55) a += '<div class="card"><div class="k">Under ragionato</div><div class="sm">' + esc(P.reasonUnder(ev.mk, lam.lh, lam.la)) + '</div></div>';
@@ -2158,7 +2182,7 @@ function vImp() {
   $('#ex').onclick = () => { const b = new Blob([JSON.stringify(S)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'pronostici_stato.json'; a.click(); };
   $('#rs').onclick = () => { if (confirm('Cancello tutto l\'addestramento?')) { localStorage.removeItem(KEY); location.reload(); } };
 }
-window.__S=()=>S;window.__T={ lsLineup, lsDay, lsFind, mktHtml, vTrain, replayStep,  cloudSync, cloudMerge, pumpVerify, queueVerify, majorsAhead, prefetchAll2: (l) => prefetchAll(l), pollLU, webStep, ytStep, tgStep, extFor, extHtml, analyzeMatch, prefetchAll, train, histStep, leagueStep, selezione, tabOf, ragiona, taSection, taSites, taOne, taStep, taRows, taConc, taMultiHtml, taSection, squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
+window.__S=()=>S;window.__T={ siteStep, siteHtml, lsLineup, lsDay, lsFind, mktHtml, vTrain, replayStep,  cloudSync, cloudMerge, pumpVerify, queueVerify, majorsAhead, prefetchAll2: (l) => prefetchAll(l), pollLU, webStep, ytStep, tgStep, extFor, extHtml, analyzeMatch, prefetchAll, train, histStep, leagueStep, selezione, tabOf, ragiona, taSection, taSites, taOne, taStep, taRows, taConc, taMultiHtml, taSection, squadStep, refreshSnap, fmRoster, preLamUndo, learnEvent, lblK, rapporto, SEED, prepEv, render, fillPreds, preSnapAll, loadDay, dayEvents, openMatch, vCenter, RQ, rebuildSnap, queueRebuild, verifyMatch, getEvents: () => events, refStep, TL: () => TL, importIntl, histStep, regMult, multGrade, S: () => S, snapMatch, auditMatch, loadDay, events: () => events, setDate: d => { curDate = d; }, learnPanel, ymd };setTab('quadro');
 // auto-addestramento all'apertura se ultimo > 6 ore
 if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) navigator.serviceWorker.register('sw.js').catch(() => { });
 
@@ -2533,10 +2557,26 @@ async function lsDay(d) { const k = ymd(d).replace(/-/g, ''); if (LSC[k] && Date
 async function lsFind(ev) { if (ev.lsid) return ev.lsid; const L = await lsDay(new Date(ev.date)); const m = L.find(x => sameT(x.home, ev.home) && sameT(x.away, ev.away)); if (m) ev.lsid = m.id; return m ? m.id : null; }
 async function lsLineup(ev) { const id = await lsFind(ev); if (!id) return null; const j = await P.fetchJson(LSB + 'lineups/soccer/' + id + '?locale=it', 20000), P2 = { 1: 'G', 2: 'D', 3: 'M', 4: 'F' }, ros = {};
   const T = (j.Lu || []).sort((a, b) => a.Tnb - b.Tnb); if (T.length < 2) return null;
-  for (let i = 0; i < 2; i++) { const ps = T[i].Ps || [], xi = ps.filter(p => p.Fp && p.Pon !== 'COACH'); if (xi.length !== 11) return null; const nm = p => ((p.Fn ? p.Fn + ' ' : '') + (p.Ln || '')).trim();
+  const nm = p => ((p.Fn ? p.Fn + ' ' : '') + (p.Ln || '')).trim(); S.lsOut = S.lsOut || {}; T.slice(0, 2).forEach((t, i) => { S.lsOut[ev.id + '_' + i] = (t.IS || []).map(p => nm(p) + (p.Rs ? ' (' + p.Rs + ')' : '')); });
+  for (let i = 0; i < 2; i++) { const ps = T[i].Ps || [], xi = ps.filter(p => p.Fp && p.Pon !== 'COACH'); if (xi.length !== 11) return null;
     ros[i ? ev.away : ev.home] = xi.map(p => ({ name: nm(p), pos: P2[p.Pos] || 'M', starter: true })).concat(ps.filter(p => !p.Fp && p.Pon !== 'COACH').map(p => ({ name: nm(p), pos: P2[p.Pos] || 'M', starter: false })));
-    S.lsOut = S.lsOut || {}; S.lsOut[ev.id + '_' + i] = (T[i].IS || []).map(p => nm(p) + (p.Rs ? ' (' + p.Rs + ')' : '')); }
+  }
   return ros; }
+// ---- siti con dati dettagliati che rispondono dal telefono (provati in Altro → Fonti) ----
+const FSLG = { 'ita.1': ['italy/serie-a', 'Regions/108/Tournaments/5/Italy-Serie-A'], 'eng.1': ['england/premier-league', 'Regions/252/Tournaments/2/England-Premier-League'], 'esp.1': ['spain/la-liga', 'Regions/206/Tournaments/4/Spain-LaLiga'], 'ger.1': ['germany/bundesliga', 'Regions/81/Tournaments/3/Germany-Bundesliga'], 'fra.1': ['france/ligue-1', 'Regions/74/Tournaments/22/France-Ligue-1'] };
+async function siteStep() { S.tmInj = S.tmInj || {}; S.wt = S.wt || {}; let n = 0;
+  for (const lg of Object.keys(P.TMLG)) { const o = S.tmInj[lg]; if (o && Date.now() - o.t < 6 * 3600e3) continue; try { const L = await P.tmInjuries(lg); if (L && L.length) { S.tmInj[lg] = { t: Date.now(), L }; n++; } else S.tmInj[lg] = Object.assign({}, o || {}, { t: Date.now() - 5 * 3600e3, err: 'elenco vuoto' }); } catch (e) { S.tmInj[lg] = Object.assign({}, o || {}, { t: Date.now() - 5 * 3600e3, err: String(e.message || e).slice(0, 60) }); } await yieldFg(); }
+  for (const lg of Object.keys(FSLG)) for (const [src, u] of [['FootyStats', 'https://footystats.org/' + FSLG[lg][0]], ['WhoScored', 'https://www.whoscored.com/' + FSLG[lg][1]]]) { const k = src + '|' + lg, o = S.wt[k]; if (o && Date.now() - o.t < 12 * 3600e3) continue;
+    try { const T = P.htmlTables(await P.fetchText(u, 25000)); S.wt[k] = { t: Date.now(), src, u, T, err: T.length ? null : 'nessuna tabella leggibile nella pagina' }; if (T.length) n++; } catch (e) { S.wt[k] = { t: Date.now(), src, u, T: (o && o.T) || [], err: String(e.message || e).slice(0, 60) }; } await yieldFg(); }
+  if (n) save(); return n; }
+function siteHtml(ev) { let h = ''; const L = ((S.tmInj || {})[ev.league] || {}).L || [];
+  [ev.home, ev.away].forEach((t, i) => { const tm = L.filter(x => x.club && sameT(x.club, t)), ls = ((S.lsOut || {})[ev.id + '_' + i]) || [];
+    if (tm.length) h += '<div class="kv"><span>Infortunati ' + esc(t) + ' (Transfermarkt)</span><div class="warn">' + tm.map(x => esc(x.name) + ' · ' + esc(x.pos) + ' · ' + esc(x.why) + (x.until ? ', rientro ' + esc(x.until) : '')).join('<br>') + '</div></div>';
+    if (ls.length) h += '<div class="kv"><span>Indisponibili ' + esc(t) + ' (LiveScore)</span><div class="warn">' + ls.map(esc).join('<br>') + '</div></div>'; });
+  Object.keys(S.wt || {}).filter(k => k.split('|')[1] === ev.league).forEach(k => { const W = S.wt[k]; [ev.home, ev.away].forEach(t => { const out = [];
+      (W.T || []).forEach(tb => tb.rows.forEach(r => { const j = r.findIndex(c => c && c.length < 40 && sameT(c, t)); if (j < 0) return; const kv = r.map((c, i2) => i2 !== j && c && tb.head[i2] ? tb.head[i2] + ' ' + c : '').filter(Boolean).slice(0, 10); if (kv.length) out.push((tb.cap ? tb.cap + ': ' : '') + kv.join(' · ')); }));
+      if (out.length) h += '<div class="kv"><span>' + esc(W.src) + ' · ' + esc(t) + '</span><div class="sm">' + out.slice(0, 4).map(esc).join('<br>') + '</div></div>'; }); });
+  return h; }
 async function luOfficial(ev, L) { S.lu[ev.id] = Date.now(); S.luSrc = S.luSrc || {}; S.luSrc[ev.id] = L.src; try { prepEv(ev); const ab = {}, ref = (L.f && L.f.ref) || ((S.refOf || {})[ev.id] || {}).r || null;
     const cards = P.pickCards(S, SEED, ev, L.ros, ev.lam, ab), sc = P.pickScorers(S, ev, L.ros, ev.lam, ab), cf = P.cardsForecast(S, ev, ev.lam, L.ros, ref, null);
     S.snapPre = S.snapPre || {}; const old = S.snap && S.snap[ev.id]; if (old && !old.official) S.snapPre[ev.id] = old;
@@ -2853,6 +2893,8 @@ document.addEventListener('click', e => { const t = e.target.closest && e.target
 // ---- ADDESTRAMENTO CONTINUO: un solo ciclo che non si ferma mai (un errore salta il passo, non il ciclo) ----
 const TL = { step: 'avvio', t: Date.now(), today: 0, errs: 0 }; const zz = ms => new Promise(r => setTimeout(r, ms));
 const verifiedN = () => Object.keys(S.tracker).reduce((a, k) => a + (S.tracker[k].n || 0), 0);
+// il lavoro pesante sullo storico (centinaia di richieste ESPN) lo fa il cloud ogni ora: il telefono lo salta se ha un modello del cloud recente, così ESPN non lo blocca
+const cloudFresh = () => !window.__CLOUD && S.cloud && S.cloud.got && Date.now() - S.cloud.got < 4 * 3600e3;
 async function trainLoop() {
   await zz(1500);
   for (;;) {
@@ -2861,17 +2903,18 @@ async function trainLoop() {
       if (S.tg && S.tg.token && Date.now() - (TL.tgT || 0) > 5 * 60e3) { TL.tgT = Date.now(); TL.step = 'messaggi Telegram dei tipster'; await tgStep(); }
       else if (Date.now() - (TL.ytT || 0) > (Object.values((S.yt || {}).v || {}).some(v => !v.ok && v.date && Date.now() - new Date(v.date) < 2 * 864e5) ? 30 * 60e3 : 2 * 3600e3)) { TL.ytT = Date.now(); TL.step = 'video dei tipster (YouTube)'; await ytStep(); }
       else if (Date.now() - (TL.taT || 0) > 5 * 60e3) { TL.step = 'percentuali dei tipster'; TL.taT = Date.now(); await taStep(15); }
+      else if (Date.now() - (TL.wsT || 0) > 3 * 3600e3) { TL.wsT = Date.now(); TL.step = 'siti con dati dettagliati (Transfermarkt, FootyStats, WhoScored)'; await siteStep(); }
       else if ((events || []).some(e => sqWanted(e)) && Date.now() - (TL.sqT || 0) > 8000) { TL.step = 'dati delle partite in arrivo'; TL.sqT = Date.now(); await squadStep(3); }
       else if ((events || []).filter(e => e.done && !(S.fmSeen || {})[e.id]).length >= 3 && Date.now() - (TL.xgT || 0) > 90000) { TL.step = 'xG delle partite finite'; TL.xgT = Date.now(); await xgStep(); }
       else if (!S.lastTrain || Date.now() - S.lastTrain > 6 * 3600 * 1000) { TL.step = 'recupero ultimi giorni'; await train(S.lastTrain ? 3 : 14, 40); TL.today = Date.now(); }
       else if ((!S.hist || !S.hist.intl || Date.now() - S.hist.intl.t > 864e5) && Date.now() - (TL.intlFail || 0) > 30 * 60000) { TL.step = 'storico nazionali'; try { await importIntl(m => TL.msg = m); } catch (e) { TL.intlFail = Date.now(); log('Storico nazionali non raggiungibile ora: riprovo tra 30 minuti, intanto continuo con il resto.'); } }
       else if (Date.now() - TL.today > 4 * 60000) { TL.step = 'partite appena finite e audit'; await train(0, 40); TL.today = Date.now(); }
-      else if (lgPending() && Date.now() - (TL.lgT || 0) > 3000 && (TL.lgFlip = !TL.lgFlip)) { TL.step = 'campionati principali: tutte le partite della stagione'; TL.lgT = Date.now(); await leagueStep(10); }
-      else if ((!S.rp || S.rp.day < new Date(Date.now() - 864e5).toISOString().slice(0, 10)) && Date.now() - (TL.rpT || 0) > 120000) { TL.step = 'ripasso delle stagioni 2025-26 e 2026-27'; TL.rpT = Date.now(); await replayStep(4); }
-      else if ((TL.flip = !TL.flip) && (S.histDays || 14) < 420) { TL.step = 'storico campionati ' + ((S.histDays || 14) + 1) + '-' + ((S.histDays || 14) + 12) + ' giorni fa'; await histStep(); }
+      else if (!cloudFresh() && lgPending() && Date.now() - (TL.lgT || 0) > 3000 && (TL.lgFlip = !TL.lgFlip)) { TL.step = 'campionati principali: tutte le partite della stagione'; TL.lgT = Date.now(); await leagueStep(10); }
+      else if (!cloudFresh() && (!S.rp || S.rp.day < new Date(Date.now() - 864e5).toISOString().slice(0, 10)) && Date.now() - (TL.rpT || 0) > 120000) { TL.step = 'ripasso delle stagioni 2025-26 e 2026-27'; TL.rpT = Date.now(); await replayStep(4); }
+      else if (!cloudFresh() && (TL.flip = !TL.flip) && (S.histDays || 14) < 420) { TL.step = 'storico campionati ' + ((S.histDays || 14) + 1) + '-' + ((S.histDays || 14) + 12) + ' giorni fa'; await histStep(); }
       else if ((events || []).some(e => e.done && !(S.fmSeen || {})[e.id])) { TL.step = 'xG delle partite finite'; await xgStep(); }
       else if ((events || []).some(ev => !ev.done && ev.state === 'pre' && ev.g365id && !(S.refOf || {})[ev.id])) { TL.step = 'arbitri designati di oggi'; await refDayStep(); }
-      else if ((P.RDB.back || 0) < 365) { TL.step = 'archivio arbitri'; await refStep(); }
+      else if (!cloudFresh() && (P.RDB.back || 0) < 365) { TL.step = 'archivio arbitri'; await refStep(); }
       else { TL.step = 'in attesa di nuove partite finite'; await zz(30000); }
       TL.t = Date.now(); if (tab === 'prec') vPrec();
     } catch (e) { TL.errs++; log('Addestramento: passo saltato (' + e.message + '), continuo.'); await zz(20000); }
@@ -2995,12 +3038,13 @@ const UPDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/index.
 let updReady = 0;
 // ================= ADDESTRAMENTO 24 SU 24 NEL CLOUD: il telefono scarica il modello addestrato e lo unisce al suo =================
 const CLOUDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/state/';
-const CL_LOCAL = ['settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
+const CL_LOCAL = ['wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
 const CL_UNION = ['snap', 'snapPre', 'ver', 'lu', 'luSrc', 'fmIng', 'seen', 'resolvedIds', 'refOf', 'cp', 'fmSeen', 'fmTeamT'];
 const trScore = X => Object.values((X && X.tracker) || {}).reduce((a, t) => a + (t.n || 0), 0);
 function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C);
   Object.keys(C).forEach(k => { const v = C[k];
     // pagine web lette dal cloud con un browser vero (es. MondoPengwin, che dal telefono può non rispondere)
+    if (k === 'tmInj' && v) { S.tmInj = S.tmInj || {}; Object.keys(v).forEach(lg => { const a = S.tmInj[lg], b = v[lg]; if (b && b.L && b.L.length && (!a || !a.L || b.t > a.t)) { S.tmInj[lg] = b; n++; } }); return; }
     if (k === 'ytw' && v) { const Y = ytState(); Y.w = Y.w || {}; Object.keys(v).forEach(u => { const a = Y.w[u], b = v[u]; if (b && b.ok && (!a || !a.ok || b.t > a.t)) { Y.w[u] = Object.assign({}, b, { via: 'cloud' }); n++; } }); return; }
     if (CL_LOCAL.indexOf(k) >= 0) return;
     // fonti dei tipster: il cloud raggiunge siti che dal telefono non rispondono (es. OLBG); si tiene la lettura valida piu' recente
