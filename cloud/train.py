@@ -13,7 +13,7 @@ import asyncio, json, os, sys, time
 from playwright.async_api import async_playwright
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN = float(sys.argv[1]) if len(sys.argv) > 1 else 20
-OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com', 'prod-cdn-public-api.livescore.com', 'www.transfermarkt.it', 'news.google.com']
+OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.com', 'site.web.api.espn.com', 'sports.core.api.espn.com', 'prod-cdn-public-api.livescore.com', 'www.transfermarkt.it', 'news.google.com', 'www.youtube.com']
 # siti che rispondono solo a un browser vero (pagina con JavaScript), non a curl: si aprono con Chromium attraverso il proxy
 REAL = ['www.mondopengwin.it']
 LOCAL = ['wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
@@ -79,8 +79,8 @@ async def main():
         print('  ', await ev("""async()=>{const T=window.__T,S=window.__S(); let L=T.getEvents().slice(); try{L=L.concat(await T.majorsAhead())}catch(e){} const seen={}; L=L.filter(e=>!e.done&&(seen[e.id]?0:(seen[e.id]=1)));
           const n=await T.taStep(120,L); const o=(S.tsrc||{}).OLBG; return n+' partite con voti/quote; OLBG '+(o?(o.ok?o.list.length+' consigli':'errore '+o.err):'-')}""", 900))
         print('   ', await ev(SNAPN))
-        print('2c. pagine web dei tipster (MondoPengwin) con browser vero')
-        print('  ', await ev("async()=>{const n=await window.__T.webStep(true); const w=(window.__S().yt||{}).w||{}; return n+' pagine lette; '+Object.keys(w).map(u=>u.replace(/https?:\\/\\/(www\\.)?/,'').slice(0,40)+' '+(w[u].ok?'ok '+(w[u].m||[]).length+' partite':'no '+(w[u].why||''))).join(' | ')}", 300))
+        print('2c. Tipzone_TV (video: elenco, descrizioni, sottotitoli quando YouTube li concede) e pagine web dei tipster (MondoPengwin) con browser vero')
+        print('  ', await ev("async()=>{const n=await window.__T.ytStep(true); const Y=window.__S().yt||{}, w=Y.w||{}, V=Y.v||{}; const vs=Object.keys(V).map(id=>(V[id].title||id).slice(0,38)+': '+(V[id].tr?'sottotitoli':'descrizione')+' '+(V[id].m||[]).length+' partite'+(V[id].why?' ('+V[id].why+')':'')).join(' | '); return n+' pagine lette; '+Object.keys(w).map(u=>u.replace(/https?:\\/\\/(www\\.)?/,'').slice(0,40)+' '+(w[u].ok?'ok '+(w[u].m||[]).length+' partite':'no '+(w[u].why||''))).join(' | ')+' || VIDEO: '+vs}", 600))
         print('  infortunati Transfermarkt:', await ev("async()=>{await window.__T.siteStep(); const I=window.__S().tmInj||{}; return Object.keys(I).map(k=>k+' '+((I[k].L||[]).length)).join(', ')}", 300))
         print('   ', await ev(SNAPN))
         print('3. formazioni ufficiali'); print('  ', await ev("async()=>{await window.__T.pollLU(); return Object.keys(window.__S().lu||{}).length}", 300))
@@ -108,7 +108,7 @@ async def main():
         try: await asyncio.wait_for(lu_task, 300)
         except Exception: pass
         print('  formazioni ufficiali prese in questo giro:', await ev("Object.keys(window.__S().lu||{}).length"))
-        out = await pg.evaluate("""(L)=>{const S=window.__S(),o={};Object.keys(S).forEach(k=>{if(L.indexOf(k)<0)o[k]=S[k]}); if(S.yt&&S.yt.w)o.ytw=S.yt.w;
+        out = await pg.evaluate("""(L)=>{const S=window.__S(),o={};Object.keys(S).forEach(k=>{if(L.indexOf(k)<0)o[k]=S[k]}); if(S.yt&&S.yt.w)o.ytw=S.yt.w; if(S.yt&&S.yt.v)o.ytv=S.yt.v;
           // archivi per id: solo gli ultimi 10 giorni
           const cut=Date.now()-10*864e5, cut2=Date.now()-36*3600e3, V=S.ver||{}; ['snap','snapPre'].forEach(k=>{if(o[k]){const x={};Object.keys(o[k]).forEach(id=>{const v=o[k][id];if(!v||!v.kick)return; const kt=new Date(v.kick); if(kt>cut&&(!V[id]||kt>cut2))x[id]=v});o[k]=x}});
           return JSON.stringify(o)}""", LOCAL)
