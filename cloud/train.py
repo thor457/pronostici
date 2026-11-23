@@ -54,6 +54,7 @@ async def main():
         await pg.goto('file://' + os.path.join(ROOT, 'index.html')); await pg.wait_for_timeout(4000)
         await pg.evaluate("()=>{const s=window.__S();s.settings=s.settings||{};s.settings.updUrl='https://127.0.0.1/none';s.cloud={chk:Date.now()+9e12}}")
         left = lambda: MIN * 60 - (time.time() - t0)
+        SNAPN = "(()=>{const S=window.__S();return 'pronostici in archivio '+Object.keys(S.snap||{}).length+', verificati '+Object.keys(S.ver||{}).length})()"
         async def ev(js, tmo=600):
             try: return await asyncio.wait_for(pg.evaluate(js), tmo)
             except Exception as e: print('  !', str(e)[:160]); return None
@@ -73,29 +74,36 @@ async def main():
         lu_task = asyncio.create_task(lu_loop())
         print('2. palinsesto completo di oggi e domani: pre-pronostico di ogni partita, poi analisi profonda finché c\'è tempo')
         print('  ', await ev("async()=>JSON.stringify(await window.__T.palinsestoStep([0,1], %d))" % int(MIN * 60 * 1000 * 0.3), 1200))
+        print('   ', await ev(SNAPN))
         print('2b. tipster (OLBG e voti/quote 365Scores) sulle partite delle prossime 48 ore')
         print('  ', await ev("""async()=>{const T=window.__T,S=window.__S(); let L=T.getEvents().slice(); try{L=L.concat(await T.majorsAhead())}catch(e){} const seen={}; L=L.filter(e=>!e.done&&(seen[e.id]?0:(seen[e.id]=1)));
           const n=await T.taStep(120,L); const o=(S.tsrc||{}).OLBG; return n+' partite con voti/quote; OLBG '+(o?(o.ok?o.list.length+' consigli':'errore '+o.err):'-')}""", 900))
+        print('   ', await ev(SNAPN))
         print('2c. pagine web dei tipster (MondoPengwin) con browser vero')
         print('  ', await ev("async()=>{const n=await window.__T.webStep(true); const w=(window.__S().yt||{}).w||{}; return n+' pagine lette; '+Object.keys(w).map(u=>u.replace(/https?:\\/\\/(www\\.)?/,'').slice(0,40)+' '+(w[u].ok?'ok '+(w[u].m||[]).length+' partite':'no '+(w[u].why||''))).join(' | ')}", 300))
         print('  infortunati Transfermarkt:', await ev("async()=>{await window.__T.siteStep(); const I=window.__S().tmInj||{}; return Object.keys(I).map(k=>k+' '+((I[k].L||[]).length)).join(', ')}", 300))
+        print('   ', await ev(SNAPN))
         print('3. formazioni ufficiali'); print('  ', await ev("async()=>{await window.__T.pollLU(); return Object.keys(window.__S().lu||{}).length}", 300))
+        print('   ', await ev(SNAPN))
         print('4. verifica e audit di tutte le partite finite (ieri l\'altro, ieri, oggi), prima e dopo le ufficiali')
         r = await ev("""async()=>{const T=window.__T,S=window.__S(); const LL=[]; let L=[]; for(const k of [0,-1,-2]){try{const d=await T.dayEvents(new Date(Date.now()+k*86400e3)); LL.push(d); L=L.concat(d)}catch(e){}}
           const F=L.filter(e=>e.done&&S.snap&&S.snap[e.id]&&!(S.ver&&S.ver[e.id])); let n=0, t0=Date.now(); let i=0;
           await Promise.all([0,1,2,3].map(async()=>{while(i<F.length&&Date.now()-t0<%d){const e=F[i++];try{T.prepEv(e);await T.verifyMatch(e);n++}catch(x){}}}));
           const C=T.covStep(LL); const ds=Object.keys(C).sort().slice(-3); return n+' verificate su '+F.length+' · copertura '+ds.map(d=>d+': '+JSON.stringify(C[d])).join(' | ')}""" % int(MIN * 60 * 1000 * 0.25), 1500)
         print('  ', r)
+        print('   ', await ev(SNAPN))
         print('4b. ripasso stagioni 2025-26 e 2026-27 (pre-pronostico e confronto)')
         t1=time.time()
         while left() > MIN*60*0.25 and time.time()-t1 < MIN*60*0.35:
             n = await ev("async()=>await window.__T.replayStep(10)", 600)
             if not n: break
         print('  ', await ev("JSON.stringify({giorno:(window.__S().rp||{}).day, partite:(window.__S().rp||{}).n})"))
+        print('   ', await ev(SNAPN))
         print('5. storico')
         while left() > 90:
             await ev("async()=>{await window.__T.histStep()}", 300)
             await ev("async()=>await window.__T.leagueStep(25)", 300)
+        print('   ', await ev(SNAPN))
         stop['v'] = True
         try: await asyncio.wait_for(lu_task, 300)
         except Exception: pass
