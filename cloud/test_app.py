@@ -32,7 +32,7 @@ async def main():
         await tab('prec','Precisione',4000)
         await tab('multi','Multipla',2000,'Costruisci')
         # multipla: mercati e esatti
-        for tipo,q in [('m','20'),('m','50'),('e','50')]:
+        for tipo,q in [('m','20'),('m','all'),('m','50'),('e','50')]:
             n0=len(errs); t1=time.time()
             try:
                 await pg.click('nav button[data-t=multi]'); await pg.wait_for_timeout(1500)
