@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795513976;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795517754;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -703,7 +703,9 @@ E.daySofa = async function (ymdStr) { const d = await SJ('sport/football/schedul
       hs: ((e.homeScore || {}).current) || 0, as: ((e.awayScore || {}).current) || 0, state: fin ? 'post' : live ? 'in' : 'pre', done: fin, status: st.description || '',
       lgName: ((e.tournament || {}).uniqueTournament || {}).name || (e.tournament || {}).name || '', venue: ((e.venue || {}).name) || null, neutral: false }; })
     .filter(x => x.home && x.away); };
-const sameTeam = (a, b) => { const x = E.keyName(a), y = E.keyName(b); return x === y || (Math.min(x.length, y.length) >= 4 && (x.indexOf(y) >= 0 || y.indexOf(x) >= 0)); };
+// giovanili, riserve e femminili NON sono la prima squadra («Arsenal U19» ≠ «Arsenal»): prima si confondevano quote, tipster e forza
+const teamTier = n => { const t = String(n || '').toLowerCase(); const m = /\b(?:u|sub|under)[- ]?(\d{2})\b/.exec(t); return m ? 'u' + m[1] : /\b(reserves?|riserve|ii|b team)\b/.test(t) ? 'res' : /\(w\)|\bwomen\b|femmin|\bfem\b|\bladies\b/.test(t) ? 'w' : /\bjong\b/.test(t) ? 'jong' : /\b(primavera|youth|juvenil)\b/.test(t) ? 'u19' : ''; };
+const sameTeam = (a, b) => { if (teamTier(a) !== teamTier(b)) return false; const x = E.keyName(a), y = E.keyName(b); return x === y || (Math.min(x.length, y.length) >= 4 && (x.indexOf(y) >= 0 || y.indexOf(x) >= 0)); };
 E.sameTeam = sameTeam;
 E.match365 = function (list, ev) { const t = new Date(ev.date).getTime();
   return list.find(g => Math.abs(new Date(g.start).getTime() - t) < 4 * 3600 * 1000 && ((sameTeam(g.home, ev.home) && sameTeam(g.away, ev.away)) || (sameTeam(g.home, ev.away) && sameTeam(g.away, ev.home)))) || null; };
@@ -2056,7 +2058,7 @@ function vMulti() { let HP = ''; try { HP = appBoard(events.concat(QM.list || []
     let pool = ms.slice();
     { const today = new Date();
       for (let d = 0; d < days; d++) { const dt = addDays(today, d), k = ymd(dt); try { if (!DAYC[k] || Date.now() - DAYC[k].t > 12 * 60000) DAYC[k] = { t: Date.now(), L: await dayEvents(dt) }; pool = pool.concat(DAYC[k].L); } catch (e) { } }
-      const sn = new Set(); pool = dedupEv(pool.filter(x => { if (sn.has(x.id)) return false; sn.add(x.id); return !x.done && x.state === 'pre' && new Date(x.date) > Date.now() && lgPass(x, LGV); })).map(prepEv); /* stessa partita da ESPN e 365Scores = una sola */ }
+      const sn = new Set(); pool = dedupEv(pool.filter(x => { if (sn.has(x.id)) return false; sn.add(x.id); return !x.done && x.state === 'pre' && new Date(x.date) > Date.now() && lgPass(x, LGV) && !YOUTH.test(x.home + ' ' + x.away + ' ' + (x.lgName || '')); })).map(prepEv); /* niente giovanili, riserve, femminili: dati troppo poveri */ /* stessa partita da ESPN e 365Scores = una sola */ }
     if (pool.length < 2) { el.innerHTML = '<p class="empty">Non ci sono abbastanza partite non ancora iniziate nei giorni scelti.</p>'; return; }
     // SENZA aspettare le ufficiali: per le partite più importanti e più vicine l'app incrocia formazioni probabili, indisponibili con motivo, notizie e storico di ogni giocatore
     { const toA = pool.filter(e => !AN[e.id]).sort((a, b) => (isMajor(b) - isMajor(a)) || new Date(a.date) - new Date(b.date)).slice(0, 16), t0 = Date.now(); let i = 0, done = 0;
@@ -2889,10 +2891,13 @@ function taConc(pool) { const out = []; (pool || []).forEach(ev => { taAgree(ev)
 function taMultiHtml(pool, T, m) { const C = taConc(pool); if (!C.length) return '<div class="card"><div class="k">Tipster concordi</div><div class="sm">Nelle partite scelte nessuna giocata è indicata da almeno due fonti o con consenso forte.</div></div>';
   const dts = ev => { const d = new Date(ev.date); return d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }); };
   const row = g => irow(null, (g.ns >= 2 ? chip('combaciano ' + g.ns + ' fonti', 'g') + ' ' : '') + esc(g.ev.home) + ' – ' + esc(g.ev.away) + ' <span class="sm">' + dts(g.ev) + '</span>', '<b>' + taLbl(g.k) + '</b> · ' + g.rs.map(r => TSRC[r.src] + ' ' + taVal(r)).join(' + '), g.pm != null ? fp(g.pm) : '', g.pm == null ? '' : g.pm >= 0.5 ? '<span class="ok">anche il modello è d\'accordo: ' + fp(g.pm) + '</span>' : '<span class="warn">il modello non è d\'accordo (' + fp(g.pm) + '): gamba da evitare o coprire</span>');
-  const used = {}, legs = []; let odds = 1; C.filter(g => g.pm != null && g.pm >= 0.55).sort((a, b) => b.ns - a.ns || b.pm - a.pm).forEach(g => { if (used[g.ev.id] || odds >= T) return; used[g.ev.id] = 1; legs.push(g); odds *= (1 / g.pm) / (1 + m); });
+  const mk = g => { try { const Q = taOdds(g.ev), q = Q && Q[g.k] && +Q[g.k].now; return q ? Math.min(0.97, 0.95 / q) : null; } catch (e) { return null; } };
+  /* regole dell'utente e lezioni verificate: niente giovanili/riserve/femminili, nessun «1» o «2» secco sotto l'85%, nessuna gamba dove il modello dice molto più delle quote (in quei disaccordi hanno avuto ragione le quote) */
+  const okLeg = g => !YOUTH.test(g.ev.home + ' ' + g.ev.away + ' ' + (g.ev.lgName || '')) && !(/^[12]$/.test(g.k) && g.pm < 0.85) && !(mk(g) != null && g.pm - mk(g) > 0.1);
+  const used = {}, legs = []; let odds = 1; C.filter(g => g.pm != null && g.pm >= 0.55 && okLeg(g)).sort((a, b) => b.ns - a.ns || b.pm - a.pm).forEach(g => { if (used[g.ev.id] || odds >= T) return; used[g.ev.id] = 1; legs.push(g); odds *= (1 / g.pm) / (1 + m); });
   const pAll = legs.reduce((a, g) => a * g.pm, 1);
   return '<div class="card"><div class="k">Tipster concordi · stessa giocata sulla stessa partita</div><div class="sm">' + C.length + ' giocate; prima quelle dove più fonti combaciano e anche il modello è d\'accordo.</div>' + C.slice(0, 25).map(row).join('') + '</div>' +
-    (legs.length >= 2 ? '<div class="card"><div class="k">Multipla dei tipster concordi · ' + legs.length + ' partite · quota stimata ' + odds.toFixed(1) + '</div><div class="sm">Solo giocate dove i tipster concordano e il modello dà almeno il 55%; una gamba per partita.' + (odds < T ? ' Con le giocate concordi disponibili non si arriva alla quota ' + T + '.' : '') + '</div>' + legs.map(row).join('') + '<div class="card sum"><div>Entrano tutte secondo il modello: <b>' + fp(pAll) + '</b></div></div></div>' : ''); }
+    (legs.length >= 2 ? '<div class="card"><div class="k">Multipla dei tipster concordi · ' + legs.length + ' partite · quota stimata ' + odds.toFixed(1) + '</div><div class="sm">Solo giocate dove i tipster concordano e il modello dà almeno il 55%; una gamba per partita; niente giovanili, nessun «1» o «2» secco sotto l\'85%, nessuna gamba dove il modello va molto oltre le quote.' + (odds < T ? ' Con le giocate concordi disponibili non si arriva alla quota ' + T + '.' : '') + '</div>' + legs.map(row).join('') + '<div class="card sum"><div>Entrano tutte secondo il modello: <b>' + fp(pAll) + '</b></div></div></div>' : ''); }
 // ================= TIPSTER: import, consenso, confronto col modello, affidabilita' delle fonti =================
 const TLBL = k => k === '1' ? '1 (vince casa)' : k === 'X' ? 'X (pareggio)' : k === '2' ? '2 (vince ospite)' : k === 'GG' ? 'Goal (entrambe segnano)' : k === 'NG' ? 'No Goal' : /^O/.test(k) ? 'Over ' + k.slice(1) : /^U/.test(k) ? 'Under ' + k.slice(1) : /^ES:/.test(k) ? 'Esatto ' + k.slice(3) : k;
 const tipFam = k => /^[OU]\d/.test(k) ? k[0] : /^ES:/.test(k) ? 'ES' : k;
