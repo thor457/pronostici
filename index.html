@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795480458;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795513976;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -1419,6 +1419,7 @@ function prune() { const big = IDB.ok !== false;
     if (S.news) Object.keys(S.news).forEach(k => { const x = S.news[k]; if (!x || now - (x.t || 0) > 3 * 864e5) delete S.news[k]; else if (x.it && x.it.length > 15) x.it = x.it.slice(0, 15); });
     if (S.pd) Object.keys(S.pd).forEach(k => { const x = S.pd[k]; if (!x || (kt(x) && now - kt(x) > 864e5)) delete S.pd[k]; });
     if (S.fmP) Object.keys(S.fmP).forEach(k => { const x = S.fmP[k]; if (!x || now - (x.t || 0) > 5 * 864e5) delete S.fmP[k]; });
+    if (!S.fixDup1 && S.snap) { Object.keys(S.snap).forEach(k => { if (!/^s365_/.test(k) || (S.ver && S.ver[k])) return; const v = S.snap[k]; if (v && v.kick && twinSnap({ id: k, date: v.kick, home: v.home, away: v.away })) { delete S.snap[k]; if (S.snapPre) delete S.snapPre[k]; } }); S.fixDup1 = 1; }
     if (!S.fixPk1 && S.picks) { Object.values(S.picks).forEach(x => { if (x && x.pr) Object.keys(x.pr).forEach(k => { if (typeof x.pr[k] === 'number') x.pr[k] = +x.pr[k].toFixed(4); }); if (x && Array.isArray(x.m3)) x.m3 = x.m3.map(v => typeof v === 'number' ? +v.toFixed(4) : v); }); S.fixPk1 = 1; } }
   cap(S.xi, big ? 1200 : 300, (a, c) => +a - +c); cap(S.cp, big ? 3000 : 600, (a, c) => (S.cp[a].t || 0) - (S.cp[c].t || 0)); cap(S.picks, big ? 6000 : 1200, (a, c) => (S.picks[a].t || 0) - (S.picks[c].t || 0)); }
 let saveT = null, lastSave = '', dirty = false, saving = false, saveFail = 0;
@@ -1786,8 +1787,12 @@ async function vMatch(ev) { root.dataset.cen = '';
 }
 
 // ---------- snapshot pre-gara e audit automatico ----------
+// gemello della stessa partita da un'altra fonte (calcio d'inizio entro 2 ore e almeno una squadra uguale)
+function twinSnap(ev) { const t = new Date(ev.date).getTime(); return Object.keys(S.snap || {}).find(k => { if (k === String(ev.id) || /^s365_/.test(k)) return false; const v = S.snap[k]; if (!v || Math.abs(new Date(v.kick).getTime() - t) > 72e5) return false; return P.sameTeam(v.home, ev.home) || P.sameTeam(v.away, ev.away); }) || null; }
 function snapMatch(ev, cards, sc, cf, refName, official, rec) {
   if (!rec && (ev.done || ev.state !== 'pre' || !(new Date(ev.date) > Date.now()))) return;
+  // stessa partita già registrata da ESPN: la copia di 365Scores non si registra (prima finiva doppia e non veniva mai verificata)
+  if (/^s365_/.test(String(ev.id)) && S.snap && twinSnap(ev)) return;
   S.snap = S.snap || {}; const old = S.snap[ev.id]; if (old && old.audited) return; if (old && old.official && !official) return;
   const D = ev.mk.dirp, sf = safest(ev).top, lam = ev.lam, q = x => Math.round(x * 1000) / 1000;
   S.snap[ev.id] = { id: ev.id, lg: ev.league, home: ev.home, away: ev.away, kick: ev.date, t: Date.now(), official: !!official, lh: lam.lh, la: lam.la, favHome: lam.lh >= lam.la,
