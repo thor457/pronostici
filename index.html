@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795517754;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795518991;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -2003,6 +2003,10 @@ function hqLegs(ev) { const lh = ev.lam.lh, la = ev.lam.la, M = P.matrix(lh, la)
   const fk = fh ? '1' : '2', fd = fh ? '1X' : 'X2', TIPS = { FAV_WIN: [fk], FAV_NOLOSE: [fd], FW_U35: [fk, 'U3.5'], FW_O15: [fk, 'O1.5'], FN_U35: [fd, 'U3.5'], FN_O15: [fd, 'O1.5'], FAV_NIL: [fk, 'NG'], FAV_2PLUS: [fk], TEAM_O15: [fk], FAV_SEGNA: [fd] };
   (ev.list || []).filter(x => !x.thin && x.p >= 0.3 && x.p <= 0.72 && !/^COR_|OVER05|O05_1T/.test(x.key)).forEach(x => out.push({ key: x.key, label: String(x.label).replace(/^Favorita/, fav), p: x.p, kind: /^(FW_|FN_|FAV_NIL)/.test(x.key) ? 'combo' : /^(FAV_WIN|FAV_NOLOSE|FAV_2PLUS)/.test(x.key) ? 'esito' : /OVER|UNDER|MG|O15_1T|TEAM_O15/.test(x.key) ? 'gol' : /BTTS/.test(x.key) ? 'gg' : 'mercato', tip: TIPS[x.key] || (LEGK(ev, x.key) ? [LEGK(ev, x.key)] : null) }));
   try { propLegs(ev, 0.3, 0.62).forEach(x => out.push({ key: x.key, label: x.label, p: x.p, kind: 'giocatore', tip: null, note: esc(x.pp.r.n) + ': ' + x.pp.r.sotpg.toFixed(2).replace('.', ',') + ' tiri in porta e ' + x.pp.r.spg.toFixed(2).replace('.', ',') + ' tiri a partita, ' + x.pp.r.fpg.toFixed(2).replace('.', ',') + ' falli, su ' + x.pp.r.gp + ' partite (titolare nel ' + Math.round(x.pp.r.sr * 100) + '%) · ' + esc(x.pp.src) })); } catch (e) { }
+  // CONTROLLO CON LE QUOTE: se il bookmaker vede la «favorita» dell'app molto meno forte (o favorisce l'altra squadra), le gambe che puntano su di lei saltano.
+  // Nelle partite verificate, in questi disaccordi hanno avuto ragione le quote molto più spesso dei soli dati (es. Macclesfield vince + Over 2,5: app 77,7%, quota 2,65)
+  try { const Q = taOdds(ev); if (Q && Q['1'] && Q['2'] && Q['X']) { const imp = k => 1 / +Q[k].now, sm = imp('1') + imp('X') + imp('2'), mw = imp(fk) / sm, mfav = imp('1') > imp('2') ? '1' : '2'; let pw = 0; for (let i = 0; i < K; i++) for (let j = 0; j < M[i].length; j++) if (fh ? i > j : j > i) pw += M[i][j];
+      if (mfav !== fk || pw - mw > 0.12) { const bad = x => (x.tip || []).some(t => t === fk || t === fd) || /^(HQ_FW|FAV_|FW_|FN_|DNB_FAV|HC_FAV|TEAM_O15)/.test(x.key); for (let i = out.length - 1; i >= 0; i--) if (bad(out[i])) out.splice(i, 1); ev.__mktWarn = 'l\'app dava ' + Math.round(pw * 100) + '% alla vittoria di ' + fav + ', le quote ' + Math.round(mw * 100) + '%: gambe sulla favorita tolte'; } } } catch (e) { }
   return out; }
 // sostegno delle fonti a una gamba: tipster, video/web/Telegram, notizie
 function hqSupport(ev, L) { let n = 0; const why = [];
@@ -2067,7 +2071,10 @@ function vMulti() { let HP = ''; try { HP = appBoard(events.concat(QM.list || []
     const real = p => (1 / p) / (1 + m), rel = (ev, x) => (x.bad ? 0.93 : 1) * (ev.lam && ev.lam.known ? 1 : 0.9) * (S.lu && S.lu[ev.id] ? 1.02 : 1);
     // regole dell'utente per le schedine: niente Under corner, niente «vince + Under», nessuna «vince» sotto l'85% come gamba
     const NOMULT = x => /^ST_corner_U_|^COR_U/.test(x.key) || x.key === 'FW_U35' || (/^(FAV_WIN|X1_H|X1_A)$/.test(x.key) && x.p < 0.85);
-    const cand = pool.map(ev => { const L = ev.list.filter(x => !x.thin && x.p >= 0.5 && x.p <= 0.88 && x.key !== 'OVER05' && !NOMULT(x)).map(x => ({ x, pe: Math.min(0.97, x.p * rel(ev, x)), o: real(x.p) }));
+    // quote contro la favorita dell'app (vittoria vista molto meno probabile, o favorita l'altra squadra): niente gambe sulla favorita in quella partita
+    const favDis = ev => { try { const Q = taOdds(ev); if (!(Q && Q['1'] && Q['X'] && Q['2'])) return false; const fk = ev.favHome ? '1' : '2', imp = k => 1 / +Q[k].now, mw = imp(fk) / (imp('1') + imp('X') + imp('2')), w = (ev.list || []).find(x => x.key === 'FAV_WIN'); return (imp('1') > imp('2') ? '1' : '2') !== fk || (w && w.p - mw > 0.12); } catch (e) { return false; } };
+    const FAVF = /^(FAV_|FW_|FN_|DNB_FAV|HC_FAV|TEAM_O15|HT_FAV)/;
+    const cand = pool.map(ev => { const fd = favDis(ev); const L = ev.list.filter(x => !x.thin && x.p >= 0.5 && x.p <= 0.88 && x.key !== 'OVER05' && !NOMULT(x) && !(fd && FAVF.test(x.key))).map(x => ({ x, pe: Math.min(0.97, x.p * rel(ev, x)), o: real(x.p) }));
       /* giocatori: finché il tipo di giocata non è verificato su almeno 50 casi registrati prima del via, fiducia ridotta e gamba «quota», non base */
       try { propLegs(ev, 0.5, 0.88).forEach(x => { const t = (S.tracker || {})['PP_' + x.pp.k]; let pe = Math.min(0.95, x.p * (x.pp.src === 'formazione ufficiale' ? 1 : /probabile/.test(x.pp.src) ? 0.97 : 0.92)); if (!(t && t.n >= 50)) pe *= 0.92; L.push({ x, pe, o: real(x.p) }); }); } catch (e) { }
       return { ev, L: L.sort((a, c) => c.pe - a.pe) }; }).filter(c => c.L.length);
