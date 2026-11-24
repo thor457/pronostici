@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795518991;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795519338;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -372,6 +372,10 @@ E.marketList = function (S, mk, lh, la, SEED, ev) {
   L.forEach(x => x.base = x.p >= 0.85 && !(S.tracker[x.key] && S.tracker[x.key].n >= 20 && S.tracker[x.key].hits / S.tracker[x.key].n < 0.80) && (x.baseOnly === undefined || x.baseOnly));
   L.forEach(x => { if (E.unreliable(S, x.key)) { x.base = false; x.bad = true; } });
   L.forEach(x => { if (x.key === 'OVER05') x.base = x.p >= 0.85; if (x.corners && x.n < 8) { x.thin = true; x.base = false; } });
+  // NOTAZIONE DEL BOOKMAKER: «favorita non perde» = 1X o X2, «favorita vince» = 1 o 2 (con la squadra fra parentesi)
+  { const d = fav === 'home' ? '1X' : 'X2', w = fav === 'home' ? '1' : '2', nm = ev ? (fav === 'home' ? ev.home : ev.away) : '', tn = nm ? ' (' + nm + ')' : '';
+    L.forEach(x => { const l0 = x.label; let l = l0.replace(/^1X \(favorita non perde\)|^X2 \(favorita non perde\)/, d).replace(/^Primo tempo: favorita non perde/, d + ' primo tempo').replace(/^Favorita non perde/, d).replace(/^Favorita vince/, w).replace(/^1 \(vince la casa\)|^2 \(vince l'ospite\)/, w);
+      if (l !== l0) x.label = l + tn; }); }
   return L;
 };
 
@@ -1996,7 +2000,7 @@ function lgPass(e, v) { if (!v || v === 'all') return true; if (v === 'maj') ret
 function hqLegs(ev) { const lh = ev.lam.lh, la = ev.lam.la, M = P.matrix(lh, la), fh = lh >= la, out = [], K = M.length; let fwgg = 0, ggo25 = 0, fwo25 = 0, o35 = 0, mg35 = 0, fw2 = 0;
   for (let i = 0; i < K; i++) for (let j = 0; j < M[i].length; j++) { const p = M[i][j], fw = fh ? i > j : j > i, gg = i > 0 && j > 0, t = i + j; if (fw && gg) fwgg += p; if (gg && t >= 3) ggo25 += p; if (fw && t >= 3) fwo25 += p; if (t >= 4) o35 += p; if (t >= 3 && t <= 5) mg35 += p; if (fw && Math.abs(i - j) >= 2) fw2 += p; }
   const fav = fh ? ev.home : ev.away, add = (key, label, p, kind, tip) => { if (p > 0.08 && p < 0.75) out.push({ key, label, p, kind, tip }); };
-  const fk0 = fh ? '1' : '2'; add('HQ_FWGG', fav + ' vince + Goal', fwgg, 'combo', [fk0, 'GG']); add('HQ_GGO25', 'Goal + Over 2,5', ggo25, 'combo', ['GG', 'O2.5']); add('HQ_FWO25', fav + ' vince + Over 2,5', fwo25, 'combo', [fk0, 'O2.5']); add('HQ_O35', 'Over 3,5', o35, 'gol', ['O3.5']); add('HQ_MG35', 'Multigol 3-5', mg35, 'gol'); add('HQ_FW2', fav + ' vince con 2+ gol di scarto', fw2, 'esito', [fk0]);
+  const fk0 = fh ? '1' : '2'; add('HQ_FWGG', fk0 + ' + Goal (' + fav + ')', fwgg, 'combo', [fk0, 'GG']); add('HQ_GGO25', 'Goal + Over 2,5', ggo25, 'combo', ['GG', 'O2.5']); add('HQ_FWO25', fk0 + ' + Over 2,5 (' + fav + ')', fwo25, 'combo', [fk0, 'O2.5']); add('HQ_O35', 'Over 3,5', o35, 'gol', ['O3.5']); add('HQ_MG35', 'Multigol 3-5', mg35, 'gol'); add('HQ_FW2', fk0 + ' con 2+ gol di scarto (' + fav + ')', fw2, 'esito', [fk0]);
   const ex = ev.mk.exact[0]; if (ex) add('HQ_ES', 'Risultato esatto ' + ex[0], ex[1], 'esatto', ['ES:' + ex[0]]);
   const a = AN[ev.id]; if (a) { const sc = [].concat(a.sc.home || [], a.sc.away || []).sort((x, y) => y.pc - x.pc)[0]; if (sc) { add('HQ_SC', 'Segna ' + sc.name, sc.pc, 'marcatore', ['PL:gol:' + sc.name]); const L0 = out[out.length - 1]; if (L0 && L0.key === 'HQ_SC') L0.note = esc(sc.name) + (sc.gp ? ': ' + (sc.gpg || 0).toFixed(2) + ' gol e ' + (sc.spg || 0).toFixed(1) + ' tiri a partita su ' + sc.gp + ' gare' : '') + (sc.pos ? ', ruolo ' + esc(sc.pos) : ''); }
     const cd = (a.cards.items || [])[0]; if (cd) { add('HQ_CD', 'Ammonito ' + cd.name + ' (o chi lo sostituisce)', cd.p / 100, 'cartellino', ['PL:card:' + cd.name]); const L0 = out[out.length - 1]; if (L0 && L0.key === 'HQ_CD') L0.note = esc(cd.name) + ' (' + esc(cd.team) + ', ' + esc(cd.pos) + '): ' + String(cd.hist || '').replace(/<[^>]+>/g, '') + (a.cf && a.cf.exp != null ? '; gialli attesi nella partita ' + a.cf.exp.toFixed(1) : ''); } }
