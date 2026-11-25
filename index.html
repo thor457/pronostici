@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795597255;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795597760;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -506,7 +506,7 @@ E.pickScorers = function (S, ev, rosters, lam, absent) {
 // storico del giocatore (tiri, tiri in porta, falli a partita, quota di partite da titolare) con restringimento verso il suo ruolo,
 // riportato a partita da titolare, per i gol attesi della sua squadra in QUESTA partita (e l'attacco avversario per i falli), minuti attesi secondo la formazione nota
 E.playerProps = function (S, ev, rosters, lam, absent, opt) { opt = opt || {}; const out = [], P1 = l => 1 - Math.exp(-l), P2 = l => 1 - Math.exp(-l) * (1 + l), P3 = l => 1 - Math.exp(-l) * (1 + l + l * l / 2);
-  const PRI = { ATT: [2.3, 0.9, 1.1], WG: [1.7, 0.6, 1.0], CM: [0.9, 0.3, 1.2], FB: [0.5, 0.15, 1.0], CB: [0.5, 0.15, 0.9] }, K = 4;
+  const PRI = { ATT: [2.3, 0.9, 1.1, 1.5], WG: [1.7, 0.6, 1.0, 1.7], CM: [0.9, 0.3, 1.2, 1.2], FB: [0.5, 0.15, 1.0, 0.9], CB: [0.5, 0.15, 0.9, 0.6] }, K = 4;
   [['home', ev.home, lam.lh, lam.la], ['away', ev.away, lam.la, lam.lh]].forEach(([side, team, lt, lo]) => {
     let pool = E.poolFor(S, team, rosters); if (absent) pool = pool.filter(x => !absent[norm(x.name)]);
     const f = Math.max(0.75, Math.min(1.35, Math.pow((lt || 1.3) / 1.3, 0.6))), ff = Math.max(0.88, Math.min(1.15, Math.pow((lo || 1.3) / 1.3, 0.3)));
@@ -518,9 +518,11 @@ E.playerProps = function (S, ev, rosters, lam, absent, opt) { opt = opt || {}; c
       const ps = rosters ? (opt.off ? 0.99 : 0.8 + 0.15 * sr) : sr, mf = ps + (1 - ps) * 0.3;
       const shp = ((h[5] || 0) + K * pr[0]) / (eff + K), sop = ((h[6] || 0) + K * pr[1]) / (eff + K), fop = ((h[2] || 0) + K * pr[2]) / (eff + K);
       if (!(h[5] > 0) && !(h[6] > 0)) return; /* nessun tiro registrato: dati del giocatore mancanti */
+      let gfs = +h[16] || 0, effS = eff * (gp ? gfs / gp : 0), fsT = +h[15] || 0; if (gfs < 5) { const sp = E.spFs(x.name); if (sp && sp.ap >= 3) { gfs = sp.ap; effS = (sp.ap - (sp.sub || 0)) + 0.3 * (sp.sub || 0); fsT = sp.fs || 0; } } /* poche partite in archivio: falli subiti della stagione ESPN */
+      const fsp = (fsT + K * (pr[3] || 1.1)) / (effS + K), lfs = fsp * ff * mf; /* falli subiti: solo dalle partite che hanno il dato, il resto è la media del ruolo */
       const ls = sop * f * mf, lsh = shp * f * mf, lf = fop * ff * mf;
       out.push({ n: x.name, team, side, pos: x.pos, g, gp, sr, ps, xi: !!rosters, spg: h[5] / gp, sotpg: h[6] / gp, fpg: h[2] / gp, ls, lsh, lf,
-        sot: P1(ls), sot2: P2(ls), sh1: P1(lsh), sh2: P2(lsh), sh3: P3(lsh), f1: P1(lf), f2: P2(lf) }); }); });
+        sot: P1(ls), sot2: P2(ls), sh1: P1(lsh), sh2: P2(lsh), sh3: P3(lsh), f1: P1(lf), f2: P2(lf), lfs, fspg: fsp, fsn: gfs, fs1: P1(lfs), fs2: P2(lfs) }); }); });
   return out; };
 E.updateElo = function (S, seed, ev) {
   const nat = E.isNation(ev.league), h = E.strength(S, seed, ev.home, ev.league).r, a = E.strength(S, seed, ev.away, ev.league).r;
@@ -552,6 +554,7 @@ E.addPlayerStats = function (S, summ, isNat) { summ = summ || {};
     if (!a) a = S.players[k] = [0, 0, 0, 0, 0, 0, 0, '', '', '', p.name, 0, 0, 0, []];
     while (a.length < 15) a.push(0); if (!Array.isArray(a[14])) a[14] = []; a[14].push([p.goals || 0, p.shots || 0]); if (a[14].length > 5) a[14].shift();
     a[0]++; a[1] += p.starter ? 1 : 0; a[2] += p.fouls || 0; a[3] += p.yellow || 0; a[4] += p.goals || 0; a[5] += p.shots || 0; a[6] += p.sot || 0;
+    if (p.fs != null) { while (a.length < 17) a.push(0); a[15] = (+a[15] || 0) + p.fs; a[16] = (+a[16] || 0) + 1; } /* falli SUBITI (e partite con il dato) */
     if (isNat) a[9] = r.team; else a[7] = r.team; if (p.pos) a[8] = p.pos;
   }));
 };
@@ -625,7 +628,7 @@ E.fetchSummary = async function (lg, id) {
   const out = { rosters: [], events: [], referee: null };
   (d.rosters || []).forEach(r => { const o = { team: r.team.displayName, formation: r.formation, players: [] };
     (r.roster || []).forEach(p => { const s = {}; (p.stats || []).forEach(x => s[x.name] = x.value || 0);
-      o.players.push({ jersey: p.jersey || '', name: p.athlete.displayName, pos: (p.position || {}).abbreviation || '', starter: !!p.starter, subIn: !!p.subbedIn, subOut: !!p.subbedOut, fouls: s.foulsCommitted || 0, yellow: s.yellowCards || 0, red: s.redCards || 0, goals: s.totalGoals || 0, shots: s.totalShots || 0, sot: s.shotsOnTarget || 0 }); });
+      o.players.push({ jersey: p.jersey || '', name: p.athlete.displayName, pos: (p.position || {}).abbreviation || '', starter: !!p.starter, subIn: !!p.subbedIn, subOut: !!p.subbedOut, fouls: s.foulsCommitted || 0, yellow: s.yellowCards || 0, red: s.redCards || 0, goals: s.totalGoals || 0, shots: s.totalShots || 0, sot: s.shotsOnTarget || 0, fs: s.foulsSuffered != null ? +s.foulsSuffered || 0 : null }); });
     out.rosters.push(o); });
   (d.keyEvents || []).forEach(e => out.events.push({ clock: (e.clock || {}).displayValue, type: (e.type || {}).text || '', team: (e.team || {}).displayName || '', who: (e.participants || []).map(p => p.athlete.displayName) }));
   const off = (d.gameInfo || {}).officials || []; if (off.length) out.referee = off[0].displayName;
@@ -651,6 +654,8 @@ E.rosterStats = async function (lg, tid) { const key = 'r:' + lg + ':' + tid, c 
   (d.athletes || []).forEach(a => { const v = {}; (((a.statistics || {}).splits || {}).categories || []).forEach(cg => (cg.stats || []).forEach(z => { v[z.name] = z.value; }));
     if (!(v.appearances > 0)) return; out.push({ n: a.displayName, pos: (a.position || {}).abbreviation || '', ap: v.appearances || 0, sub: v.subIns || 0, y: v.yellowCards || 0, r: v.redCards || 0, f: v.foulsCommitted || 0, fs: v.foulsSuffered || 0 }); });
   const r = { comp: ((d.season || {}).displayName || lg).replace(/^\d{4}(-\d{2,4})?\s+/, ''), players: out }; E.SPC[key] = { t: Date.now(), d: r }; E.spSave(); return r; };
+// indice dei falli subiti di stagione (ESPN) per giocatore: serve finché l'archivio partita per partita non ne ha abbastanza
+E.spFs = function (name) { const k = norm(name); if (!E._fsI || E._fsT !== Object.keys(E.SPC).length) { E._fsI = {}; E._fsT = Object.keys(E.SPC).length; Object.values(E.SPC).forEach(c => ((c && c.d && c.d.players) || []).forEach(p => { if (p.ap > 0) E._fsI[norm(p.n)] = p; })); } return E._fsI[k] || null; };
 E.teamLeagues = async function (lg, tid) { const L = []; if (lg && lg !== 'all') L.push(lg); const key = 't:' + tid, c = E.SPC[key]; let dl = c && Date.now() - c.t < 7 * 86400e3 ? c.d : null;
   if (dl == null) { try { const d = await E.fetchJson(BASE + (lg && lg !== 'all' ? lg : 'all') + '/teams/' + tid, 12000); dl = (((d.team || {}).defaultLeague) || {}).slug || ''; E.SPC[key] = { t: Date.now(), d: dl }; E.spSave(); } catch (e) { dl = ''; } }
   if (dl && L.indexOf(dl) < 0) L.push(dl); return L; };
@@ -1107,7 +1112,7 @@ E.fmIngest = function (S, f, nameH, nameA) { if (!f || !f.pstats || !f.pstats.le
   f.pstats.forEach(p => { const k = norm(p.name); let a = S.players[k]; if (!a) a = S.players[k] = [0, 0, 0, 0, 0, 0, 0, '', '', '', p.name, 0, 0, 0, []];
     while (a.length < 15) a.push(0); if (!Array.isArray(a[14])) a[14] = []; a[14].push([p.goals, p.shots]); if (a[14].length > 5) a[14].shift();
     const yc = (f.cardsBy || {})[k] || 0; if (p.side === 'h') yh += yc; else ya += yc;
-    a[0]++; a[1] += p.start ? 1 : 0; a[2] += p.fouls; a[3] += yc; a[4] += p.goals; a[5] += p.shots; a[6] += p.sot;
+    a[0]++; a[1] += p.start ? 1 : 0; a[2] += p.fouls; a[3] += yc; a[4] += p.goals; a[5] += p.shots; a[6] += p.sot; while (a.length < 17) a.push(0); a[15] = (+a[15] || 0) + (p.fouled || 0); a[16] = (+a[16] || 0) + 1;
     a[7] = p.side === 'h' ? tH : tA; if (p.pos) a[8] = p.pos; if (p.xg) E.pxgAdd(S, p.name, p.xg, p.shots); n++; });
   if (f.xg) { E.xgAdd(S, tH, f.xg.h, f.xg.a); E.xgAdd(S, tA, f.xg.a, f.xg.h); }
   E.tcAdd(S, tH, yh, ya); E.tcAdd(S, tA, ya, yh); return n; };
@@ -1680,6 +1685,7 @@ function scriptHtml(ev, lam, ros, cards, sc, cf, refName, absent, off) { const T
   let PL = []; try { PL = P.playerProps(S, ev, ros, lam, absent, { off }); } catch (e) { }
   const cal = (k, v) => { const t = T['PP_' + k]; return t && t.n >= 30 ? P.calibrate(S, 'PP_' + k, v) : v * 0.9; };
   if (PL.length) { h += '<div class="k" style="margin-top:6px">Chi tirerà in porta</div>'; ['home', 'away'].forEach(sd => { const R = PL.filter(r => r.side === sd).sort((a, b) => b.ls - a.ls).slice(0, 3); if (R.length) h += '<div class="sm"><b>' + esc(sd === 'home' ? ev.home : ev.away) + '</b>: ' + R.map(r => esc(r.n) + ' ' + f1(r.ls) + ' tiri in porta attesi (almeno 1: ' + pc(cal('SOT1', r.sot)) + ', almeno 2: ' + pc(cal('SOT2', r.sot2)) + ')').join(' · ') + '</div>'; }); h += '<div class="sm mut">Tiri in porta dei giocatori:' + rec(/^PP_SOT/) + '</div>'; }
+  if (PL.length) { h += '<div class="k" style="margin-top:6px">Falli dei giocatori</div>'; ['home', 'away'].forEach(sd => { const R = PL.filter(r => r.side === sd), F = R.slice().sort((a, b) => b.lf - a.lf).slice(0, 3), FS = R.filter(r => r.fsn >= 3).sort((a, b) => b.lfs - a.lfs).slice(0, 3); h += '<div class="sm"><b>' + esc(sd === 'home' ? ev.home : ev.away) + '</b> · fatti: ' + F.map(r => esc(r.n) + ' ' + f1(r.lf) + ' (almeno 1: ' + pc(cal('F1', r.f1)) + ')').join(' · ') + (FS.length ? '<br>subiti: ' + FS.map(r => esc(r.n) + ' ' + f1(r.lfs) + ' (almeno 1: ' + pc(cal('FS1', r.fs1)) + ', almeno 2: ' + pc(cal('FS2', r.fs2)) + ')').join(' · ') : '<br><span class="mut">falli subiti: dato in raccolta</span>') + '</div>'; }); h += '<div class="sm mut">Falli fatti:' + (rec(/^PP_F\d/) || ' in raccolta') + ' · subiti:' + (rec(/^PP_FS/) || ' in raccolta') + '</div>'; }
   const scR = side => ((sc && (sc[side + 'All'] || sc[side])) || []).slice(0, 3);
   h += '<div class="k" style="margin-top:6px">Chi può segnare</div>' + ['home', 'away'].map(sd => '<div class="sm"><b>' + esc(sd === 'home' ? ev.home : ev.away) + '</b>: ' + (scR(sd).map(r => esc(r.name) + ' ' + pc(r.pc) + (r.pen ? ' (rigorista)' : '')).join(' · ') || '—') + '</div>').join('') + '<div class="sm mut">Marcatore o suo sostituto:' + rec(/^PLUS_SC/) + '</div>';
   if (cf) h += '<div class="k" style="margin-top:6px">Cartellini e tensione</div><div class="sm">Cartellini attesi: <b>' + f1(cf.exp) + '</b> (' + hn + ' ' + f1(cf.th) + ', ' + an + ' ' + f1(cf.ta) + ') · tensione ' + esc(cf.level || '—') + (refName ? ' · arbitro ' + esc(refName) : '') + (cf.p4 != null ? ' · almeno 4: ' + pc(cf.p4) : '') + '</div>';
@@ -1976,7 +1982,7 @@ async function vQuadro() {
 // ---------- multipla ----------
 
 const LEGK = (ev, k) => ({ OVER05: 'O0.5', OVER15: 'O1.5', OVER25: 'O2.5', UNDER15: 'U1.5', UNDER25: 'U2.5', UNDER35: 'U3.5', BTTS: 'GG', NOBTTS: 'NG', FAV_NOLOSE: ev.favHome ? '1X' : 'X2', FAV_WIN: ev.favHome ? '1' : '2' })[k] || null;
-const LOSS = k => /^PP:G/.test(k) ? 'non segna: esce presto, la squadra crea poco o il portiere para (se non scende in campo di solito è rimborsata)' : /^PP:SOT/.test(k) ? 'non parte titolare o esce presto, squadra chiusa nella sua metà campo, tiri respinti o fuori' : /^PP:SH/.test(k) ? 'non parte titolare o esce presto, la squadra tiene poco il pallone' : /^PP:F/.test(k) ? 'gara tranquilla con poco possesso avversario, cambio presto o arbitro che lascia correre' : /OVER|O15_1T|O05_1T|COR_O|TEAM_O15|FW_O15|FN_O15/.test(k) ? 'gara chiusa o bloccata, gol che non arrivano o arrivano tardi' : /UNDER|FW_U35|FN_U35/.test(k) ? 'gara aperta con gol precoci, un rigore o un\'espulsione' : /FAV_NOLOSE/.test(k) ? 'la favorita perde (colpo dell\'ospite o della squadra meno forte)' : /FAV_WIN|FAV_NIL|FAV_SEGNA|FAV_2PLUS/.test(k) ? 'la favorita non segna o pareggia' : /BTTS/.test(k) ? 'una delle due squadre non segna' : 'scenario contrario alla lettura del modello';
+const LOSS = k => /^PP:FS/.test(k) ? 'tiene poco palla o gioca lontano dagli avversari, cambio presto, arbitro che non fischia' : /^PP:G/.test(k) ? 'non segna: esce presto, la squadra crea poco o il portiere para (se non scende in campo di solito è rimborsata)' : /^PP:SOT/.test(k) ? 'non parte titolare o esce presto, squadra chiusa nella sua metà campo, tiri respinti o fuori' : /^PP:SH/.test(k) ? 'non parte titolare o esce presto, la squadra tiene poco il pallone' : /^PP:F/.test(k) ? 'gara tranquilla con poco possesso avversario, cambio presto o arbitro che lascia correre' : /OVER|O15_1T|O05_1T|COR_O|TEAM_O15|FW_O15|FN_O15/.test(k) ? 'gara chiusa o bloccata, gol che non arrivano o arrivano tardi' : /UNDER|FW_U35|FN_U35/.test(k) ? 'gara aperta con gol precoci, un rigore o un\'espulsione' : /FAV_NOLOSE/.test(k) ? 'la favorita perde (colpo dell\'ospite o della squadra meno forte)' : /FAV_WIN|FAV_NIL|FAV_SEGNA|FAV_2PLUS/.test(k) ? 'la favorita non segna o pareggia' : /BTTS/.test(k) ? 'una delle due squadre non segna' : 'scenario contrario alla lettura del modello';
 function legWhy(l) { if (l.c && l.c.pp) return ppWhy(l); const ev = l.ev, k = l.c.key, tr = S.tracker[k], lam = ev.lam || {}, tk = LEGK(ev, k); let tn = 0, tp = '';
   if (tk && S.tip) { const g = tipGroups(ymd(new Date(ev.date))); Object.keys(g).forEach(id => { const G = g[id]; if ((teamIs(G.h, ev.home) && teamIs(G.a, ev.away)) || (teamIs(G.h, ev.away) && teamIs(G.a, ev.home))) { const rev = !teamIs(G.h, ev.home), kk = rev ? flipK(tk) : tk; if (G.m[kk]) tn = Object.keys(G.m[kk].src).length; } }); }
   const lu = S.lu && S.lu[ev.id] ? 'formazioni ufficiali rilevate' : 'formazioni non ancora ufficiali (lettura pre-partita)';
@@ -1986,7 +1992,7 @@ function legWhy(l) { if (l.c && l.c.pp) return ppWhy(l); const ev = l.ev, k = l.
     '<div class="sm">• Scenario in cui perde: ' + LOSS(k) + '.</div>' + (l.alt ? '<div class="sm">• Alternativa se i dati cambiano: ' + esc(l.alt.label) + ' ' + fp(l.alt.p) + '.</div>' : '') + '</details>'; }
 
 // ===== GIOCATE SUI GIOCATORI nelle multiple: tiri in porta, tiri, falli (anche SENZA formazioni ufficiali) =====
-const PPK = { G1: ['segna (marcatore)', 'g1', 1], SOT1: ['almeno 1 tiro in porta', 'sot', 1], SOT2: ['almeno 2 tiri in porta', 'sot2', 2], SH2: ['almeno 2 tiri', 'sh2', 2], SH3: ['almeno 3 tiri', 'sh3', 3], F1: ['almeno 1 fallo commesso', 'f1', 1], F2: ['almeno 2 falli commessi', 'f2', 2] };
+const PPK = { G1: ['segna (marcatore)', 'g1', 1], SOT1: ['almeno 1 tiro in porta', 'sot', 1], SOT2: ['almeno 2 tiri in porta', 'sot2', 2], SH2: ['almeno 2 tiri', 'sh2', 2], SH3: ['almeno 3 tiri', 'sh3', 3], F1: ['almeno 1 fallo commesso', 'f1', 1], F2: ['almeno 2 falli commessi', 'f2', 2], FS1: ['almeno 1 fallo subito', 'fs1', 1], FS2: ['almeno 2 falli subiti', 'fs2', 2] };
 // formazione: ufficiale > probabile (FotMob/365/LiveScore) > titolari abituali dallo storico; assenti: indisponibili FotMob con motivo + esclusi a mano
 function propsFor(ev) { const a = AN[ev.id]; let ros = null, src = 'titolari abituali (storico)'; const absent = Object.assign({}, (S.absent || {})[ev.id] || {});
   if (a && a.dt) { ros = a.dt.ros || null; if (a.dt.fmf) [a.dt.fmf.lh, a.dt.fmf.la].forEach(T => ((T && T.out) || []).forEach(o => { if (!/rientr|back in training/i.test(o.ret || '')) absent[P.norm(o.name)] = 1; })); if (ros) src = a.dt.rosEsp || /confermata|ufficiale/.test(a.dt.src || '') ? 'formazione ufficiale' : 'formazione probabile (' + (a.dt.src || 'fonti pre-partita') + ')'; }
@@ -1999,23 +2005,23 @@ function propsFor(ev) { const a = AN[ev.id]; let ros = null, src = 'titolari abi
 // un tipo di giocata sul giocatore entra nelle multiple SOLO quando è verificato: almeno 50 casi salvati prima del via e precisione reale entro 5 punti dalla prevista
 // (prime verifiche del 24/11: «almeno 2 tiri» 42% contro 61% previsto, «almeno 3 tiri» 17% contro 39%: il modello dei giocatori sovrastimava)
 const ppOk = k => { const t = (S.tracker || {})['PP_' + k]; return !!(t && t.n >= 50 && t.hits / t.n >= t.sumP / t.n - 0.05); };
-function propLegs(ev, lo, hi, all) { const F = propsFor(ev), out = []; F.L.forEach(r => Object.keys(PPK).forEach(k => { if (!all && !ppOk(k)) return; const p = r['c' + k]; if (!(p >= lo && p <= hi)) return; if (/^F/.test(k) && r.fpg < 0.8) return; if (/^SOT/.test(k) && r.sotpg < 0.35) return;
+function propLegs(ev, lo, hi, all) { const F = propsFor(ev), out = []; F.L.forEach(r => Object.keys(PPK).forEach(k => { if (!all && !ppOk(k)) return; const p = r['c' + k]; if (!(p >= lo && p <= hi)) return; if (/^FS/.test(k) ? r.fsn < 3 : /^F/.test(k) && r.fpg < 0.8) return; if (/^SOT/.test(k) && r.sotpg < 0.35) return;
     out.push({ key: 'PP:' + k + ':' + r.side + ':' + r.n, label: r.n + ' (' + r.team + ') ' + PPK[k][0], p, pRaw: r[PPK[k][1]], pp: { r, k, src: F.src, abs: F.abs } }); }));
   return out.sort((a, b) => b.p - a.p).filter((x, i, A) => A.findIndex(y => y.pp.r.n === x.pp.r.n && y.pp.k.slice(0, 2) === x.pp.k.slice(0, 2)) === i).slice(0, 8); }
 function ppWhy(l) { const x = l.c.pp, r = x.r, t = (S.tracker || {})['PP_' + x.k];
-  return '<details class="why"><summary>Perché questa gamba</summary><div class="sm">• Giocatore: ' + esc(r.n) + ' (' + esc(r.team) + ', ' + esc(r.pos || '') + '): ' + r.sotpg.toFixed(2).replace('.', ',') + ' tiri in porta e ' + r.spg.toFixed(2).replace('.', ',') + ' tiri a partita, ' + r.fpg.toFixed(2).replace('.', ',') + ' falli, su ' + r.gp + ' partite (titolare nel ' + Math.round(r.sr * 100) + '%).</div>' +
+  return '<details class="why"><summary>Perché questa gamba</summary><div class="sm">• Giocatore: ' + esc(r.n) + ' (' + esc(r.team) + ', ' + esc(r.pos || '') + '): ' + r.sotpg.toFixed(2).replace('.', ',') + ' tiri in porta e ' + r.spg.toFixed(2).replace('.', ',') + ' tiri a partita, ' + r.fpg.toFixed(2).replace('.', ',') + ' falli fatti' + (r.fsn >= 3 ? ' e ' + r.fspg.toFixed(2).replace('.', ',') + ' falli subiti (su ' + r.fsn + ' partite con il dato)' : '') + ', su ' + r.gp + ' partite (titolare nel ' + Math.round(r.sr * 100) + '%).</div>' +
     '<div class="sm">• Questa partita: gol attesi ' + esc(l.ev.home) + ' ' + l.ev.lam.lh.toFixed(2) + ', ' + esc(l.ev.away) + ' ' + l.ev.lam.la.toFixed(2) + '; tiri in porta attesi ' + r.ls.toFixed(2).replace('.', ',') + ', tiri ' + r.lsh.toFixed(2).replace('.', ',') + ', falli ' + r.lf.toFixed(2).replace('.', ',') + '.</div>' +
     '<div class="sm">• Formazione: ' + esc(x.src) + (x.abs ? '; esclusi ' + x.abs + ' indisponibili (infortuni, squalifiche, notizie)' : '') + '. Se non scende in campo, di solito la giocata è rimborsata.</div>' +
     '<div class="sm">• Verifica: ' + (t && t.n >= 10 ? 'su ' + t.n + ' giocate così registrate prima del via è entrata il ' + Math.round(t.hits / t.n * 100) + '% contro il ' + Math.round(t.sumP / t.n * 100) + '% previsto' : 'nuova giocata: ogni previsione viene salvata prima del via e controllata con le statistiche dei giocatori per correggersi') + '.</div><div class="sm">• Scenario in cui perde: ' + LOSS(l.c.key) + '.</div></details>'; }
 // esito della giocata sul giocatore: statistiche ESPN dei giocatori, poi 365Scores; null = dato mancante, 'void' = non sceso in campo
-function ppRes(key, ev, summ, g) { const m = /^PP:(SOT|SH|F|G)(\d):(home|away):(.+)$/.exec(key); if (!m) return null; const sd = m[3] === 'home' ? 'h' : 'a', need = +m[2], num = v => parseInt(String(v == null ? '0' : v), 10) || 0;
-  let R = null; ((summ && summ.rosters) || []).forEach(r => { if ((sd === 'h' ? teamIs(r.team, ev.home) : teamIs(r.team, ev.away))) R = r.players.map(p => ({ n: p.name, play: p.starter || p.subIn, sot: num(p.sot), sh: num(p.shots), f: num(p.fouls), gl: num(p.goals) })); });
-  const gs = sd === 'h' ? +ev.hs : +ev.as; if (!R || R.reduce((a, x) => a + x.sh, 0) < Math.max(1, gs)) { const L = g && (sd === 'h' ? g.lh : g.la), pl = L && L.pl; R = pl && pl.length ? pl.map(p => ({ n: p.name, play: p.start || num((p.st || {}).Minutes) > 0, sot: num((p.st || {})['Shots On Target']), sh: num((p.st || {})['Total Shots']), f: num((p.st || {})['Fouls Made']), gl: num((p.st || {}).Goals) })) : null; }
+function ppRes(key, ev, summ, g) { const m = /^PP:(SOT|SH|FS|F|G)(\d):(home|away):(.+)$/.exec(key); if (!m) return null; const sd = m[3] === 'home' ? 'h' : 'a', need = +m[2], num = v => parseInt(String(v == null ? '0' : v), 10) || 0;
+  let R = null; ((summ && summ.rosters) || []).forEach(r => { if ((sd === 'h' ? teamIs(r.team, ev.home) : teamIs(r.team, ev.away))) R = r.players.map(p => ({ n: p.name, play: p.starter || p.subIn, sot: num(p.sot), sh: num(p.shots), f: num(p.fouls), gl: num(p.goals), fs: p.fs == null ? null : num(p.fs) })); });
+  const gs = sd === 'h' ? +ev.hs : +ev.as; if (!R || R.reduce((a, x) => a + x.sh, 0) < Math.max(1, gs)) { const L = g && (sd === 'h' ? g.lh : g.la), pl = L && L.pl; R = pl && pl.length ? pl.map(p => ({ n: p.name, play: p.start || num((p.st || {}).Minutes) > 0, sot: num((p.st || {})['Shots On Target']), sh: num((p.st || {})['Total Shots']), f: num((p.st || {})['Fouls Made']), gl: num((p.st || {}).Goals), fs: (p.st || {})['Was Fouled'] == null ? null : num((p.st || {})['Was Fouled']) })) : null; }
   if (!R || R.reduce((a, x) => a + x.sh, 0) < Math.max(1, gs)) return null; const x = R.find(y => P.samePlayer(m[4], y.n)); if (!x) return null; if (!x.play) return 'void';
-  const v = m[1] === 'SOT' ? x.sot : m[1] === 'SH' ? x.sh : m[1] === 'G' ? x.gl : x.f; return v >= need; }
+  const v = m[1] === 'SOT' ? x.sot : m[1] === 'SH' ? x.sh : m[1] === 'G' ? x.gl : m[1] === 'FS' ? x.fs : x.f; if (v == null) return null; return v >= need; }
 // registro delle previsioni sui giocatori prima del via (le più forti di ogni squadra), per verificarle e correggersi
 function ppRec(ev) { if (!ev || ev.done || ev.state !== 'pre' || !(new Date(ev.date) > Date.now())) return; const F = propsFor(ev); if (!F.L.length) return; S.pps = S.pps || {}; const L = [];
-  ['home', 'away'].forEach(sd => { const R = F.L.filter(r => r.side === sd); [['G1', 'g1'], ['SOT1', 'sot'], ['SOT2', 'sot'], ['SH2', 'sh2'], ['SH3', 'sh2'], ['F1', 'f1'], ['F2', 'f1']].forEach(([k, by]) => R.filter(r => r[by] != null).sort((a, b) => b[by] - a[by]).slice(0, /^(F|G)/.test(k) ? 2 : 3).forEach(r => r[PPK[k][1]] != null && L.push([r.n, sd, k, +r[PPK[k][1]].toFixed(3)]))); });
+  ['home', 'away'].forEach(sd => { const R = F.L.filter(r => r.side === sd); [['G1', 'g1'], ['SOT1', 'sot'], ['SOT2', 'sot'], ['SH2', 'sh2'], ['SH3', 'sh2'], ['F1', 'f1'], ['F2', 'f1'], ['FS1', 'fs1'], ['FS2', 'fs1']].forEach(([k, by]) => R.filter(r => r[by] != null).sort((a, b) => b[by] - a[by]).slice(0, /^(F|G)/.test(k) ? 3 : 3).forEach(r => r[PPK[k][1]] != null && L.push([r.n, sd, k, +r[PPK[k][1]].toFixed(3)]))); });
   S.pps[ev.id] = { t: Date.now(), kick: ev.date, xi: F.ros ? 1 : 0, L }; const ks = Object.keys(S.pps); if (ks.length > 400) ks.sort((x, y) => (S.pps[x].t || 0) - (S.pps[y].t || 0)).slice(0, ks.length - 400).forEach(k => delete S.pps[k]); }
 function regMult(type, T, legs, pAll, pN1) { S.mult = S.mult || []; const sig = type + legs.map(l => l.id + (l.key || l.ex.join())).join('|'); if (S.mult.some(m => m.sig === sig && Date.now() - m.t < 6 * 3600 * 1000)) return;
   S.mult.unshift({ sig, type, T, t: Date.now(), legs, pAll, pN1, done: false }); S.mult = S.mult.slice(0, 80); save(); }
