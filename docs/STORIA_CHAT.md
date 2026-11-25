@@ -173,3 +173,8 @@ Dalla seconda parte (testo integrale):
 - Richiesta: cercare i dati mancanti (partite con più gol per marcatori e tiri in porta, partite tese per falli e ammoniti o sostituti) e capire con 1.000.000 di evoluzioni chi prende il cartellino e perché.
 - Fatto: dati avanzati FotMob per i 198 titolari previsti (questa stagione + metà peso la scorsa: tiri, tiri in porta, xG, falli fatti e subiti, gialli, dribbling), ESPN dove FotMob non li ha; formazioni FotMob incrociate con 365; avversario diretto dalle posizioni in campo; giallo legato ai falli fatti in ogni simulazione e ai cartellini attesi con l'arbitro; sostituto solo dopo l'ingresso. Pagina aggiornata.
 - Limite: nessun nome supera circa il 36% di ammonizione; FotMob e 365 non concordano su diversi titolari (Liverpool, Atlético, Man United, Fenerbahçe, Lille).
+
+## 64-66 — 25/11 sera
+- 64: formazioni probabili delle 21:00 incrociate su 3 fonti (FotMob, 365, Squawka) e ammoniti o sostituti con duello diretto, proteste (gialli non da falli), effetto di 2+ falli e del punteggio, 1.000.000 di simulazioni.
+- 65: formazioni ufficiali delle 18:45 (Raphinha in panchina, Buchanan titolare, Mouriño diffidato: in Champions 2026/27 la squalifica scatta al 4° giallo).
+- 66: schermata live come lo screenshot dell'utente (stile SofaScore): intestazione scura con stemmi 365, punteggio grande rosso e minuto sotto, schede Dettagli / Commento / Approfondimenti, scheda Dettagli con Momentum della partita, campo live, separatori «1° tempo 0-0» / «2° tempo» / «Finale» ed eventi con punteggio progressivo.
