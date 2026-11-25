@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795595145;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795595980;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -374,8 +374,8 @@ E.marketList = function (S, mk, lh, la, SEED, ev) {
   L.forEach(x => { if (x.key === 'OVER05') x.base = x.p >= 0.85; if (x.corners && x.n < 8) { x.thin = true; x.base = false; } });
   // NOTAZIONE DEL BOOKMAKER: «favorita non perde» = 1X o X2, «favorita vince» = 1 o 2 (con la squadra fra parentesi)
   { const d = fav === 'home' ? '1X' : 'X2', w = fav === 'home' ? '1' : '2', nm = ev ? (fav === 'home' ? ev.home : ev.away) : '', tn = nm ? ' (' + nm + ')' : '';
-    L.forEach(x => { const l0 = x.label; let l = l0.replace(/^1X \(favorita non perde\)|^X2 \(favorita non perde\)/, d).replace(/^Primo tempo: favorita non perde/, d + ' primo tempo').replace(/^Favorita non perde/, d).replace(/^Favorita vince/, w).replace(/^1 \(vince la casa\)|^2 \(vince l'ospite\)/, w);
-      if (l !== l0) x.label = l + tn; }); }
+    L.forEach(x => { const l0 = x.label; let l = l0.replace(/^1X \(favorita non perde\)|^X2 \(favorita non perde\)/, d).replace(/^Primo tempo: favorita non perde/, d + ' primo tempo').replace(/^Favorita non perde/, d).replace(/^Favorita vince/, w).replace(/^Favorita segna/, 'Segna ' + (nm || 'la favorita')).replace(/^Favorita /, (nm || 'Favorita') + ' ').replace(/^1 \(vince la casa\)|^2 \(vince l'ospite\)/, w);
+      if (l !== l0) x.label = nm && l.indexOf(nm) >= 0 ? l : l + tn; }); }
   return L;
 };
 
@@ -2439,7 +2439,7 @@ async function enrichPlayers(ev, dt, cards, sc, cf) {
     const so = subOf(m, d), sg = so.bd && so.bd.min > 180 ? (so.bd.npxg + 0.12 * 3) / (so.bd.min / 90 + 3) : 0.12, pS = 1 - Math.exp(-sg * oppF * so.left / 90), pD = pP + (1 - pP) * so.ps * pS, w = Math.min(0.6, n90 / 12), p0 = r.pc; let p = (1 - w) * r.pc + w * pD; const nw = newsOf(m.name), notes = [];
     p = P.calibrate(S, 'PLUS_SC', p);
     if (d.inj) { p *= 0.3; notes.push('FotMob lo segna indisponibile: ' + d.inj.why); } if (nw.some(x => /squalific|suspend/i.test(x.ti))) { p *= 0.2; notes.push('notizia di squalifica'); } else if (nw.some(x => NEWSNEG.test(x.ti))) { p *= 0.6; notes.push('notizia negativa (infortunio o dubbio)'); }
-    r.pc = p; const txt = (m.start ? (dt.src.indexOf('ufficiale') >= 0 ? 'titolare ufficiale' : 'titolare probabile') : 'in panchina') + ' · stagione ' + d.g + ' gol in ' + Math.round(d.min) + '\', xG ' + f1(d.xg) + ' (' + f1(d.npxg / n90) + ' a gara senza rigori)' + (pen > 0.05 ? ', tira i rigori' : '') + ', tiri ' + d.sh + ' (' + d.sot + ' in porta) · ultime 5: ' + last(d) + ' · gol attesi della squadra in questa partita ' + f1(lt) + ' · minuti attesi ' + Math.round(em) + (so.ps > 0.05 ? ' · esce prima della fine nel ' + Math.round(so.ps * 100) + '% delle partite: conta anche chi entra' + (so.who ? ' (probabile ' + so.who + ')' : '') : '');
+    r.pc = Math.min(0.65, p); /* nessun marcatore oltre il 65% */ const txt = (m.start ? (dt.src.indexOf('ufficiale') >= 0 ? 'titolare ufficiale' : 'titolare probabile') : 'in panchina') + ' · stagione ' + d.g + ' gol in ' + Math.round(d.min) + '\', xG ' + f1(d.xg) + ' (' + f1(d.npxg / n90) + ' a gara senza rigori)' + (pen > 0.05 ? ', tira i rigori' : '') + ', tiri ' + d.sh + ' (' + d.sot + ' in porta) · ultime 5: ' + last(d) + ' · gol attesi della squadra in questa partita ' + f1(lt) + ' · minuti attesi ' + Math.round(em) + (so.ps > 0.05 ? ' · esce prima della fine nel ' + Math.round(so.ps * 100) + '% delle partite: conta anche chi entra' + (so.who ? ' (probabile ' + so.who + ')' : '') : '');
     out.sc.push({ n: m.name, team: m.team, p0, p, txt, notes, news: nw.map(x => x.ti + (x.src ? ' (' + x.src + ')' : '')) }); });
   ['home', 'away'].forEach(s => { if (sc[s]) sc[s].sort((a, b) => b.pc - a.pc); if (sc[s + 'All']) sc[s + 'All'].sort((a, b) => b.pc - a.pc); });
   S.pd = S.pd || {}; S.pd[ev.id] = Object.assign({ kick: ev.date }, out); const ks = Object.keys(S.pd); if (ks.length > 400) ks.sort((a, b) => S.pd[a].t - S.pd[b].t).slice(0, ks.length - 400).forEach(k => delete S.pd[k]);
