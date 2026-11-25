@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795601833;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795617416;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -508,7 +508,7 @@ E.pickScorers = function (S, ev, rosters, lam, absent) {
 E.playerProps = function (S, ev, rosters, lam, absent, opt) { opt = opt || {}; const out = [], P1 = l => 1 - Math.exp(-l), P2 = l => 1 - Math.exp(-l) * (1 + l), P3 = l => 1 - Math.exp(-l) * (1 + l + l * l / 2);
   const PRI = { ATT: [2.3, 0.9, 1.1, 1.5], WG: [1.7, 0.6, 1.0, 1.7], CM: [0.9, 0.3, 1.2, 1.2], FB: [0.5, 0.15, 1.0, 0.9], CB: [0.5, 0.15, 0.9, 0.6] }, K = 4;
   [['home', ev.home, lam.lh, lam.la], ['away', ev.away, lam.la, lam.lh]].forEach(([side, team, lt, lo]) => {
-    let pool = E.poolFor(S, team, rosters); if (absent) pool = pool.filter(x => !absent[norm(x.name)]);
+    let pool = E.poolFor(S, team, rosters); if (absent) pool = pool.filter(x => !absent[norm(x.name)]); const rowsS = [];
     const f = Math.max(0.75, Math.min(1.35, Math.pow((lt || 1.3) / 1.3, 0.6))), ff = Math.max(0.88, Math.min(1.15, Math.pow((lo || 1.3) / 1.3, 0.3)));
     pool.forEach(x => { const h = S.players[norm(x.name)] || S.players[x.name], g = E.roleGroup(x.pos); if (g === 'G' || !h || h[0] < 6) return; const gp = h[0], sr = Math.min(1, (h[1] || 0) / gp);
       if (!rosters && sr < 0.6) return; /* senza formazione: solo i titolari abituali */
@@ -521,8 +521,14 @@ E.playerProps = function (S, ev, rosters, lam, absent, opt) { opt = opt || {}; c
       let gfs = +h[16] || 0, effS = eff * (gp ? gfs / gp : 0), fsT = +h[15] || 0; if (gfs < 5) { const sp = E.spFs(x.name); if (sp && sp.ap >= 3) { gfs = sp.ap; effS = (sp.ap - (sp.sub || 0)) + 0.3 * (sp.sub || 0); fsT = sp.fs || 0; } } /* poche partite in archivio: falli subiti della stagione ESPN */
       const fsp = (fsT + K * (pr[3] || 1.1)) / (effS + K), lfs = fsp * ff * mf; /* falli subiti: solo dalle partite che hanno il dato, il resto è la media del ruolo */
       const ls = sop * f * mf, lsh = shp * f * mf, lf = fop * ff * mf;
-      out.push({ n: x.name, team, side, pos: x.pos, g, gp, sr, ps, xi: !!rosters, spg: h[5] / gp, sotpg: h[6] / gp, fpg: h[2] / gp, ls, lsh, lf,
-        sot: P1(ls), sot2: P2(ls), sh1: P1(lsh), sh2: P2(lsh), sh3: P3(lsh), f1: P1(lf), f2: P2(lf), lfs, fspg: fsp, fsn: gfs, fs1: P1(lfs), fs2: P2(lfs) }); }); });
+      rowsS.push({ n: x.name, team, side, pos: x.pos, g, gp, sr, ps, xi: !!rosters, spg: h[5] / gp, sotpg: h[6] / gp, fpg: h[2] / gp, ls, lsh, lf,
+        sot: P1(ls), sot2: P2(ls), sh1: P1(lsh), sh2: P2(lsh), sh3: P3(lsh), f1: P1(lf), f2: P2(lf), lfs, fspg: fsp, fsn: gfs, fs1: P1(lfs), fs2: P2(lfs) }); });
+    /* i numeri della squadra si dividono fra i giocatori: la somma dei tiri in porta, dei tiri, dei falli fatti e subiti dei titolari non può superare l'85% di quelli attesi per la squadra (prima ogni giocatore era calcolato da solo e le somme superavano la squadra) */
+    try { const L2 = { lh: lam.lh, la: lam.la }, tp = E.statModel(S, ev, L2, 'tiriporta'), ti = E.statModel(S, ev, L2, 'tiri'), fa = E.statModel(S, ev, L2, 'falli'), own = m => m ? (side === 'home' ? m.lh : m.la) : null, opp = m => m ? (side === 'home' ? m.la : m.lh) : null;
+      const K2 = (key, tgt) => { if (!tgt) return; const sum = rowsS.reduce((a, r) => a + r[key], 0); if (sum <= 0) return; const k = Math.max(0.55, Math.min(1.25, tgt * 0.85 / sum)); rowsS.forEach(r => { r[key] *= k; }); };
+      K2('ls', own(tp)); K2('lsh', own(ti)); K2('lf', own(fa)); K2('lfs', opp(fa));
+      rowsS.forEach(r => { r.sot = P1(r.ls); r.sot2 = P2(r.ls); r.sh1 = P1(r.lsh); r.sh2 = P2(r.lsh); r.sh3 = P3(r.lsh); r.f1 = P1(r.lf); r.f2 = P2(r.lf); r.fs1 = P1(r.lfs); r.fs2 = P2(r.lfs); }); } catch (e) { }
+    rowsS.forEach(r => out.push(r)); });
   return out; };
 E.updateElo = function (S, seed, ev) {
   const nat = E.isNation(ev.league), h = E.strength(S, seed, ev.home, ev.league).r, a = E.strength(S, seed, ev.away, ev.league).r;

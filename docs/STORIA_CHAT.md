@@ -163,3 +163,8 @@ Dalla seconda parte (testo integrale):
 - Il 90% è realistico solo sulle giocate più sicure; esito secco, esatti, ammoniti e marcatori restano molto più bassi (lo mostra la pagina Precisione).
 - Posizione della palla secondo per secondo: nessuna fonte gratuita; il campo live si muove evento per evento.
 - Campionati dilettanti: spesso solo punteggio e statistiche base.
+
+## 62 — 25/11 pomeriggio: Champions, analisi di ogni singolo giocatore
+- Richiesta: analisi nel dettaglio di ogni giocatore delle 9 partite (medie di tiri in porta, falli fatti e subiti, perché stasera), non dati generali; poi: «impossibile che i tiratori e i falli siano solo questi», vuole tutti i migliori.
+- Fatto: pagina «Champions 25/11 · tutti i giocatori» con 323 giocatori (180 titolari probabili, 143 panchina), statistiche di stagione ESPN (campionato + Champions) per tutta la rosa, 100.000 simulazioni per partita, classifiche complete senza soglia.
+- Trovato e corretto un errore del modello giocatori: ogni giocatore era calcolato da solo e la somma dei tiri in porta dei giocatori superava quella della squadra (Atlético 9,0 contro 6,4; Inter 7,7 contro 5,6). Ora i numeri della squadra si dividono fra i giocatori (E.playerProps, normalizzazione all'85% del totale di squadra). Risultato: il miglior tiratore in porta è intorno al 55-65% per «almeno 1», come le quote dei bookmaker.
