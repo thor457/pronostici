@@ -191,3 +191,9 @@ Dalla seconda parte (testo integrale):
 - No: le previsioni dell'app erano salvate, quelle date da Claude in chat no. Ora: data/consegne/2026-11-25.json (versione consegnata di esatti, direzioni, marcatori, tiri in porta, falli, ammoniti in ordine, bomba finale, schedina dell'utente) e cloud/audit_consegne.py che le verifica con ESPN.
 - Esito 25/11: esatti 0/9, direzioni 6/9, marcatori 7/16, tiri in porta del giocatore 7/11, falli fatti 1/2, falli subiti 3/3, ammoniti o sostituto 6/21, bomba 25 gambe su 26 (persa solo Akliouche almeno 1 fallo: 0 falli da titolare).
 - Il trainer ogni ora verifica da solo le consegne del giorno prima e le mette nello stato; l'app le mostra in Precisione («Pronostici consegnati da Claude in chat, verificati»). Regola: ogni consegna futura va scritta in data/consegne prima del calcio d'inizio.
+
+## 69–75 — 26/11 sera: ammoniti 18:45 e 21:00, controlli 19:00/20:00, verifica schedine utente, «l'app deve fare meglio di te»
+- Audit 26/11 (ESPN, ordine consegnato): ammoniti o sostituto 18:45 3/7 (Bancu; Zahi Ahmed e Topçu tramite sostituto), 21:00 4/10 (Stroeykens, Biancone, Tutyškinas, Mutombo) = 7/17, detto in media 23%.
+- Schedine da quota 100+: 0 su 7 intere. Gambe uniche: 118 su 136 (87%) contro 85% detto: le gambe erano tarate, il problema è il numero (30 gambe all'87% entrano insieme circa 1 volta su 70, e il margine del bookmaker si moltiplica per ogni gamba).
+- Schedine marcatori dell'utente: 4/5 e 4/5, perse entrambe sulla gamba del Rennes (Lepaul, Dia: nessun gol né legno).
+- Nell'app: audit_consegne.py legge anche le liste ammoniti_* e schedine_* e salva per categoria «detto contro successo» (cal); l'app somma i giorni e corregge da sola la fiducia di ogni gamba nelle multiple (falli subiti del giocatore −4%, tiri in porta di squadra +6%, ammoniti +12% per ora, pesato sul numero di casi); Precisione mostra la tabella. Test 23/23.

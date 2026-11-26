@@ -76,6 +76,76 @@ for m,k,a,line in D.get('bomba_finale',[]):
     ok=val is not None and val>line; ok_all+=ok; add('Bomba: gambe',ok)
     print(f"  {m} · {k} {a} {line}: {val} {'✅' if ok else '❌'}")
 print(f"  gambe vinte {ok_all} su {len(D.get('bomba_finale',[]))}")
+# LISTE E SCHEDINE CONSEGNATE NEL FORMATO DAL 26/11 (ammoniti_* con lista, schedine_* con gambe):
+# ogni gamba con la probabilità detta prima del via, così l'app confronta detto e successo per categoria e si ricalibra
+CAL={}; SEEN=set()
+def cal(cat,p,ok):
+    c=CAL.setdefault(cat,[0,0,0.0]); c[0]+=1; c[1]+=bool(ok); c[2]+=(p/100 if p>1 else p)
+def sur(x): return nm(x.split()[-1])
+def same2(a,b): return nm(a)==nm(b) or sur(a)==sur(b) or (len(sur(a))>4 and (sur(a) in nm(b) or sur(b) in nm(a)))
+def fm(m):
+    if m in R: return R[m]
+    h,a=m.split(' - ',1)
+    for k,r in R.items():
+        kh,ka=k.split(' - ',1)
+        if (nm(kh)[:5]==nm(h)[:5] or nm(kh)[:4] in nm(h)) and (nm(ka)[:3] in nm(a) or nm(a)[:3] in nm(ka)): return r
+    for k,r in R.items():
+        if nm(k.split(' - ')[0])[:5]==nm(h)[:5]: return r
+def legcat(lab):
+    if re.match(r'Corner ',lab): return 'Gamba: corner'
+    if re.match(r'Tiri in porta ',lab): return 'Gamba: tiri in porta di squadra'
+    if re.match(r'Falli totali',lab): return 'Gamba: falli totali'
+    if re.match(r'Gol ',lab): return 'Gamba: gol (squadra o totali)'
+    if lab in('1','X','2','1X','X2','12'): return 'Gamba: esito o doppia'
+    if 'fallo subito' in lab or 'falli subiti' in lab: return 'Gamba: falli subiti del giocatore'
+    if 'fallo commess' in lab or 'falli commessi' in lab: return 'Gamba: falli fatti del giocatore'
+    if 'tiro in porta' in lab or 'tiri in porta' in lab: return 'Gamba: tiri in porta del giocatore'
+    return 'Gamba: altro'
+def gleg(g):
+    r=fm(g['m']); lab=g['label']
+    if not r: return None
+    gh,ga=r['gh'],r['ga']; h=g['m'].split(' - ')[0]
+    if lab in('1','X','2','1X','X2','12'): return ('1' if gh>ga else '2' if ga>gh else 'X') in lab
+    mo=re.match(r'(Gol|Tiri in porta|Corner|Falli) (.+?) Over ([\d.]+)',lab)
+    if mo:
+        kind,who,th=mo.group(1),mo.group(2),float(mo.group(3)); key={'Tiri in porta':'shotsOnTarget','Corner':'wonCorners','Falli':'foulsCommitted'}.get(kind)
+        T=lambda s:r['ts'].get(s,{}).get(key)
+        if who=='totali': val=gh+ga if kind=='Gol' else (None if T('home') is None or T('away') is None else T('home')+T('away'))
+        else:
+            sd='home' if nm(who)[:5]==nm(h)[:5] else 'away'; val=(gh if sd=='home' else ga) if kind=='Gol' else T(sd)
+        return None if val is None else val>th
+    mo=re.match(r'(.+?) almeno (\d+) (fall\w+ commess\w+|fall\w+ subit\w+|tir\w+ in porta)',lab)
+    if mo:
+        n,k,typ=mo.group(1),int(mo.group(2)),mo.group(3); key='foulsCommitted' if 'commess' in typ else 'foulsSuffered' if 'subit' in typ else 'shotsOnTarget'
+        for pn,st in r['ps'].items():
+            if same2(pn,n):
+                if not (st.get('appearances') or st.get('subIns')): return None  # non sceso in campo: non si conta
+                return (st.get(key) or 0)>=k
+    return None
+for key,val in D.items():
+    if key.startswith('ammoniti_') and 'preXI' not in key and isinstance(val,dict) and val.get('lista'):
+        mk=[]
+        for i,x in enumerate(val['lista']):
+            r=fm(x['m'])
+            if not r: continue
+            own=any(same2(c,x['nome']) for c in r['cards']); viaS=any(same2(c,i2) for i2,o in r['subs'] if same2(o,x['nome']) for c in r['cards'])
+            ok=own or viaS; add('Ammonito o sostituto',ok); cal('Ammonito o sostituto (nomi)',x.get('p',20),ok)
+            mk.append(f"{i+1}. {x['nome']} {'✅' if own else ('✅ (sostituto)' if viaS else '❌')}")
+        print(f"\n{key}: "+' · '.join(mk)+f" → presi {sum('✅' in z for z in mk)} su {len(mk)}")
+    if key.startswith('schedine_') and isinstance(val,list):
+        for s in val:
+            if not isinstance(s,dict) or not s.get('gambe'): continue
+            rr=[(g,gleg(g)) for g in s['gambe']]; known=[z for z in rr if z[1] is not None]
+            for g,ok in known:
+                if (g['m'],g['label']) in SEEN: continue  # stessa gamba in più schedine: conta una volta
+                SEEN.add((g['m'],g['label'])); cal(legcat(g['label']),g.get('p',80),ok)
+            whole=all(ok for g,ok in known) and len(known)==len(rr)
+            add('Schedine intere',whole)
+            print(f"\n{key} · {s.get('nome')}: gambe vinte {sum(ok for g,ok in known)} su {len(known)}"+(f" ({len(rr)-len(known)} non verificabili)" if len(known)<len(rr) else '')+(' → VINTA' if whole else ' → PERSA'))
+            for g,ok in known:
+                if not ok: print(f"   ❌ {g['m']} · {g['label']} (detto {g.get('p')}%)")
+print('\nDETTO PRIMA DEL VIA CONTRO SUCCESSO, PER CATEGORIA:')
+for k,(n,h,sp) in sorted(CAL.items()): print(f"  {k}: {h} su {n} ({h/n*100:.0f}%), detto {sp/n*100:.0f}%")
 print('\nTOTALI PER TIPO:')
 for k,(n,h) in tot.items(): print(f"  {k}: {h} su {n} ({h/n*100:.0f}%)")
-json.dump(dict(tot=tot),open(sys.argv[1].replace('.json','_esito.json'),'w'),ensure_ascii=False)
+json.dump(dict(tot=tot,cal=CAL),open(sys.argv[1].replace('.json','_esito.json'),'w'),ensure_ascii=False)
