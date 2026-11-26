@@ -2429,5 +2429,612 @@
 "Iberia 1999 - Getafe",
 "Jablonec - FC Lugano",
 "Pafos - FC Midtjylland"
+],
+"schedine_18_45_solo": [
+{
+"nome": "Mista 18:45 · quota 100",
+"quota_giusta": 103.9,
+"gambe": [
+{
+"m": "Viktoria Plzen - Benfica",
+"t": "17:45",
+"label": "Gol Benfica Over 0.5",
+"p": 88
+},
+{
+"m": "Heart of Midlothian - AS Monaco",
+"t": "17:45",
+"label": "Tiri in porta Heart of Midlothian Over 1.5",
+"p": 88
+},
+{
+"m": "Celta Vigo - AFC Bournemouth",
+"t": "17:45",
+"label": "Corner Celta Vigo Over 1.5",
+"p": 88
+},
+{
+"m": "Kauno Zalgiris - Riga FC",
+"t": "17:45",
+"label": "Corner Kauno Zalgiris Over 1.5",
+"p": 87
+},
+{
+"m": "Jablonec - FC Lugano",
+"t": "17:45",
+"label": "Corner FC Lugano Over 1.5",
+"p": 87
+},
+{
+"m": "RB Salzburg - Ararat-Armenia",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 87
+},
+{
+"m": "Pafos - FC Midtjylland",
+"t": "17:45",
+"label": "Corner Pafos Over 1.5",
+"p": 87
+},
+{
+"m": "Iberia 1999 - Getafe",
+"t": "17:45",
+"label": "Ramón Terrats almeno 1 fallo subito",
+"p": 87
+},
+{
+"m": "Union St.-Gilloise - Lech Poznan",
+"t": "17:45",
+"label": "1X",
+"p": 87
+},
+{
+"m": "Viktoria Plzen - Benfica",
+"t": "17:45",
+"label": "Corner Viktoria Plzen Over 1.5",
+"p": 87
+},
+{
+"m": "Marseille - Levski Sofia",
+"t": "17:45",
+"label": "Gol Marseille Over 0.5",
+"p": 87
+},
+{
+"m": "Ajax Amsterdam - FC Thun",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 87
+},
+{
+"m": "Heart of Midlothian - AS Monaco",
+"t": "17:45",
+"label": "Tiri in porta AS Monaco Over 2.5",
+"p": 86
+},
+{
+"m": "Olympiacos - AC Milan",
+"t": "17:45",
+"label": "Corner AC Milan Over 1.5",
+"p": 86
+},
+{
+"m": "Dinamo Zagreb - Bayer Leverkusen",
+"t": "17:45",
+"label": "Gol Bayer Leverkusen Over 0.5",
+"p": 86
+},
+{
+"m": "Pafos - FC Midtjylland",
+"t": "17:45",
+"label": "Sofus Johannesen almeno 1 fallo subito",
+"p": 86
+},
+{
+"m": "Iberia 1999 - Getafe",
+"t": "17:45",
+"label": "Tiri in porta Getafe Over 2.5",
+"p": 86
+},
+{
+"m": "Ajax Amsterdam - FC Thun",
+"t": "17:45",
+"label": "Tiri in porta Ajax Amsterdam Over 3.5",
+"p": 86
+},
+{
+"m": "Marseille - Levski Sofia",
+"t": "17:45",
+"label": "1X",
+"p": 86
+},
+{
+"m": "Brighton & Hove Albion - CSU Craiova",
+"t": "17:45",
+"label": "Corner Brighton & Hove Albion Over 2.5",
+"p": 85
+},
+{
+"m": "Dinamo Zagreb - Bayer Leverkusen",
+"t": "17:45",
+"label": "Corner Dinamo Zagreb Over 1.5",
+"p": 85
+},
+{
+"m": "SK Brann - AGF",
+"t": "17:45",
+"label": "Corner AGF Over 1.5",
+"p": 85
+},
+{
+"m": "RB Salzburg - Ararat-Armenia",
+"t": "17:45",
+"label": "Tiri in porta RB Salzburg Over 3.5",
+"p": 85
+},
+{
+"m": "Egnatia - Lincoln Red Imps",
+"t": "17:45",
+"label": "Tiri in porta Lincoln Red Imps Over 1.5",
+"p": 85
+},
+{
+"m": "Egnatia - Lincoln Red Imps",
+"t": "17:45",
+"label": "Gol Egnatia Over 0.5",
+"p": 85
+},
+{
+"m": "Jablonec - FC Lugano",
+"t": "17:45",
+"label": "Elias Pihlström almeno 1 fallo subito",
+"p": 84
+},
+{
+"m": "Besiktas - Hapoel Be'er",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 84
+},
+{
+"m": "Besiktas - Hapoel Be'er",
+"t": "17:45",
+"label": "Ilhan Fakili almeno 1 fallo subito",
+"p": 84
+},
+{
+"m": "Union St.-Gilloise - Lech Poznan",
+"t": "17:45",
+"label": "Tiri in porta totali Over 5.5",
+"p": 84
+},
+{
+"m": "Olympiacos - AC Milan",
+"t": "17:45",
+"label": "Falli totali Over 14.5",
+"p": 84
+},
+{
+"m": "Brighton & Hove Albion - CSU Craiova",
+"t": "17:45",
+"label": "Tiri in porta totali Over 5.5",
+"p": 84
+},
+{
+"m": "Celta Vigo - AFC Bournemouth",
+"t": "17:45",
+"label": "Falli totali Over 14.5",
+"p": 83
+}
+]
+},
+{
+"nome": "Mista 18:45 · quota 190+",
+"quota_giusta": 210.4,
+"gambe": [
+{
+"m": "Viktoria Plzen - Benfica",
+"t": "17:45",
+"label": "Gol Benfica Over 0.5",
+"p": 88
+},
+{
+"m": "Heart of Midlothian - AS Monaco",
+"t": "17:45",
+"label": "Tiri in porta Heart of Midlothian Over 1.5",
+"p": 88
+},
+{
+"m": "Celta Vigo - AFC Bournemouth",
+"t": "17:45",
+"label": "Corner Celta Vigo Over 1.5",
+"p": 88
+},
+{
+"m": "Kauno Zalgiris - Riga FC",
+"t": "17:45",
+"label": "Corner Kauno Zalgiris Over 1.5",
+"p": 87
+},
+{
+"m": "Jablonec - FC Lugano",
+"t": "17:45",
+"label": "Corner FC Lugano Over 1.5",
+"p": 87
+},
+{
+"m": "RB Salzburg - Ararat-Armenia",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 87
+},
+{
+"m": "Pafos - FC Midtjylland",
+"t": "17:45",
+"label": "Corner Pafos Over 1.5",
+"p": 87
+},
+{
+"m": "Iberia 1999 - Getafe",
+"t": "17:45",
+"label": "Ramón Terrats almeno 1 fallo subito",
+"p": 87
+},
+{
+"m": "Union St.-Gilloise - Lech Poznan",
+"t": "17:45",
+"label": "1X",
+"p": 87
+},
+{
+"m": "Viktoria Plzen - Benfica",
+"t": "17:45",
+"label": "Corner Viktoria Plzen Over 1.5",
+"p": 87
+},
+{
+"m": "Marseille - Levski Sofia",
+"t": "17:45",
+"label": "Gol Marseille Over 0.5",
+"p": 87
+},
+{
+"m": "Viktoria Plzen - Benfica",
+"t": "17:45",
+"label": "Tiri in porta Benfica Over 2.5",
+"p": 87
+},
+{
+"m": "Ajax Amsterdam - FC Thun",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 87
+},
+{
+"m": "Heart of Midlothian - AS Monaco",
+"t": "17:45",
+"label": "Tiri in porta AS Monaco Over 2.5",
+"p": 86
+},
+{
+"m": "Olympiacos - AC Milan",
+"t": "17:45",
+"label": "Corner AC Milan Over 1.5",
+"p": 86
+},
+{
+"m": "Dinamo Zagreb - Bayer Leverkusen",
+"t": "17:45",
+"label": "Gol Bayer Leverkusen Over 0.5",
+"p": 86
+},
+{
+"m": "Pafos - FC Midtjylland",
+"t": "17:45",
+"label": "Sofus Johannesen almeno 1 fallo subito",
+"p": 86
+},
+{
+"m": "Iberia 1999 - Getafe",
+"t": "17:45",
+"label": "Tiri in porta Getafe Over 2.5",
+"p": 86
+},
+{
+"m": "Ajax Amsterdam - FC Thun",
+"t": "17:45",
+"label": "Tiri in porta Ajax Amsterdam Over 3.5",
+"p": 86
+},
+{
+"m": "Marseille - Levski Sofia",
+"t": "17:45",
+"label": "1X",
+"p": 86
+},
+{
+"m": "Brighton & Hove Albion - CSU Craiova",
+"t": "17:45",
+"label": "Corner Brighton & Hove Albion Over 2.5",
+"p": 85
+},
+{
+"m": "Iberia 1999 - Getafe",
+"t": "17:45",
+"label": "Corner Iberia 1999 Over 1.5",
+"p": 85
+},
+{
+"m": "Dinamo Zagreb - Bayer Leverkusen",
+"t": "17:45",
+"label": "Corner Dinamo Zagreb Over 1.5",
+"p": 85
+},
+{
+"m": "Dinamo Zagreb - Bayer Leverkusen",
+"t": "17:45",
+"label": "Tiri in porta Dinamo Zagreb Over 1.5",
+"p": 85
+},
+{
+"m": "SK Brann - AGF",
+"t": "17:45",
+"label": "Corner AGF Over 1.5",
+"p": 85
+},
+{
+"m": "RB Salzburg - Ararat-Armenia",
+"t": "17:45",
+"label": "Tiri in porta RB Salzburg Over 3.5",
+"p": 85
+},
+{
+"m": "Egnatia - Lincoln Red Imps",
+"t": "17:45",
+"label": "Tiri in porta Lincoln Red Imps Over 1.5",
+"p": 85
+},
+{
+"m": "Marseille - Levski Sofia",
+"t": "17:45",
+"label": "Aldair almeno 1 fallo subito",
+"p": 85
+},
+{
+"m": "Egnatia - Lincoln Red Imps",
+"t": "17:45",
+"label": "Gol Egnatia Over 0.5",
+"p": 85
+},
+{
+"m": "RB Salzburg - Ararat-Armenia",
+"t": "17:45",
+"label": "Corner RB Salzburg Over 2.5",
+"p": 85
+},
+{
+"m": "Heart of Midlothian - AS Monaco",
+"t": "17:45",
+"label": "Corner Heart of Midlothian Over 1.5",
+"p": 84
+},
+{
+"m": "Ajax Amsterdam - FC Thun",
+"t": "17:45",
+"label": "Corner Ajax Amsterdam Over 2.5",
+"p": 84
+},
+{
+"m": "Jablonec - FC Lugano",
+"t": "17:45",
+"label": "Elias Pihlström almeno 1 fallo subito",
+"p": 84
+},
+{
+"m": "Besiktas - Hapoel Be'er",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 84
+},
+{
+"m": "Besiktas - Hapoel Be'er",
+"t": "17:45",
+"label": "Ilhan Fakili almeno 1 fallo subito",
+"p": 84
+},
+{
+"m": "Union St.-Gilloise - Lech Poznan",
+"t": "17:45",
+"label": "Tiri in porta totali Over 5.5",
+"p": 84
+},
+{
+"m": "Olympiacos - AC Milan",
+"t": "17:45",
+"label": "Falli totali Over 14.5",
+"p": 84
+}
+]
+},
+{
+"nome": "Marcatori + basi 18:45",
+"quota_giusta": 45.0,
+"gambe": [
+{
+"m": "Viktoria Plzen - Benfica",
+"t": "17:45",
+"label": "Gol Benfica Over 0.5",
+"p": 88
+},
+{
+"m": "Heart of Midlothian - AS Monaco",
+"t": "17:45",
+"label": "Tiri in porta Heart of Midlothian Over 1.5",
+"p": 88
+},
+{
+"m": "RB Salzburg - Ararat-Armenia",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 87
+},
+{
+"m": "Union St.-Gilloise - Lech Poznan",
+"t": "17:45",
+"label": "1X",
+"p": 87
+},
+{
+"m": "Marseille - Levski Sofia",
+"t": "17:45",
+"label": "Gol Marseille Over 0.5",
+"p": 87
+},
+{
+"m": "Viktoria Plzen - Benfica",
+"t": "17:45",
+"label": "Tiri in porta Benfica Over 2.5",
+"p": 87
+},
+{
+"m": "Ajax Amsterdam - FC Thun",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 87
+},
+{
+"m": "Heart of Midlothian - AS Monaco",
+"t": "17:45",
+"label": "Tiri in porta AS Monaco Over 2.5",
+"p": 86
+},
+{
+"m": "Dinamo Zagreb - Bayer Leverkusen",
+"t": "17:45",
+"label": "Gol Bayer Leverkusen Over 0.5",
+"p": 86
+},
+{
+"m": "Iberia 1999 - Getafe",
+"t": "17:45",
+"label": "Tiri in porta Getafe Over 2.5",
+"p": 86
+},
+{
+"m": "Ajax Amsterdam - FC Thun",
+"t": "17:45",
+"label": "Tiri in porta Ajax Amsterdam Over 3.5",
+"p": 86
+},
+{
+"m": "Marseille - Levski Sofia",
+"t": "17:45",
+"label": "1X",
+"p": 86
+},
+{
+"m": "Iberia 1999 - Getafe",
+"t": "17:45",
+"label": "Tiri in porta Iberia 1999 Over 1.5",
+"p": 85
+},
+{
+"m": "Dinamo Zagreb - Bayer Leverkusen",
+"t": "17:45",
+"label": "Tiri in porta Dinamo Zagreb Over 1.5",
+"p": 85
+},
+{
+"m": "RB Salzburg - Ararat-Armenia",
+"t": "17:45",
+"label": "Tiri in porta RB Salzburg Over 3.5",
+"p": 85
+},
+{
+"m": "Egnatia - Lincoln Red Imps",
+"t": "17:45",
+"label": "Tiri in porta Lincoln Red Imps Over 1.5",
+"p": 85
+},
+{
+"m": "Egnatia - Lincoln Red Imps",
+"t": "17:45",
+"label": "Gol Egnatia Over 0.5",
+"p": 85
+},
+{
+"m": "Besiktas - Hapoel Be'er",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 84
+},
+{
+"m": "Union St.-Gilloise - Lech Poznan",
+"t": "17:45",
+"label": "Tiri in porta totali Over 5.5",
+"p": 84
+},
+{
+"m": "Brighton & Hove Albion - CSU Craiova",
+"t": "17:45",
+"label": "Tiri in porta totali Over 5.5",
+"p": 84
+},
+{
+"m": "Besiktas - Hapoel Be'er",
+"t": "17:45",
+"label": "Tiri in porta Hapoel Be'er Over 1.5",
+"p": 83
+},
+{
+"m": "Brighton & Hove Albion - CSU Craiova",
+"t": "17:45",
+"label": "Tiri in porta Brighton & Hove Albion Over 3.5",
+"p": 82
+},
+{
+"m": "Olympiacos - AC Milan",
+"t": "17:45",
+"label": "Tiri in porta totali Over 5.5",
+"p": 82
+},
+{
+"m": "SK Brann - AGF",
+"t": "17:45",
+"label": "Gol totali Over 1.5",
+"p": 82
+},
+{
+"m": "SK Brann - AGF",
+"t": "17:45",
+"label": "Tiri in porta SK Brann Over 2.5",
+"p": 81
+},
+{
+"m": "Kauno Zalgiris - Riga FC",
+"t": "17:45",
+"label": "Tiri in porta Riga FC Over 2.5",
+"p": 81
+}
+]
+}
+],
+"marcatori_18_45": [
+[
+"Patrik Schick",
+"Dinamo Zagreb - Bayer Leverkusen",
+61
+],
+[
+"Vangelis Pavlidis",
+"Viktoria Plzen - Benfica",
+60
+],
+[
+"Amine Gouiri",
+"Marseille - Levski Sofia",
+55
+]
 ]
 }
