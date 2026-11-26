@@ -1,3040 +1,3083 @@
 {
-"giorno": "2026-11-26",
-"nota": "Europa League e Conference League 26/11. Versione 15:20 dal modello dell'app (unica fonte), formazioni probabili; la versione delle 10:15 (solo Europa League) resta in consegna_10_15.",
-"partite": {
-"Besiktas - Hapoel Be'er": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Dusan Vlahović",
-"Ilhan Fakili"
-],
-"tiri_in_porta": [
-"Dusan Vlahović"
-],
-"falli_fatti_1": [
-"Djibril Diop"
-],
-"falli_subiti_1": [
-"Ilhan Fakili"
-],
-"ammoniti": [
-"Djibril Diop",
-"Emirhan Topçu"
-]
-},
-"Kairat Almaty - Mjällby AIF": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "1X",
-"marcatori": [],
-"tiri_in_porta": [
-"Jesper Gustavsson"
-],
-"falli_fatti_1": [
-"Max Nielsen"
-],
-"falli_subiti_1": [
-"Max Nielsen"
-],
-"ammoniti": [
-"Jaakko Oksanen"
-]
-},
-"Dinamo Zagreb - Bayer Leverkusen": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-2",
-"direzione": "2",
-"marcatori": [
-"Patrik Schick",
-"Afonso Moreira"
-],
-"tiri_in_porta": [
-"Patrik Schick"
-],
-"falli_fatti_1": [
-"Lukas Kacavenda"
-],
-"falli_subiti_1": [
-"Lukas Kacavenda"
-],
-"ammoniti": []
-},
-"Marseille - Levski Sofia": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Amine Gouiri",
-"Igor Paixão"
-],
-"tiri_in_porta": [
-"Serginho"
-],
-"falli_fatti_1": [
-"Aldair"
-],
-"falli_subiti_1": [
-"Serginho"
-],
-"ammoniti": []
-},
-"Celta Vigo - AFC Bournemouth": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Marcus Tavernier",
-"Rayan"
-],
-"tiri_in_porta": [
-"Rayan"
-],
-"falli_fatti_1": [
-"Yoel Lago"
-],
-"falli_subiti_1": [
-"Amine Adli"
-],
-"ammoniti": []
-},
-"RB Salzburg - Ararat-Armenia": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Edmund Baidoo",
-"Yorbe Vertessen"
-],
-"tiri_in_porta": [
-"Edmund Baidoo"
-],
-"falli_fatti_1": [
-"Abubakr Barry"
-],
-"falli_subiti_1": [
-"Hugo Oliveira"
-],
-"ammoniti": []
-},
-"Olympiacos - AC Milan": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Adrien Rabiot",
-"Armando Gonzalez"
-],
-"tiri_in_porta": [
-"Armando Gonzalez"
-],
-"falli_fatti_1": [
-"Konstantinos Fortounis"
-],
-"falli_subiti_1": [
-"Gelson Martins"
-],
-"ammoniti": []
-},
-"Inter Escaldes - FC Copenhagen": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "0-2",
-"direzione": "2",
-"marcatori": [
-"Viktor Dadason",
-"Mohamed Elyounoussi"
-],
-"tiri_in_porta": [],
-"falli_fatti_1": [
-"Thomas Delaney"
-],
-"falli_subiti_1": [
-"David López"
-],
-"ammoniti": []
-},
-"Ferencvaros - NK Celje": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Kristoffer Zachariassen",
-"Lenny Joseph"
-],
-"tiri_in_porta": [
-"Lenny Joseph"
-],
-"falli_fatti_1": [
-"Artemijus Tutyškinas"
-],
-"falli_subiti_1": [
-"Veljko Birmančević"
-],
-"ammoniti": []
-},
-"Egnatia - Lincoln Red Imps": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "1",
-"marcatori": [],
-"tiri_in_porta": [
-"Manu Toledano"
-],
-"falli_fatti_1": [],
-"falli_subiti_1": [],
-"ammoniti": [
-"Graeme Torrilla"
-]
-},
-"SK Brann - AGF": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "1X",
-"marcatori": [
-"Noah Holm",
-"Niklas Castro"
-],
-"tiri_in_porta": [
-"Noah Holm"
-],
-"falli_fatti_1": [
-"Stefen Tchamche"
-],
-"falli_subiti_1": [
-"Gift Links"
-],
-"ammoniti": []
-},
-"Kauno Zalgiris - Riga FC": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Reginaldo Ramires"
-],
-"tiri_in_porta": [
-"Reginaldo Ramires"
-],
-"falli_fatti_1": [
-"Vykintas Slivka"
-],
-"falli_subiti_1": [
-"Iago Siqueira"
-],
-"ammoniti": []
-},
-"Brighton & Hove Albion - CSU Craiova": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Charalampos Kostoulas",
-"Georginio Rutter"
-],
-"tiri_in_porta": [
-"Charalampos Kostoulas"
-],
-"falli_fatti_1": [
-"Nicusor Bancu"
-],
-"falli_subiti_1": [
-"Stefan Baiaram"
-],
-"ammoniti": []
-},
-"Borac Banja Luka - Atalanta": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "0-2",
-"direzione": "2",
-"marcatori": [
-"Kamaldeen Sulemana",
-"Gianluca Scamacca"
-],
-"tiri_in_porta": [
-"Gianluca Scamacca"
-],
-"falli_fatti_1": [
-"Stefan Savić"
-],
-"falli_subiti_1": [
-"Sebastián Herrera"
-],
-"ammoniti": []
-},
-"Braga - KuPS Kuopio": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Ricardo Horta",
-"Gabriel Silva"
-],
-"tiri_in_porta": [
-"Jovan Milosevic"
-],
-"falli_fatti_1": [
-"Valentín Gasc"
-],
-"falli_subiti_1": [
-"Gabriel Silva"
-],
-"ammoniti": []
-},
-"KAA Gent - Red Star Belgrade": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "1X",
-"marcatori": [],
-"tiri_in_porta": [
-"Josué Yamir Vergara Ortega"
-],
-"falli_fatti_1": [
-"Mouhamed Ngom"
-],
-"falli_subiti_1": [
-"Rade Krunic"
-],
-"ammoniti": []
-},
-"NEC Nijmegen - Stade Rennais": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Esteban Lepaul",
-"Tjaronn Chery"
-],
-"tiri_in_porta": [
-"Esteban Lepaul"
-],
-"falli_fatti_1": [
-"Valentin Rongier"
-],
-"falli_subiti_1": [
-"Noé Lebreton"
-],
-"ammoniti": []
-},
-"Iberia 1999 - Getafe": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "0-1",
-"direzione": "2",
-"marcatori": [
-"Martín Satriano",
-"Ivan Azón"
-],
-"tiri_in_porta": [
-"Ivan Azón"
-],
-"falli_fatti_1": [
-"Orel Mangala"
-],
-"falli_subiti_1": [
-"Nikoloz Dadiani"
-],
-"ammoniti": []
-},
-"Hajduk Split - Sint-Truidense": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "1X",
-"marcatori": [],
-"tiri_in_porta": [
-"Ilias Sebaoui"
-],
-"falli_fatti_1": [
-"Ilias Sebaoui"
-],
-"falli_subiti_1": [
-"Rihito Yamamoto"
-],
-"ammoniti": []
-},
-"Viktoria Plzen - Benfica": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-2",
-"direzione": "2",
-"marcatori": [
-"Jhon Durán",
-"Andreas Schjelderup"
-],
-"tiri_in_porta": [
-"Dodi Lukébakio"
-],
-"falli_fatti_1": [
-"Merchas Doski"
-],
-"falli_subiti_1": [
-"Jhon Durán"
-],
-"ammoniti": []
-},
-"Sparta Prague - AZ Alkmaar": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Ro-Zangelo Daal",
-"Jonatan Braut Brunes"
-],
-"tiri_in_porta": [
-"Ro-Zangelo Daal"
-],
-"falli_fatti_1": [
-"Peer Koopmeiners"
-],
-"falli_subiti_1": [
-"Dave Kwakman"
-],
-"ammoniti": [
-"Sivert Heggheim Mannsverk"
-]
-},
-"TSG Hoffenheim - SK Sturm Graz": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Fisnik Asllani",
-"Andrej Kramaric"
-],
-"tiri_in_porta": [
-"Andrej Kramaric"
-],
-"falli_fatti_1": [
-"Oumar Diakité"
-],
-"falli_subiti_1": [
-"Luca Weinhandl"
-],
-"ammoniti": [
-"Paul Koller",
-"Ozan Kabak",
-"Wouter Burger",
-"Alexander Prass"
-]
-},
-"Torreense - Celtic": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-2",
-"direzione": "2",
-"marcatori": [
-"Camilo Duran",
-"Callum McGregor"
-],
-"tiri_in_porta": [
-"Camilo Duran"
-],
-"falli_fatti_1": [
-"Musa Drammeh"
-],
-"falli_subiti_1": [
-"João Marques"
-],
-"ammoniti": [
-"Jonathan Mutombo"
-]
-},
-"Sunderland - Jagiellonia Bialystok": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Jules Ahoka",
-"Malick Fofana"
-],
-"tiri_in_porta": [
-"Malick Fofana"
-],
-"falli_fatti_1": [
-"Jeremy Agbonifo"
-],
-"falli_subiti_1": [
-"Enzo Le Fee"
-],
-"ammoniti": []
-},
-"Lyon - Lillestrom": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Corentin Tolisso",
-"Ernest Nuamah"
-],
-"tiri_in_porta": [
-"Corentin Tolisso"
-],
-"falli_fatti_1": [
-"Filip Ottosson"
-],
-"falli_subiti_1": [
-"Stian Kristiansen"
-],
-"ammoniti": []
-},
-"Pafos - FC Midtjylland": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Cho Gue-Sung"
-],
-"tiri_in_porta": [],
-"falli_fatti_1": [],
-"falli_subiti_1": [
-"Sofus Johannesen"
-],
-"ammoniti": []
-},
-"Crystal Palace - Real Sociedad": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "1X",
-"marcatori": [
-"Mikel Oyarzabal",
-"Jørgen Strand Larsen"
-],
-"tiri_in_porta": [
-"Jørgen Strand Larsen"
-],
-"falli_fatti_1": [
-"Igor Zubeldía"
-],
-"falli_subiti_1": [
-"Mikel Oyarzabal"
-],
-"ammoniti": []
-},
-"Union St.-Gilloise - Lech Poznan": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Raul Florucz",
-"Relebohile Mofokeng"
-],
-"tiri_in_porta": [
-"Raul Florucz"
-],
-"falli_fatti_1": [
-"Terry Yegbe"
-],
-"falli_subiti_1": [
-"Antoni Kozubal"
-],
-"ammoniti": []
-},
-"OFI Crete - Anderlecht": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Mihajlo Cvetković",
-"Danylo Sikan"
-],
-"tiri_in_porta": [
-"Mihajlo Cvetković"
-],
-"falli_fatti_1": [
-"Enric Llansana"
-],
-"falli_subiti_1": [
-"Mihajlo Cvetković"
-],
-"ammoniti": [
-"Mario Stroeykens"
-]
-},
-"Juventus - Omonia Nicosia": {
-"lg": "uefa.europa",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Randal Kolo Muani",
-"Nick Woltemade"
-],
-"tiri_in_porta": [
-"Jeremie Boga"
-],
-"falli_fatti_1": [
-"Florin Tanase"
-],
-"falli_subiti_1": [
-"Nick Woltemade"
-],
-"ammoniti": []
-},
-"Ajax Amsterdam - FC Thun": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "3-0",
-"direzione": "1",
-"marcatori": [
-"Tolu Arokodare",
-"Oscar Gloukh"
-],
-"tiri_in_porta": [
-"Tolu Arokodare"
-],
-"falli_fatti_1": [
-"Brighton Labeau"
-],
-"falli_subiti_1": [
-"Nils Reichmuth"
-],
-"ammoniti": [
-"Mohamed Abdalla"
-]
-},
-"Heart of Midlothian - AS Monaco": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-2",
-"direzione": "X2",
-"marcatori": [
-"Cláudio Braga",
-"Matthis Abline"
-],
-"tiri_in_porta": [
-"Matthis Abline"
-],
-"falli_fatti_1": [
-"Cláudio Braga"
-],
-"falli_subiti_1": [
-"Joshua McPake"
-],
-"ammoniti": []
-},
-"CSKA Sofia - Trabzonspor": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "2",
-"marcatori": [
-"Paul Onuachu",
-"Mohamed Salah"
-],
-"tiri_in_porta": [
-"Paul Onuachu"
-],
-"falli_fatti_1": [
-"Paul Onuachu"
-],
-"falli_subiti_1": [
-"Ioannis Pittas"
-],
-"ammoniti": []
-},
-"FC Nordsjælland - Panathinaikos": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "1X",
-"marcatori": [
-"Vicente Taborda",
-"Levi Garcia"
-],
-"tiri_in_porta": [
-"Levi Garcia"
-],
-"falli_fatti_1": [
-"Rick van Drongelen"
-],
-"falli_subiti_1": [
-"Malte Heyde"
-],
-"ammoniti": []
-},
-"SC Freiburg - FC Twente": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "1X",
-"marcatori": [
-"Igor Matanovic",
-"Wout Weghorst"
-],
-"tiri_in_porta": [
-"Igor Matanovic"
-],
-"falli_fatti_1": [
-"Cyriaque Irié"
-],
-"falli_subiti_1": [
-"Igor Matanovic"
-],
-"ammoniti": []
-},
-"Jablonec - FC Lugano": {
-"lg": "uefa.europa.conf",
-"consegna": "26/11 15:20 (formazioni probabili)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Yanis Cimignani"
-],
-"tiri_in_porta": [
-"Yanis Cimignani"
-],
-"falli_fatti_1": [
-"Sebastian Nebyla"
-],
-"falli_subiti_1": [
-"Uran Bislimi"
-],
-"ammoniti": []
-}
-},
-"consegna_10_15": {
-"Besiktas - Hapoel Be'er": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Dusan Vlahović",
-"Ilhan Fakili"
-],
-"tiri_in_porta": [
-"Dusan Vlahović"
-],
-"falli_fatti_1": [
-"Djibril Diop"
-],
-"falli_subiti_1": [
-"Forson Amankwah"
-],
-"ammoniti": [
-"Djibril Diop",
-"Emirhan Topçu"
-]
-},
-"Celta Vigo - AFC Bournemouth": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Marcus Tavernier",
-"Rayan"
-],
-"tiri_in_porta": [
-"Rayan"
-],
-"falli_fatti_1": [
-"Yoel Lago"
-],
-"falli_subiti_1": [
-"Aleix Febas"
-],
-"ammoniti": []
-},
-"Union St.-Gilloise - Lech Poznan": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Raul Florucz",
-"Relebohile Mofokeng"
-],
-"tiri_in_porta": [
-"Raul Florucz"
-],
-"falli_fatti_1": [
-"Terry Yegbe"
-],
-"falli_subiti_1": [
-"Antoni Kozubal"
-],
-"ammoniti": []
-},
-"Dinamo Zagreb - Bayer Leverkusen": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-2",
-"direzione": "2",
-"marcatori": [
-"Patrik Schick",
-"Afonso Moreira"
-],
-"tiri_in_porta": [
-"Patrik Schick"
-],
-"falli_fatti_1": [
-"Lukas Kacavenda"
-],
-"falli_subiti_1": [
-"Lukas Kacavenda"
-],
-"ammoniti": []
-},
-"RB Salzburg - Ararat-Armenia": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Edmund Baidoo",
-"Yorbe Vertessen"
-],
-"tiri_in_porta": [
-"Edmund Baidoo"
-],
-"falli_fatti_1": [
-"Abubakr Barry"
-],
-"falli_subiti_1": [
-"Hugo Oliveira"
-],
-"ammoniti": []
-},
-"Viktoria Plzen - Benfica": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-2",
-"direzione": "2",
-"marcatori": [
-"Jhon Durán",
-"Andreas Schjelderup"
-],
-"tiri_in_porta": [
-"Jhon Durán"
-],
-"falli_fatti_1": [
-"Merchas Doski"
-],
-"falli_subiti_1": [
-"Claudio Echeverri"
-],
-"ammoniti": []
-},
-"Marseille - Levski Sofia": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Amine Gouiri",
-"Igor Paixão"
-],
-"tiri_in_porta": [
-"Serginho"
-],
-"falli_fatti_1": [
-"Aldair"
-],
-"falli_subiti_1": [
-"Serginho"
-],
-"ammoniti": []
-},
-"Olympiacos - AC Milan": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Adrien Rabiot",
-"Armando Gonzalez"
-],
-"tiri_in_porta": [
-"Armando Gonzalez"
-],
-"falli_fatti_1": [
-"Konstantinos Fortounis"
-],
-"falli_subiti_1": [
-"Gelson Martins"
-],
-"ammoniti": []
-},
-"NEC Nijmegen - Stade Rennais": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Esteban Lepaul",
-"Tjaronn Chery"
-],
-"tiri_in_porta": [
-"Esteban Lepaul"
-],
-"falli_fatti_1": [
-"Valentin Rongier"
-],
-"falli_subiti_1": [
-"Noé Lebreton"
-],
-"ammoniti": []
-},
-"Ferencvaros - NK Celje": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Kristoffer Zachariassen",
-"Lenny Joseph"
-],
-"tiri_in_porta": [
-"Lenny Joseph"
-],
-"falli_fatti_1": [
-"Artemijus Tutyškinas"
-],
-"falli_subiti_1": [
-"Veljko Birmančević"
-],
-"ammoniti": []
-},
-"Lyon - Lillestrom": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Corentin Tolisso",
-"Ernest Nuamah"
-],
-"tiri_in_porta": [
-"Corentin Tolisso"
-],
-"falli_fatti_1": [
-"Filip Ottosson"
-],
-"falli_subiti_1": [
-"Corentin Tolisso"
-],
-"ammoniti": []
-},
-"Sparta Prague - AZ Alkmaar": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Mexx Meerdink",
-"Ro-Zangelo Daal"
-],
-"tiri_in_porta": [
-"Mexx Meerdink"
-],
-"falli_fatti_1": [
-"Peer Koopmeiners"
-],
-"falli_subiti_1": [
-"Josimar Alcócer"
-],
-"ammoniti": [
-"Sivert Heggheim Mannsverk"
-]
-},
-"Crystal Palace - Real Sociedad": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-1",
-"direzione": "1X",
-"marcatori": [
-"Mikel Oyarzabal",
-"Jørgen Strand Larsen"
-],
-"tiri_in_porta": [
-"Jørgen Strand Larsen"
-],
-"falli_fatti_1": [
-"Igor Zubeldía"
-],
-"falli_subiti_1": [
-"Goncalo Guedes"
-],
-"ammoniti": []
-},
-"Torreense - Celtic": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-2",
-"direzione": "2",
-"marcatori": [
-"Camilo Duran",
-"Callum McGregor"
-],
-"tiri_in_porta": [
-"Camilo Duran"
-],
-"falli_fatti_1": [
-"Musa Drammeh"
-],
-"falli_subiti_1": [
-"João Marques"
-],
-"ammoniti": [
-"Jonathan Mutombo"
-]
-},
-"TSG Hoffenheim - SK Sturm Graz": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Fisnik Asllani",
-"Andrej Kramaric"
-],
-"tiri_in_porta": [
-"Andrej Kramaric"
-],
-"falli_fatti_1": [
-"Oumar Diakité"
-],
-"falli_subiti_1": [
-"Fisnik Asllani"
-],
-"ammoniti": [
-"Paul Koller",
-"Ozan Kabak",
-"Wouter Burger",
-"Alexander Prass"
-]
-},
-"Sunderland - Jagiellonia Bialystok": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Jules Ahoka",
-"Malick Fofana"
-],
-"tiri_in_porta": [
-"Malick Fofana"
-],
-"falli_fatti_1": [
-"Jeremy Agbonifo"
-],
-"falli_subiti_1": [
-"Jules Ahoka"
-],
-"ammoniti": []
-},
-"OFI Crete - Anderlecht": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "1-1",
-"direzione": "X2",
-"marcatori": [
-"Mihajlo Cvetković",
-"Danylo Sikan"
-],
-"tiri_in_porta": [
-"Mihajlo Cvetković"
-],
-"falli_fatti_1": [
-"Enric Llansana"
-],
-"falli_subiti_1": [
-"Mihajlo Cvetković"
-],
-"ammoniti": [
-"Mario Stroeykens"
-]
-},
-"Juventus - Omonia Nicosia": {
-"lg": "uefa.europa",
-"consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
-"esatto": "2-0",
-"direzione": "1",
-"marcatori": [
-"Randal Kolo Muani",
-"Nick Woltemade"
-],
-"tiri_in_porta": [
-"Jeremie Boga"
-],
-"falli_fatti_1": [
-"Florin Tanase"
-],
-"falli_subiti_1": [
-"Nick Woltemade"
-],
-"ammoniti": []
-}
-},
-"schedine_18_10": [
-{
-"nome": "Mista (basi di squadra, giocatori e cartellini)",
-"quota_giusta": 114.7,
-"gambe": [
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Gol Benfica Over 0.5",
-"p": 88
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta Heart of Midlothian Over 1.5",
-"p": 88
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Tiri in porta FC Copenhagen Over 2.5",
-"p": 88
-},
-{
-"m": "Sparta Prague - AZ Alkmaar",
-"t": "20:00",
-"label": "Corner AZ Alkmaar Over 1.5",
-"p": 88
-},
-{
-"m": "Celta Vigo - AFC Bournemouth",
-"t": "17:45",
-"label": "Corner Celta Vigo Over 1.5",
-"p": 88
-},
-{
-"m": "NEC Nijmegen - Stade Rennais",
-"t": "20:00",
-"label": "Corner NEC Nijmegen Over 1.5",
-"p": 88
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Kauno Zalgiris - Riga FC",
-"t": "17:45",
-"label": "Corner Kauno Zalgiris Over 1.5",
-"p": 87
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Corner FC Lugano Over 1.5",
-"p": 87
-},
-{
-"m": "Kairat Almaty - Mjällby AIF",
-"t": "15:30",
-"label": "Corner Kairat Almaty Over 1.5",
-"p": 87
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "Tiri in porta Trabzonspor Over 2.5",
-"p": 87
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Corner Pafos Over 1.5",
-"p": 87
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Tiri in porta Torreense Over 1.5",
-"p": 87
-},
-{
-"m": "Juventus - Omonia Nicosia",
-"t": "20:00",
-"label": "Tiri in porta Juventus Over 3.5",
-"p": 87
-},
-{
-"m": "KAA Gent - Red Star Belgrade",
-"t": "20:00",
-"label": "Corner Red Star Belgrade Over 1.5",
-"p": 87
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Ramón Terrats almeno 1 fallo subito",
-"p": 87
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Corner Viktoria Plzen Over 1.5",
-"p": 87
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Gol Marseille Over 0.5",
-"p": 87
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Tiri in porta Celtic Over 2.5",
-"p": 87
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "KAA Gent - Red Star Belgrade",
-"t": "20:00",
-"label": "Rade Krunic almeno 1 fallo subito",
-"p": 87
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Viktor Dadason almeno 1 tiro in porta",
-"p": 86
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Corner OFI Crete Over 1.5",
-"p": 86
-},
-{
-"m": "Kairat Almaty - Mjällby AIF",
-"t": "15:30",
-"label": "Corner Mjällby AIF Over 1.5",
-"p": 86
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "Oumar Diakité almeno 1 fallo commesso",
-"p": 86
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Enric Llansana almeno 1 fallo commesso",
-"p": 86
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta AS Monaco Over 2.5",
-"p": 86
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "Corner CSKA Sofia Over 1.5",
-"p": 86
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Corner AC Milan Over 1.5",
-"p": 86
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Gol Bayer Leverkusen Over 0.5",
-"p": 86
-},
-{
-"m": "SC Freiburg - FC Twente",
-"t": "20:00",
-"label": "Tiri in porta SC Freiburg Over 2.5",
-"p": 86
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Sofus Johannesen almeno 1 fallo subito",
-"p": 86
-}
-]
-},
-{
-"nome": "Mista grande da quota 190+",
-"quota_giusta": 209.1,
-"gambe": [
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Gol Benfica Over 0.5",
-"p": 88
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta Heart of Midlothian Over 1.5",
-"p": 88
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Tiri in porta FC Copenhagen Over 2.5",
-"p": 88
-},
-{
-"m": "Sparta Prague - AZ Alkmaar",
-"t": "20:00",
-"label": "Corner AZ Alkmaar Over 1.5",
-"p": 88
-},
-{
-"m": "Celta Vigo - AFC Bournemouth",
-"t": "17:45",
-"label": "Corner Celta Vigo Over 1.5",
-"p": 88
-},
-{
-"m": "NEC Nijmegen - Stade Rennais",
-"t": "20:00",
-"label": "Corner NEC Nijmegen Over 1.5",
-"p": 88
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Kauno Zalgiris - Riga FC",
-"t": "17:45",
-"label": "Corner Kauno Zalgiris Over 1.5",
-"p": 87
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Corner FC Lugano Over 1.5",
-"p": 87
-},
-{
-"m": "Kairat Almaty - Mjällby AIF",
-"t": "15:30",
-"label": "Corner Kairat Almaty Over 1.5",
-"p": 87
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "Tiri in porta Trabzonspor Over 2.5",
-"p": 87
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Corner Pafos Over 1.5",
-"p": 87
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Tiri in porta Torreense Over 1.5",
-"p": 87
-},
-{
-"m": "Juventus - Omonia Nicosia",
-"t": "20:00",
-"label": "Tiri in porta Juventus Over 3.5",
-"p": 87
-},
-{
-"m": "KAA Gent - Red Star Belgrade",
-"t": "20:00",
-"label": "Corner Red Star Belgrade Over 1.5",
-"p": 87
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Ramón Terrats almeno 1 fallo subito",
-"p": 87
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Corner Viktoria Plzen Over 1.5",
-"p": 87
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Gol Marseille Over 0.5",
-"p": 87
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Tiri in porta Celtic Over 2.5",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Tiri in porta Benfica Over 2.5",
-"p": 87
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "KAA Gent - Red Star Belgrade",
-"t": "20:00",
-"label": "Rade Krunic almeno 1 fallo subito",
-"p": 87
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Viktor Dadason almeno 1 tiro in porta",
-"p": 86
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Gol Celtic Over 0.5",
-"p": 86
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Corner OFI Crete Over 1.5",
-"p": 86
-},
-{
-"m": "Kairat Almaty - Mjällby AIF",
-"t": "15:30",
-"label": "Corner Mjällby AIF Over 1.5",
-"p": 86
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "Oumar Diakité almeno 1 fallo commesso",
-"p": 86
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "X2",
-"p": 86
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Enric Llansana almeno 1 fallo commesso",
-"p": 86
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta AS Monaco Over 2.5",
-"p": 86
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "Corner CSKA Sofia Over 1.5",
-"p": 86
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Corner AC Milan Over 1.5",
-"p": 86
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Gol Bayer Leverkusen Over 0.5",
-"p": 86
-},
-{
-"m": "SC Freiburg - FC Twente",
-"t": "20:00",
-"label": "Tiri in porta SC Freiburg Over 2.5",
-"p": 86
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Sofus Johannesen almeno 1 fallo subito",
-"p": 86
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "Gol totali Over 1.5",
-"p": 86
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Tiri in porta Getafe Over 2.5",
-"p": 86
-}
-]
-},
-{
-"nome": "Corner",
-"quota_giusta": 117.5,
-"gambe": [
-{
-"m": "Sparta Prague - AZ Alkmaar",
-"t": "20:00",
-"label": "Corner AZ Alkmaar Over 1.5",
-"p": 88
-},
-{
-"m": "Celta Vigo - AFC Bournemouth",
-"t": "17:45",
-"label": "Corner Celta Vigo Over 1.5",
-"p": 88
-},
-{
-"m": "NEC Nijmegen - Stade Rennais",
-"t": "20:00",
-"label": "Corner NEC Nijmegen Over 1.5",
-"p": 88
-},
-{
-"m": "Kauno Zalgiris - Riga FC",
-"t": "17:45",
-"label": "Corner Kauno Zalgiris Over 1.5",
-"p": 87
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Corner FC Lugano Over 1.5",
-"p": 87
-},
-{
-"m": "Kairat Almaty - Mjällby AIF",
-"t": "15:30",
-"label": "Corner Kairat Almaty Over 1.5",
-"p": 87
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Corner Pafos Over 1.5",
-"p": 87
-},
-{
-"m": "KAA Gent - Red Star Belgrade",
-"t": "20:00",
-"label": "Corner Red Star Belgrade Over 1.5",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Corner Viktoria Plzen Over 1.5",
-"p": 87
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Corner OFI Crete Over 1.5",
-"p": 86
-},
-{
-"m": "Kairat Almaty - Mjällby AIF",
-"t": "15:30",
-"label": "Corner Mjällby AIF Over 1.5",
-"p": 86
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "Corner CSKA Sofia Over 1.5",
-"p": 86
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Corner AC Milan Over 1.5",
-"p": 86
-},
-{
-"m": "Crystal Palace - Real Sociedad",
-"t": "20:00",
-"label": "Corner Real Sociedad Over 1.5",
-"p": 86
-},
-{
-"m": "Borac Banja Luka - Atalanta",
-"t": "20:00",
-"label": "Corner Borac Banja Luka Over 1.5",
-"p": 86
-},
-{
-"m": "Hajduk Split - Sint-Truidense",
-"t": "20:00",
-"label": "Corner Sint-Truidense Over 1.5",
-"p": 86
-},
-{
-"m": "Brighton & Hove Albion - CSU Craiova",
-"t": "17:45",
-"label": "Corner Brighton & Hove Albion Over 2.5",
-"p": 85
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Corner Iberia 1999 Over 1.5",
-"p": 85
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Corner Dinamo Zagreb Over 1.5",
-"p": 85
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Corner Torreense Over 1.5",
-"p": 85
-},
-{
-"m": "SK Brann - AGF",
-"t": "17:45",
-"label": "Corner AGF Over 1.5",
-"p": 85
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "Corner TSG Hoffenheim Over 2.5",
-"p": 85
-},
-{
-"m": "FC Nordsjælland - Panathinaikos",
-"t": "20:00",
-"label": "Corner Panathinaikos Over 1.5",
-"p": 85
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Corner Inter Escaldes Over 1.5",
-"p": 85
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Corner RB Salzburg Over 2.5",
-"p": 85
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Corner Heart of Midlothian Over 1.5",
-"p": 84
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Corner Ajax Amsterdam Over 2.5",
-"p": 84
-},
-{
-"m": "SC Freiburg - FC Twente",
-"t": "20:00",
-"label": "Corner FC Twente Over 1.5",
-"p": 84
-},
-{
-"m": "Braga - KuPS Kuopio",
-"t": "20:00",
-"label": "Corner Braga Over 2.5",
-"p": 84
-},
-{
-"m": "Sunderland - Jagiellonia Bialystok",
-"t": "20:00",
-"label": "Corner Sunderland Over 2.5",
-"p": 84
-},
-{
-"m": "Lyon - Lillestrom",
-"t": "20:00",
-"label": "Corner Lyon Over 2.5",
-"p": 84
-}
-]
-},
-{
-"nome": "Tiri in porta",
-"quota_giusta": 112.2,
-"gambe": [
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta Heart of Midlothian Over 1.5",
-"p": 88
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Tiri in porta FC Copenhagen Over 2.5",
-"p": 88
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "Tiri in porta Trabzonspor Over 2.5",
-"p": 87
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Tiri in porta Torreense Over 1.5",
-"p": 87
-},
-{
-"m": "Juventus - Omonia Nicosia",
-"t": "20:00",
-"label": "Tiri in porta Juventus Over 3.5",
-"p": 87
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Tiri in porta Celtic Over 2.5",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Tiri in porta Benfica Over 2.5",
-"p": 87
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Viktor Dadason almeno 1 tiro in porta",
-"p": 86
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta AS Monaco Over 2.5",
-"p": 86
-},
-{
-"m": "SC Freiburg - FC Twente",
-"t": "20:00",
-"label": "Tiri in porta SC Freiburg Over 2.5",
-"p": 86
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Tiri in porta Getafe Over 2.5",
-"p": 86
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Tiri in porta Ajax Amsterdam Over 3.5",
-"p": 86
-},
-{
-"m": "Lyon - Lillestrom",
-"t": "20:00",
-"label": "Tiri in porta Lyon Over 3.5",
-"p": 86
-},
-{
-"m": "Borac Banja Luka - Atalanta",
-"t": "20:00",
-"label": "Tiri in porta Borac Banja Luka Over 1.5",
-"p": 86
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Tiri in porta Iberia 1999 Over 1.5",
-"p": 85
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Tiri in porta Dinamo Zagreb Over 1.5",
-"p": 85
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "Tiri in porta CSKA Sofia Over 1.5",
-"p": 85
-},
-{
-"m": "Braga - KuPS Kuopio",
-"t": "20:00",
-"label": "Tiri in porta Braga Over 3.5",
-"p": 85
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Tiri in porta RB Salzburg Over 3.5",
-"p": 85
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "Tiri in porta Lincoln Red Imps Over 1.5",
-"p": 85
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Tiri in porta Anderlecht Over 2.5",
-"p": 84
-},
-{
-"m": "KAA Gent - Red Star Belgrade",
-"t": "20:00",
-"label": "Tiri in porta totali Over 4.5",
-"p": 84
-},
-{
-"m": "SC Freiburg - FC Twente",
-"t": "20:00",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "Sunderland - Jagiellonia Bialystok",
-"t": "20:00",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "Brighton & Hove Albion - CSU Craiova",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "Tiri in porta totali Over 5.5",
-"p": 83
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 83
-},
-{
-"m": "Hajduk Split - Sint-Truidense",
-"t": "20:00",
-"label": "Tiri in porta Hajduk Split Over 2.5",
-"p": 83
-},
-{
-"m": "Besiktas - Hapoel Be'er",
-"t": "17:45",
-"label": "Tiri in porta Hapoel Be'er Over 1.5",
-"p": 83
-}
-]
-},
-{
-"nome": "Falli e cartellini",
-"quota_giusta": 106.3,
-"gambe": [
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Ramón Terrats almeno 1 fallo subito",
-"p": 87
-},
-{
-"m": "KAA Gent - Red Star Belgrade",
-"t": "20:00",
-"label": "Rade Krunic almeno 1 fallo subito",
-"p": 87
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "Oumar Diakité almeno 1 fallo commesso",
-"p": 86
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Enric Llansana almeno 1 fallo commesso",
-"p": 86
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Sofus Johannesen almeno 1 fallo subito",
-"p": 86
-},
-{
-"m": "KAA Gent - Red Star Belgrade",
-"t": "20:00",
-"label": "Josué Yamir Vergara Ortega almeno 1 fallo subito",
-"p": 85
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Aldair almeno 1 fallo subito",
-"p": 85
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Elias Pihlström almeno 1 fallo subito",
-"p": 84
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "Luca Weinhandl almeno 1 fallo subito",
-"p": 84
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Thiago Nuss almeno 1 fallo commesso",
-"p": 84
-},
-{
-"m": "SC Freiburg - FC Twente",
-"t": "20:00",
-"label": "Falli totali Over 14.5",
-"p": 84
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Falli totali Over 14.5",
-"p": 84
-},
-{
-"m": "Celta Vigo - AFC Bournemouth",
-"t": "17:45",
-"label": "Falli totali Over 14.5",
-"p": 83
-},
-{
-"m": "FC Nordsjælland - Panathinaikos",
-"t": "20:00",
-"label": "Falli totali Over 14.5",
-"p": 83
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Nikoloz Dadiani almeno 1 fallo subito",
-"p": 83
-},
-{
-"m": "Kauno Zalgiris - Riga FC",
-"t": "17:45",
-"label": "Motiejus Burba almeno 1 fallo subito",
-"p": 83
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Ivan Šunjić almeno 1 fallo commesso",
-"p": 83
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Artur Serobyan almeno 1 fallo subito",
-"p": 83
-},
-{
-"m": "Ferencvaros - NK Celje",
-"t": "20:00",
-"label": "Veljko Birmančević almeno 1 fallo subito",
-"p": 82
-},
-{
-"m": "Ferencvaros - NK Celje",
-"t": "20:00",
-"label": "Falli totali Over 16.5",
-"p": 82
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Falli totali Over 16.5",
-"p": 82
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Falli totali Over 16.5",
-"p": 82
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Falli totali Over 14.5",
-"p": 82
-},
-{
-"m": "Juventus - Omonia Nicosia",
-"t": "20:00",
-"label": "Jaden Montnor almeno 1 fallo commesso",
-"p": 82
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Behruzjon Karimov almeno 1 fallo commesso",
-"p": 81
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Falli totali Over 16.5",
-"p": 81
-}
-]
-},
-{
-"nome": "Marcatori nella direzione giusta + basi",
-"quota_giusta": 109.7,
-"gambe": [
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Gol Benfica Over 0.5",
-"p": 88
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "1X",
-"p": 87
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Gol Marseille Over 0.5",
-"p": 87
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Gol Celtic Over 0.5",
-"p": 86
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "X2",
-"p": 86
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "Gol FC Copenhagen Over 0.5",
-"p": 86
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Gol Bayer Leverkusen Over 0.5",
-"p": 86
-},
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "Gol totali Over 1.5",
-"p": 86
-},
-{
-"m": "Ferencvaros - NK Celje",
-"t": "20:00",
-"label": "1X",
-"p": 86
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "1X",
-"p": 86
-},
-{
-"m": "Kairat Almaty - Mjällby AIF",
-"t": "15:30",
-"label": "Gol Kairat Almaty Over 0.5",
-"p": 86
-},
-{
-"m": "Borac Banja Luka - Atalanta",
-"t": "20:00",
-"label": "X2",
-"p": 85
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "X2",
-"p": 85
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "Gol Trabzonspor Over 0.5",
-"p": 85
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "Gol Egnatia Over 0.5",
-"p": 85
-},
-{
-"m": "Besiktas - Hapoel Be'er",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 84
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "X2",
-"p": 84
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "Gol totali Over 1.5",
-"p": 84
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Gol AS Monaco Over 0.5",
-"p": 83
-},
-{
-"m": "SC Freiburg - FC Twente",
-"t": "20:00",
-"label": "Gol SC Freiburg Over 0.5",
-"p": 83
-},
-{
-"m": "NEC Nijmegen - Stade Rennais",
-"t": "20:00",
-"label": "Gol totali Over 1.5",
-"p": 83
-},
-{
-"m": "Juventus - Omonia Nicosia",
-"t": "20:00",
-"label": "Gol totali Over 1.5",
-"p": 83
-},
-{
-"m": "Lyon - Lillestrom",
-"t": "20:00",
-"label": "Gol totali Over 1.5",
-"p": 82
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "Gol Anderlecht Over 0.5",
-"p": 82
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 82
-},
-{
-"m": "Ferencvaros - NK Celje",
-"t": "20:00",
-"label": "Gol totali Over 1.5",
-"p": 82
-},
-{
-"m": "Crystal Palace - Real Sociedad",
-"t": "20:00",
-"label": "Gol totali Over 1.5",
-"p": 82
-},
-{
-"m": "Crystal Palace - Real Sociedad",
-"t": "20:00",
-"label": "Gol Crystal Palace Over 0.5",
-"p": 82
-},
-{
-"m": "NEC Nijmegen - Stade Rennais",
-"t": "20:00",
-"label": "Gol Stade Rennais Over 0.5",
-"p": 82
-}
-]
-},
-{
-"nome": "Marcatori forti + direzione (quota alta)",
-"quota_giusta": 50.3,
-"gambe": [
-{
-"m": "TSG Hoffenheim - SK Sturm Graz",
-"t": "20:00",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Inter Escaldes - FC Copenhagen",
-"t": "21:00",
-"label": "X2",
-"p": 86
-},
-{
-"m": "Ferencvaros - NK Celje",
-"t": "20:00",
-"label": "1X",
-"p": 86
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "1X",
-"p": 86
-},
-{
-"m": "Borac Banja Luka - Atalanta",
-"t": "20:00",
-"label": "X2",
-"p": 85
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "X2",
-"p": 85
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "X2",
-"p": 84
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "1X",
-"p": 80
-},
-{
-"m": "Brighton & Hove Albion - CSU Craiova",
-"t": "17:45",
-"label": "1",
-"p": 80
-},
-{
-"m": "Braga - KuPS Kuopio",
-"t": "20:00",
-"label": "1",
-"p": 80
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "X2",
-"p": 79
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "X2",
-"p": 78
-},
-{
-"m": "CSKA Sofia - Trabzonspor",
-"t": "20:00",
-"label": "X2",
-"p": 78
-},
-{
-"m": "Lyon - Lillestrom",
-"t": "20:00",
-"label": "1",
-"p": 77
-},
-{
-"m": "OFI Crete - Anderlecht",
-"t": "20:00",
-"label": "X2",
-"p": 77
-},
-{
-"m": "Juventus - Omonia Nicosia",
-"t": "20:00",
-"label": "1",
-"p": 77
-},
-{
-"m": "Torreense - Celtic",
-"t": "20:00",
-"label": "X2",
-"p": 77
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "1",
-"p": 76
-}
-]
-}
-],
-"xi_ufficiali_18_45": [
-"Besiktas - Hapoel Be'er",
-"Celta Vigo - AFC Bournemouth",
-"Dinamo Zagreb - Bayer Leverkusen",
-"Marseille - Levski Sofia",
-"Olympiacos - AC Milan",
-"RB Salzburg - Ararat-Armenia",
-"Union St.-Gilloise - Lech Poznan",
-"Viktoria Plzen - Benfica",
-"Kairat Almaty - Mjällby AIF",
-"Ajax Amsterdam - FC Thun",
-"SK Brann - AGF",
-"Brighton & Hove Albion - CSU Craiova",
-"Egnatia - Lincoln Red Imps",
-"Kauno Zalgiris - Riga FC",
-"Heart of Midlothian - AS Monaco",
-"Iberia 1999 - Getafe",
-"Jablonec - FC Lugano",
-"Pafos - FC Midtjylland"
-],
-"schedine_18_45_solo": [
-{
-"nome": "Mista 18:45 · quota 100",
-"quota_giusta": 103.9,
-"gambe": [
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Gol Benfica Over 0.5",
-"p": 88
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta Heart of Midlothian Over 1.5",
-"p": 88
-},
-{
-"m": "Celta Vigo - AFC Bournemouth",
-"t": "17:45",
-"label": "Corner Celta Vigo Over 1.5",
-"p": 88
-},
-{
-"m": "Kauno Zalgiris - Riga FC",
-"t": "17:45",
-"label": "Corner Kauno Zalgiris Over 1.5",
-"p": 87
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Corner FC Lugano Over 1.5",
-"p": 87
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Corner Pafos Over 1.5",
-"p": 87
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Ramón Terrats almeno 1 fallo subito",
-"p": 87
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Corner Viktoria Plzen Over 1.5",
-"p": 87
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Gol Marseille Over 0.5",
-"p": 87
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta AS Monaco Over 2.5",
-"p": 86
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Corner AC Milan Over 1.5",
-"p": 86
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Gol Bayer Leverkusen Over 0.5",
-"p": 86
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Sofus Johannesen almeno 1 fallo subito",
-"p": 86
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Tiri in porta Getafe Over 2.5",
-"p": 86
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Tiri in porta Ajax Amsterdam Over 3.5",
-"p": 86
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "1X",
-"p": 86
-},
-{
-"m": "Brighton & Hove Albion - CSU Craiova",
-"t": "17:45",
-"label": "Corner Brighton & Hove Albion Over 2.5",
-"p": 85
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Corner Dinamo Zagreb Over 1.5",
-"p": 85
-},
-{
-"m": "SK Brann - AGF",
-"t": "17:45",
-"label": "Corner AGF Over 1.5",
-"p": 85
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Tiri in porta RB Salzburg Over 3.5",
-"p": 85
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "Tiri in porta Lincoln Red Imps Over 1.5",
-"p": 85
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "Gol Egnatia Over 0.5",
-"p": 85
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Elias Pihlström almeno 1 fallo subito",
-"p": 84
-},
-{
-"m": "Besiktas - Hapoel Be'er",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 84
-},
-{
-"m": "Besiktas - Hapoel Be'er",
-"t": "17:45",
-"label": "Ilhan Fakili almeno 1 fallo subito",
-"p": 84
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Falli totali Over 14.5",
-"p": 84
-},
-{
-"m": "Brighton & Hove Albion - CSU Craiova",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "Celta Vigo - AFC Bournemouth",
-"t": "17:45",
-"label": "Falli totali Over 14.5",
-"p": 83
-}
-]
-},
-{
-"nome": "Mista 18:45 · quota 190+",
-"quota_giusta": 210.4,
-"gambe": [
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Gol Benfica Over 0.5",
-"p": 88
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta Heart of Midlothian Over 1.5",
-"p": 88
-},
-{
-"m": "Celta Vigo - AFC Bournemouth",
-"t": "17:45",
-"label": "Corner Celta Vigo Over 1.5",
-"p": 88
-},
-{
-"m": "Kauno Zalgiris - Riga FC",
-"t": "17:45",
-"label": "Corner Kauno Zalgiris Over 1.5",
-"p": 87
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Corner FC Lugano Over 1.5",
-"p": 87
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Corner Pafos Over 1.5",
-"p": 87
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Ramón Terrats almeno 1 fallo subito",
-"p": 87
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Corner Viktoria Plzen Over 1.5",
-"p": 87
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Gol Marseille Over 0.5",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Tiri in porta Benfica Over 2.5",
-"p": 87
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta AS Monaco Over 2.5",
-"p": 86
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Corner AC Milan Over 1.5",
-"p": 86
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Gol Bayer Leverkusen Over 0.5",
-"p": 86
-},
-{
-"m": "Pafos - FC Midtjylland",
-"t": "17:45",
-"label": "Sofus Johannesen almeno 1 fallo subito",
-"p": 86
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Tiri in porta Getafe Over 2.5",
-"p": 86
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Tiri in porta Ajax Amsterdam Over 3.5",
-"p": 86
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "1X",
-"p": 86
-},
-{
-"m": "Brighton & Hove Albion - CSU Craiova",
-"t": "17:45",
-"label": "Corner Brighton & Hove Albion Over 2.5",
-"p": 85
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Corner Iberia 1999 Over 1.5",
-"p": 85
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Corner Dinamo Zagreb Over 1.5",
-"p": 85
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Tiri in porta Dinamo Zagreb Over 1.5",
-"p": 85
-},
-{
-"m": "SK Brann - AGF",
-"t": "17:45",
-"label": "Corner AGF Over 1.5",
-"p": 85
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Tiri in porta RB Salzburg Over 3.5",
-"p": 85
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "Tiri in porta Lincoln Red Imps Over 1.5",
-"p": 85
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Aldair almeno 1 fallo subito",
-"p": 85
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "Gol Egnatia Over 0.5",
-"p": 85
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Corner RB Salzburg Over 2.5",
-"p": 85
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Corner Heart of Midlothian Over 1.5",
-"p": 84
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Corner Ajax Amsterdam Over 2.5",
-"p": 84
-},
-{
-"m": "Jablonec - FC Lugano",
-"t": "17:45",
-"label": "Elias Pihlström almeno 1 fallo subito",
-"p": 84
-},
-{
-"m": "Besiktas - Hapoel Be'er",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 84
-},
-{
-"m": "Besiktas - Hapoel Be'er",
-"t": "17:45",
-"label": "Ilhan Fakili almeno 1 fallo subito",
-"p": 84
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Falli totali Over 14.5",
-"p": 84
-}
-]
-},
-{
-"nome": "Marcatori + basi 18:45",
-"quota_giusta": 45.0,
-"gambe": [
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Gol Benfica Over 0.5",
-"p": 88
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta Heart of Midlothian Over 1.5",
-"p": 88
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "1X",
-"p": 87
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "Gol Marseille Over 0.5",
-"p": 87
-},
-{
-"m": "Viktoria Plzen - Benfica",
-"t": "17:45",
-"label": "Tiri in porta Benfica Over 2.5",
-"p": 87
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 87
-},
-{
-"m": "Heart of Midlothian - AS Monaco",
-"t": "17:45",
-"label": "Tiri in porta AS Monaco Over 2.5",
-"p": 86
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Gol Bayer Leverkusen Over 0.5",
-"p": 86
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Tiri in porta Getafe Over 2.5",
-"p": 86
-},
-{
-"m": "Ajax Amsterdam - FC Thun",
-"t": "17:45",
-"label": "Tiri in porta Ajax Amsterdam Over 3.5",
-"p": 86
-},
-{
-"m": "Marseille - Levski Sofia",
-"t": "17:45",
-"label": "1X",
-"p": 86
-},
-{
-"m": "Iberia 1999 - Getafe",
-"t": "17:45",
-"label": "Tiri in porta Iberia 1999 Over 1.5",
-"p": 85
-},
-{
-"m": "Dinamo Zagreb - Bayer Leverkusen",
-"t": "17:45",
-"label": "Tiri in porta Dinamo Zagreb Over 1.5",
-"p": 85
-},
-{
-"m": "RB Salzburg - Ararat-Armenia",
-"t": "17:45",
-"label": "Tiri in porta RB Salzburg Over 3.5",
-"p": 85
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "Tiri in porta Lincoln Red Imps Over 1.5",
-"p": 85
-},
-{
-"m": "Egnatia - Lincoln Red Imps",
-"t": "17:45",
-"label": "Gol Egnatia Over 0.5",
-"p": 85
-},
-{
-"m": "Besiktas - Hapoel Be'er",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 84
-},
-{
-"m": "Union St.-Gilloise - Lech Poznan",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "Brighton & Hove Albion - CSU Craiova",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 84
-},
-{
-"m": "Besiktas - Hapoel Be'er",
-"t": "17:45",
-"label": "Tiri in porta Hapoel Be'er Over 1.5",
-"p": 83
-},
-{
-"m": "Brighton & Hove Albion - CSU Craiova",
-"t": "17:45",
-"label": "Tiri in porta Brighton & Hove Albion Over 3.5",
-"p": 82
-},
-{
-"m": "Olympiacos - AC Milan",
-"t": "17:45",
-"label": "Tiri in porta totali Over 5.5",
-"p": 82
-},
-{
-"m": "SK Brann - AGF",
-"t": "17:45",
-"label": "Gol totali Over 1.5",
-"p": 82
-},
-{
-"m": "SK Brann - AGF",
-"t": "17:45",
-"label": "Tiri in porta SK Brann Over 2.5",
-"p": 81
-},
-{
-"m": "Kauno Zalgiris - Riga FC",
-"t": "17:45",
-"label": "Tiri in porta Riga FC Over 2.5",
-"p": 81
-}
-]
-}
-],
-"marcatori_18_45": [
-[
-"Patrik Schick",
-"Dinamo Zagreb - Bayer Leverkusen",
-61
-],
-[
-"Vangelis Pavlidis",
-"Viktoria Plzen - Benfica",
-60
-],
-[
-"Amine Gouiri",
-"Marseille - Levski Sofia",
-55
-]
-]
+ "giorno": "2026-11-26",
+ "nota": "Europa League e Conference League 26/11. Versione 15:20 dal modello dell'app (unica fonte), formazioni probabili; la versione delle 10:15 (solo Europa League) resta in consegna_10_15.",
+ "partite": {
+  "Besiktas - Hapoel Be'er": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Dusan Vlahović",
+    "Ilhan Fakili"
+   ],
+   "tiri_in_porta": [
+    "Dusan Vlahović"
+   ],
+   "falli_fatti_1": [
+    "Djibril Diop"
+   ],
+   "falli_subiti_1": [
+    "Ilhan Fakili"
+   ],
+   "ammoniti": [
+    "Djibril Diop",
+    "Emirhan Topçu"
+   ]
+  },
+  "Kairat Almaty - Mjällby AIF": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "1X",
+   "marcatori": [],
+   "tiri_in_porta": [
+    "Jesper Gustavsson"
+   ],
+   "falli_fatti_1": [
+    "Max Nielsen"
+   ],
+   "falli_subiti_1": [
+    "Max Nielsen"
+   ],
+   "ammoniti": [
+    "Jaakko Oksanen"
+   ]
+  },
+  "Dinamo Zagreb - Bayer Leverkusen": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-2",
+   "direzione": "2",
+   "marcatori": [
+    "Patrik Schick",
+    "Afonso Moreira"
+   ],
+   "tiri_in_porta": [
+    "Patrik Schick"
+   ],
+   "falli_fatti_1": [
+    "Lukas Kacavenda"
+   ],
+   "falli_subiti_1": [
+    "Lukas Kacavenda"
+   ],
+   "ammoniti": []
+  },
+  "Marseille - Levski Sofia": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Amine Gouiri",
+    "Igor Paixão"
+   ],
+   "tiri_in_porta": [
+    "Serginho"
+   ],
+   "falli_fatti_1": [
+    "Aldair"
+   ],
+   "falli_subiti_1": [
+    "Serginho"
+   ],
+   "ammoniti": []
+  },
+  "Celta Vigo - AFC Bournemouth": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Marcus Tavernier",
+    "Rayan"
+   ],
+   "tiri_in_porta": [
+    "Rayan"
+   ],
+   "falli_fatti_1": [
+    "Yoel Lago"
+   ],
+   "falli_subiti_1": [
+    "Amine Adli"
+   ],
+   "ammoniti": []
+  },
+  "RB Salzburg - Ararat-Armenia": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Edmund Baidoo",
+    "Yorbe Vertessen"
+   ],
+   "tiri_in_porta": [
+    "Edmund Baidoo"
+   ],
+   "falli_fatti_1": [
+    "Abubakr Barry"
+   ],
+   "falli_subiti_1": [
+    "Hugo Oliveira"
+   ],
+   "ammoniti": []
+  },
+  "Olympiacos - AC Milan": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Adrien Rabiot",
+    "Armando Gonzalez"
+   ],
+   "tiri_in_porta": [
+    "Armando Gonzalez"
+   ],
+   "falli_fatti_1": [
+    "Konstantinos Fortounis"
+   ],
+   "falli_subiti_1": [
+    "Gelson Martins"
+   ],
+   "ammoniti": []
+  },
+  "Inter Escaldes - FC Copenhagen": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "0-2",
+   "direzione": "2",
+   "marcatori": [
+    "Viktor Dadason",
+    "Mohamed Elyounoussi"
+   ],
+   "tiri_in_porta": [],
+   "falli_fatti_1": [
+    "Thomas Delaney"
+   ],
+   "falli_subiti_1": [
+    "David López"
+   ],
+   "ammoniti": []
+  },
+  "Ferencvaros - NK Celje": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Kristoffer Zachariassen",
+    "Lenny Joseph"
+   ],
+   "tiri_in_porta": [
+    "Lenny Joseph"
+   ],
+   "falli_fatti_1": [
+    "Artemijus Tutyškinas"
+   ],
+   "falli_subiti_1": [
+    "Veljko Birmančević"
+   ],
+   "ammoniti": []
+  },
+  "Egnatia - Lincoln Red Imps": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "1",
+   "marcatori": [],
+   "tiri_in_porta": [
+    "Manu Toledano"
+   ],
+   "falli_fatti_1": [],
+   "falli_subiti_1": [],
+   "ammoniti": [
+    "Graeme Torrilla"
+   ]
+  },
+  "SK Brann - AGF": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "1X",
+   "marcatori": [
+    "Noah Holm",
+    "Niklas Castro"
+   ],
+   "tiri_in_porta": [
+    "Noah Holm"
+   ],
+   "falli_fatti_1": [
+    "Stefen Tchamche"
+   ],
+   "falli_subiti_1": [
+    "Gift Links"
+   ],
+   "ammoniti": []
+  },
+  "Kauno Zalgiris - Riga FC": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Reginaldo Ramires"
+   ],
+   "tiri_in_porta": [
+    "Reginaldo Ramires"
+   ],
+   "falli_fatti_1": [
+    "Vykintas Slivka"
+   ],
+   "falli_subiti_1": [
+    "Iago Siqueira"
+   ],
+   "ammoniti": []
+  },
+  "Brighton & Hove Albion - CSU Craiova": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Charalampos Kostoulas",
+    "Georginio Rutter"
+   ],
+   "tiri_in_porta": [
+    "Charalampos Kostoulas"
+   ],
+   "falli_fatti_1": [
+    "Nicusor Bancu"
+   ],
+   "falli_subiti_1": [
+    "Stefan Baiaram"
+   ],
+   "ammoniti": []
+  },
+  "Borac Banja Luka - Atalanta": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "0-2",
+   "direzione": "2",
+   "marcatori": [
+    "Kamaldeen Sulemana",
+    "Gianluca Scamacca"
+   ],
+   "tiri_in_porta": [
+    "Gianluca Scamacca"
+   ],
+   "falli_fatti_1": [
+    "Stefan Savić"
+   ],
+   "falli_subiti_1": [
+    "Sebastián Herrera"
+   ],
+   "ammoniti": []
+  },
+  "Braga - KuPS Kuopio": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Ricardo Horta",
+    "Gabriel Silva"
+   ],
+   "tiri_in_porta": [
+    "Jovan Milosevic"
+   ],
+   "falli_fatti_1": [
+    "Valentín Gasc"
+   ],
+   "falli_subiti_1": [
+    "Gabriel Silva"
+   ],
+   "ammoniti": []
+  },
+  "KAA Gent - Red Star Belgrade": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "1X",
+   "marcatori": [],
+   "tiri_in_porta": [
+    "Josué Yamir Vergara Ortega"
+   ],
+   "falli_fatti_1": [
+    "Mouhamed Ngom"
+   ],
+   "falli_subiti_1": [
+    "Rade Krunic"
+   ],
+   "ammoniti": []
+  },
+  "NEC Nijmegen - Stade Rennais": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Esteban Lepaul",
+    "Tjaronn Chery"
+   ],
+   "tiri_in_porta": [
+    "Esteban Lepaul"
+   ],
+   "falli_fatti_1": [
+    "Valentin Rongier"
+   ],
+   "falli_subiti_1": [
+    "Noé Lebreton"
+   ],
+   "ammoniti": []
+  },
+  "Iberia 1999 - Getafe": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "0-1",
+   "direzione": "2",
+   "marcatori": [
+    "Martín Satriano",
+    "Ivan Azón"
+   ],
+   "tiri_in_porta": [
+    "Ivan Azón"
+   ],
+   "falli_fatti_1": [
+    "Orel Mangala"
+   ],
+   "falli_subiti_1": [
+    "Nikoloz Dadiani"
+   ],
+   "ammoniti": []
+  },
+  "Hajduk Split - Sint-Truidense": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "1X",
+   "marcatori": [],
+   "tiri_in_porta": [
+    "Ilias Sebaoui"
+   ],
+   "falli_fatti_1": [
+    "Ilias Sebaoui"
+   ],
+   "falli_subiti_1": [
+    "Rihito Yamamoto"
+   ],
+   "ammoniti": []
+  },
+  "Viktoria Plzen - Benfica": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-2",
+   "direzione": "2",
+   "marcatori": [
+    "Jhon Durán",
+    "Andreas Schjelderup"
+   ],
+   "tiri_in_porta": [
+    "Dodi Lukébakio"
+   ],
+   "falli_fatti_1": [
+    "Merchas Doski"
+   ],
+   "falli_subiti_1": [
+    "Jhon Durán"
+   ],
+   "ammoniti": []
+  },
+  "Sparta Prague - AZ Alkmaar": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Ro-Zangelo Daal",
+    "Jonatan Braut Brunes"
+   ],
+   "tiri_in_porta": [
+    "Ro-Zangelo Daal"
+   ],
+   "falli_fatti_1": [
+    "Peer Koopmeiners"
+   ],
+   "falli_subiti_1": [
+    "Dave Kwakman"
+   ],
+   "ammoniti": [
+    "Sivert Heggheim Mannsverk"
+   ]
+  },
+  "TSG Hoffenheim - SK Sturm Graz": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Fisnik Asllani",
+    "Andrej Kramaric"
+   ],
+   "tiri_in_porta": [
+    "Andrej Kramaric"
+   ],
+   "falli_fatti_1": [
+    "Oumar Diakité"
+   ],
+   "falli_subiti_1": [
+    "Luca Weinhandl"
+   ],
+   "ammoniti": [
+    "Paul Koller",
+    "Ozan Kabak",
+    "Wouter Burger",
+    "Alexander Prass"
+   ]
+  },
+  "Torreense - Celtic": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-2",
+   "direzione": "2",
+   "marcatori": [
+    "Camilo Duran",
+    "Callum McGregor"
+   ],
+   "tiri_in_porta": [
+    "Camilo Duran"
+   ],
+   "falli_fatti_1": [
+    "Musa Drammeh"
+   ],
+   "falli_subiti_1": [
+    "João Marques"
+   ],
+   "ammoniti": [
+    "Jonathan Mutombo"
+   ]
+  },
+  "Sunderland - Jagiellonia Bialystok": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Jules Ahoka",
+    "Malick Fofana"
+   ],
+   "tiri_in_porta": [
+    "Malick Fofana"
+   ],
+   "falli_fatti_1": [
+    "Jeremy Agbonifo"
+   ],
+   "falli_subiti_1": [
+    "Enzo Le Fee"
+   ],
+   "ammoniti": []
+  },
+  "Lyon - Lillestrom": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Corentin Tolisso",
+    "Ernest Nuamah"
+   ],
+   "tiri_in_porta": [
+    "Corentin Tolisso"
+   ],
+   "falli_fatti_1": [
+    "Filip Ottosson"
+   ],
+   "falli_subiti_1": [
+    "Stian Kristiansen"
+   ],
+   "ammoniti": []
+  },
+  "Pafos - FC Midtjylland": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Cho Gue-Sung"
+   ],
+   "tiri_in_porta": [],
+   "falli_fatti_1": [],
+   "falli_subiti_1": [
+    "Sofus Johannesen"
+   ],
+   "ammoniti": []
+  },
+  "Crystal Palace - Real Sociedad": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "1X",
+   "marcatori": [
+    "Mikel Oyarzabal",
+    "Jørgen Strand Larsen"
+   ],
+   "tiri_in_porta": [
+    "Jørgen Strand Larsen"
+   ],
+   "falli_fatti_1": [
+    "Igor Zubeldía"
+   ],
+   "falli_subiti_1": [
+    "Mikel Oyarzabal"
+   ],
+   "ammoniti": []
+  },
+  "Union St.-Gilloise - Lech Poznan": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Raul Florucz",
+    "Relebohile Mofokeng"
+   ],
+   "tiri_in_porta": [
+    "Raul Florucz"
+   ],
+   "falli_fatti_1": [
+    "Terry Yegbe"
+   ],
+   "falli_subiti_1": [
+    "Antoni Kozubal"
+   ],
+   "ammoniti": []
+  },
+  "OFI Crete - Anderlecht": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Mihajlo Cvetković",
+    "Danylo Sikan"
+   ],
+   "tiri_in_porta": [
+    "Mihajlo Cvetković"
+   ],
+   "falli_fatti_1": [
+    "Enric Llansana"
+   ],
+   "falli_subiti_1": [
+    "Mihajlo Cvetković"
+   ],
+   "ammoniti": [
+    "Mario Stroeykens"
+   ]
+  },
+  "Juventus - Omonia Nicosia": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Randal Kolo Muani",
+    "Nick Woltemade"
+   ],
+   "tiri_in_porta": [
+    "Jeremie Boga"
+   ],
+   "falli_fatti_1": [
+    "Florin Tanase"
+   ],
+   "falli_subiti_1": [
+    "Nick Woltemade"
+   ],
+   "ammoniti": []
+  },
+  "Ajax Amsterdam - FC Thun": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "3-0",
+   "direzione": "1",
+   "marcatori": [
+    "Tolu Arokodare",
+    "Oscar Gloukh"
+   ],
+   "tiri_in_porta": [
+    "Tolu Arokodare"
+   ],
+   "falli_fatti_1": [
+    "Brighton Labeau"
+   ],
+   "falli_subiti_1": [
+    "Nils Reichmuth"
+   ],
+   "ammoniti": [
+    "Mohamed Abdalla"
+   ]
+  },
+  "Heart of Midlothian - AS Monaco": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-2",
+   "direzione": "X2",
+   "marcatori": [
+    "Cláudio Braga",
+    "Matthis Abline"
+   ],
+   "tiri_in_porta": [
+    "Matthis Abline"
+   ],
+   "falli_fatti_1": [
+    "Cláudio Braga"
+   ],
+   "falli_subiti_1": [
+    "Joshua McPake"
+   ],
+   "ammoniti": []
+  },
+  "CSKA Sofia - Trabzonspor": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "2",
+   "marcatori": [
+    "Paul Onuachu",
+    "Mohamed Salah"
+   ],
+   "tiri_in_porta": [
+    "Paul Onuachu"
+   ],
+   "falli_fatti_1": [
+    "Paul Onuachu"
+   ],
+   "falli_subiti_1": [
+    "Ioannis Pittas"
+   ],
+   "ammoniti": []
+  },
+  "FC Nordsjælland - Panathinaikos": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "1X",
+   "marcatori": [
+    "Vicente Taborda",
+    "Levi Garcia"
+   ],
+   "tiri_in_porta": [
+    "Levi Garcia"
+   ],
+   "falli_fatti_1": [
+    "Rick van Drongelen"
+   ],
+   "falli_subiti_1": [
+    "Malte Heyde"
+   ],
+   "ammoniti": []
+  },
+  "SC Freiburg - FC Twente": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "1X",
+   "marcatori": [
+    "Igor Matanovic",
+    "Wout Weghorst"
+   ],
+   "tiri_in_porta": [
+    "Igor Matanovic"
+   ],
+   "falli_fatti_1": [
+    "Cyriaque Irié"
+   ],
+   "falli_subiti_1": [
+    "Igor Matanovic"
+   ],
+   "ammoniti": []
+  },
+  "Jablonec - FC Lugano": {
+   "lg": "uefa.europa.conf",
+   "consegna": "26/11 15:20 (formazioni probabili)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Yanis Cimignani"
+   ],
+   "tiri_in_porta": [
+    "Yanis Cimignani"
+   ],
+   "falli_fatti_1": [
+    "Sebastian Nebyla"
+   ],
+   "falli_subiti_1": [
+    "Uran Bislimi"
+   ],
+   "ammoniti": []
+  }
+ },
+ "consegna_10_15": {
+  "Besiktas - Hapoel Be'er": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Dusan Vlahović",
+    "Ilhan Fakili"
+   ],
+   "tiri_in_porta": [
+    "Dusan Vlahović"
+   ],
+   "falli_fatti_1": [
+    "Djibril Diop"
+   ],
+   "falli_subiti_1": [
+    "Forson Amankwah"
+   ],
+   "ammoniti": [
+    "Djibril Diop",
+    "Emirhan Topçu"
+   ]
+  },
+  "Celta Vigo - AFC Bournemouth": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Marcus Tavernier",
+    "Rayan"
+   ],
+   "tiri_in_porta": [
+    "Rayan"
+   ],
+   "falli_fatti_1": [
+    "Yoel Lago"
+   ],
+   "falli_subiti_1": [
+    "Aleix Febas"
+   ],
+   "ammoniti": []
+  },
+  "Union St.-Gilloise - Lech Poznan": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Raul Florucz",
+    "Relebohile Mofokeng"
+   ],
+   "tiri_in_porta": [
+    "Raul Florucz"
+   ],
+   "falli_fatti_1": [
+    "Terry Yegbe"
+   ],
+   "falli_subiti_1": [
+    "Antoni Kozubal"
+   ],
+   "ammoniti": []
+  },
+  "Dinamo Zagreb - Bayer Leverkusen": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-2",
+   "direzione": "2",
+   "marcatori": [
+    "Patrik Schick",
+    "Afonso Moreira"
+   ],
+   "tiri_in_porta": [
+    "Patrik Schick"
+   ],
+   "falli_fatti_1": [
+    "Lukas Kacavenda"
+   ],
+   "falli_subiti_1": [
+    "Lukas Kacavenda"
+   ],
+   "ammoniti": []
+  },
+  "RB Salzburg - Ararat-Armenia": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Edmund Baidoo",
+    "Yorbe Vertessen"
+   ],
+   "tiri_in_porta": [
+    "Edmund Baidoo"
+   ],
+   "falli_fatti_1": [
+    "Abubakr Barry"
+   ],
+   "falli_subiti_1": [
+    "Hugo Oliveira"
+   ],
+   "ammoniti": []
+  },
+  "Viktoria Plzen - Benfica": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-2",
+   "direzione": "2",
+   "marcatori": [
+    "Jhon Durán",
+    "Andreas Schjelderup"
+   ],
+   "tiri_in_porta": [
+    "Jhon Durán"
+   ],
+   "falli_fatti_1": [
+    "Merchas Doski"
+   ],
+   "falli_subiti_1": [
+    "Claudio Echeverri"
+   ],
+   "ammoniti": []
+  },
+  "Marseille - Levski Sofia": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Amine Gouiri",
+    "Igor Paixão"
+   ],
+   "tiri_in_porta": [
+    "Serginho"
+   ],
+   "falli_fatti_1": [
+    "Aldair"
+   ],
+   "falli_subiti_1": [
+    "Serginho"
+   ],
+   "ammoniti": []
+  },
+  "Olympiacos - AC Milan": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Adrien Rabiot",
+    "Armando Gonzalez"
+   ],
+   "tiri_in_porta": [
+    "Armando Gonzalez"
+   ],
+   "falli_fatti_1": [
+    "Konstantinos Fortounis"
+   ],
+   "falli_subiti_1": [
+    "Gelson Martins"
+   ],
+   "ammoniti": []
+  },
+  "NEC Nijmegen - Stade Rennais": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Esteban Lepaul",
+    "Tjaronn Chery"
+   ],
+   "tiri_in_porta": [
+    "Esteban Lepaul"
+   ],
+   "falli_fatti_1": [
+    "Valentin Rongier"
+   ],
+   "falli_subiti_1": [
+    "Noé Lebreton"
+   ],
+   "ammoniti": []
+  },
+  "Ferencvaros - NK Celje": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Kristoffer Zachariassen",
+    "Lenny Joseph"
+   ],
+   "tiri_in_porta": [
+    "Lenny Joseph"
+   ],
+   "falli_fatti_1": [
+    "Artemijus Tutyškinas"
+   ],
+   "falli_subiti_1": [
+    "Veljko Birmančević"
+   ],
+   "ammoniti": []
+  },
+  "Lyon - Lillestrom": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Corentin Tolisso",
+    "Ernest Nuamah"
+   ],
+   "tiri_in_porta": [
+    "Corentin Tolisso"
+   ],
+   "falli_fatti_1": [
+    "Filip Ottosson"
+   ],
+   "falli_subiti_1": [
+    "Corentin Tolisso"
+   ],
+   "ammoniti": []
+  },
+  "Sparta Prague - AZ Alkmaar": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Mexx Meerdink",
+    "Ro-Zangelo Daal"
+   ],
+   "tiri_in_porta": [
+    "Mexx Meerdink"
+   ],
+   "falli_fatti_1": [
+    "Peer Koopmeiners"
+   ],
+   "falli_subiti_1": [
+    "Josimar Alcócer"
+   ],
+   "ammoniti": [
+    "Sivert Heggheim Mannsverk"
+   ]
+  },
+  "Crystal Palace - Real Sociedad": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-1",
+   "direzione": "1X",
+   "marcatori": [
+    "Mikel Oyarzabal",
+    "Jørgen Strand Larsen"
+   ],
+   "tiri_in_porta": [
+    "Jørgen Strand Larsen"
+   ],
+   "falli_fatti_1": [
+    "Igor Zubeldía"
+   ],
+   "falli_subiti_1": [
+    "Goncalo Guedes"
+   ],
+   "ammoniti": []
+  },
+  "Torreense - Celtic": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-2",
+   "direzione": "2",
+   "marcatori": [
+    "Camilo Duran",
+    "Callum McGregor"
+   ],
+   "tiri_in_porta": [
+    "Camilo Duran"
+   ],
+   "falli_fatti_1": [
+    "Musa Drammeh"
+   ],
+   "falli_subiti_1": [
+    "João Marques"
+   ],
+   "ammoniti": [
+    "Jonathan Mutombo"
+   ]
+  },
+  "TSG Hoffenheim - SK Sturm Graz": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Fisnik Asllani",
+    "Andrej Kramaric"
+   ],
+   "tiri_in_porta": [
+    "Andrej Kramaric"
+   ],
+   "falli_fatti_1": [
+    "Oumar Diakité"
+   ],
+   "falli_subiti_1": [
+    "Fisnik Asllani"
+   ],
+   "ammoniti": [
+    "Paul Koller",
+    "Ozan Kabak",
+    "Wouter Burger",
+    "Alexander Prass"
+   ]
+  },
+  "Sunderland - Jagiellonia Bialystok": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Jules Ahoka",
+    "Malick Fofana"
+   ],
+   "tiri_in_porta": [
+    "Malick Fofana"
+   ],
+   "falli_fatti_1": [
+    "Jeremy Agbonifo"
+   ],
+   "falli_subiti_1": [
+    "Jules Ahoka"
+   ],
+   "ammoniti": []
+  },
+  "OFI Crete - Anderlecht": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "1-1",
+   "direzione": "X2",
+   "marcatori": [
+    "Mihajlo Cvetković",
+    "Danylo Sikan"
+   ],
+   "tiri_in_porta": [
+    "Mihajlo Cvetković"
+   ],
+   "falli_fatti_1": [
+    "Enric Llansana"
+   ],
+   "falli_subiti_1": [
+    "Mihajlo Cvetković"
+   ],
+   "ammoniti": [
+    "Mario Stroeykens"
+   ]
+  },
+  "Juventus - Omonia Nicosia": {
+   "lg": "uefa.europa",
+   "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
+   "esatto": "2-0",
+   "direzione": "1",
+   "marcatori": [
+    "Randal Kolo Muani",
+    "Nick Woltemade"
+   ],
+   "tiri_in_porta": [
+    "Jeremie Boga"
+   ],
+   "falli_fatti_1": [
+    "Florin Tanase"
+   ],
+   "falli_subiti_1": [
+    "Nick Woltemade"
+   ],
+   "ammoniti": []
+  }
+ },
+ "schedine_18_10": [
+  {
+   "nome": "Mista (basi di squadra, giocatori e cartellini)",
+   "quota_giusta": 114.7,
+   "gambe": [
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Gol Benfica Over 0.5",
+     "p": 88
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta Heart of Midlothian Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Tiri in porta FC Copenhagen Over 2.5",
+     "p": 88
+    },
+    {
+     "m": "Sparta Prague - AZ Alkmaar",
+     "t": "20:00",
+     "label": "Corner AZ Alkmaar Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Celta Vigo - AFC Bournemouth",
+     "t": "17:45",
+     "label": "Corner Celta Vigo Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "NEC Nijmegen - Stade Rennais",
+     "t": "20:00",
+     "label": "Corner NEC Nijmegen Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Kauno Zalgiris - Riga FC",
+     "t": "17:45",
+     "label": "Corner Kauno Zalgiris Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Corner FC Lugano Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Kairat Almaty - Mjällby AIF",
+     "t": "15:30",
+     "label": "Corner Kairat Almaty Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "Tiri in porta Trabzonspor Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Corner Pafos Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Tiri in porta Torreense Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Juventus - Omonia Nicosia",
+     "t": "20:00",
+     "label": "Tiri in porta Juventus Over 3.5",
+     "p": 87
+    },
+    {
+     "m": "KAA Gent - Red Star Belgrade",
+     "t": "20:00",
+     "label": "Corner Red Star Belgrade Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Ramón Terrats almeno 1 fallo subito",
+     "p": 87
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Corner Viktoria Plzen Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Gol Marseille Over 0.5",
+     "p": 87
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Tiri in porta Celtic Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "KAA Gent - Red Star Belgrade",
+     "t": "20:00",
+     "label": "Rade Krunic almeno 1 fallo subito",
+     "p": 87
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Viktor Dadason almeno 1 tiro in porta",
+     "p": 86
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Corner OFI Crete Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Kairat Almaty - Mjällby AIF",
+     "t": "15:30",
+     "label": "Corner Mjällby AIF Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "Oumar Diakité almeno 1 fallo commesso",
+     "p": 86
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Enric Llansana almeno 1 fallo commesso",
+     "p": 86
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta AS Monaco Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "Corner CSKA Sofia Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Corner AC Milan Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Gol Bayer Leverkusen Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "SC Freiburg - FC Twente",
+     "t": "20:00",
+     "label": "Tiri in porta SC Freiburg Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Sofus Johannesen almeno 1 fallo subito",
+     "p": 86
+    }
+   ]
+  },
+  {
+   "nome": "Mista grande da quota 190+",
+   "quota_giusta": 209.1,
+   "gambe": [
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Gol Benfica Over 0.5",
+     "p": 88
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta Heart of Midlothian Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Tiri in porta FC Copenhagen Over 2.5",
+     "p": 88
+    },
+    {
+     "m": "Sparta Prague - AZ Alkmaar",
+     "t": "20:00",
+     "label": "Corner AZ Alkmaar Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Celta Vigo - AFC Bournemouth",
+     "t": "17:45",
+     "label": "Corner Celta Vigo Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "NEC Nijmegen - Stade Rennais",
+     "t": "20:00",
+     "label": "Corner NEC Nijmegen Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Kauno Zalgiris - Riga FC",
+     "t": "17:45",
+     "label": "Corner Kauno Zalgiris Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Corner FC Lugano Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Kairat Almaty - Mjällby AIF",
+     "t": "15:30",
+     "label": "Corner Kairat Almaty Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "Tiri in porta Trabzonspor Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Corner Pafos Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Tiri in porta Torreense Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Juventus - Omonia Nicosia",
+     "t": "20:00",
+     "label": "Tiri in porta Juventus Over 3.5",
+     "p": 87
+    },
+    {
+     "m": "KAA Gent - Red Star Belgrade",
+     "t": "20:00",
+     "label": "Corner Red Star Belgrade Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Ramón Terrats almeno 1 fallo subito",
+     "p": 87
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Corner Viktoria Plzen Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Gol Marseille Over 0.5",
+     "p": 87
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Tiri in porta Celtic Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Tiri in porta Benfica Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "KAA Gent - Red Star Belgrade",
+     "t": "20:00",
+     "label": "Rade Krunic almeno 1 fallo subito",
+     "p": 87
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Viktor Dadason almeno 1 tiro in porta",
+     "p": 86
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Gol Celtic Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Corner OFI Crete Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Kairat Almaty - Mjällby AIF",
+     "t": "15:30",
+     "label": "Corner Mjällby AIF Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "Oumar Diakité almeno 1 fallo commesso",
+     "p": 86
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "X2",
+     "p": 86
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Enric Llansana almeno 1 fallo commesso",
+     "p": 86
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta AS Monaco Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "Corner CSKA Sofia Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Corner AC Milan Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Gol Bayer Leverkusen Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "SC Freiburg - FC Twente",
+     "t": "20:00",
+     "label": "Tiri in porta SC Freiburg Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Sofus Johannesen almeno 1 fallo subito",
+     "p": 86
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "Gol totali Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Tiri in porta Getafe Over 2.5",
+     "p": 86
+    }
+   ]
+  },
+  {
+   "nome": "Corner",
+   "quota_giusta": 117.5,
+   "gambe": [
+    {
+     "m": "Sparta Prague - AZ Alkmaar",
+     "t": "20:00",
+     "label": "Corner AZ Alkmaar Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Celta Vigo - AFC Bournemouth",
+     "t": "17:45",
+     "label": "Corner Celta Vigo Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "NEC Nijmegen - Stade Rennais",
+     "t": "20:00",
+     "label": "Corner NEC Nijmegen Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Kauno Zalgiris - Riga FC",
+     "t": "17:45",
+     "label": "Corner Kauno Zalgiris Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Corner FC Lugano Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Kairat Almaty - Mjällby AIF",
+     "t": "15:30",
+     "label": "Corner Kairat Almaty Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Corner Pafos Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "KAA Gent - Red Star Belgrade",
+     "t": "20:00",
+     "label": "Corner Red Star Belgrade Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Corner Viktoria Plzen Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Corner OFI Crete Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Kairat Almaty - Mjällby AIF",
+     "t": "15:30",
+     "label": "Corner Mjällby AIF Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "Corner CSKA Sofia Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Corner AC Milan Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Crystal Palace - Real Sociedad",
+     "t": "20:00",
+     "label": "Corner Real Sociedad Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Borac Banja Luka - Atalanta",
+     "t": "20:00",
+     "label": "Corner Borac Banja Luka Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Hajduk Split - Sint-Truidense",
+     "t": "20:00",
+     "label": "Corner Sint-Truidense Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Brighton & Hove Albion - CSU Craiova",
+     "t": "17:45",
+     "label": "Corner Brighton & Hove Albion Over 2.5",
+     "p": 85
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Corner Iberia 1999 Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Corner Dinamo Zagreb Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Corner Torreense Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "SK Brann - AGF",
+     "t": "17:45",
+     "label": "Corner AGF Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "Corner TSG Hoffenheim Over 2.5",
+     "p": 85
+    },
+    {
+     "m": "FC Nordsjælland - Panathinaikos",
+     "t": "20:00",
+     "label": "Corner Panathinaikos Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Corner Inter Escaldes Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Corner RB Salzburg Over 2.5",
+     "p": 85
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Corner Heart of Midlothian Over 1.5",
+     "p": 84
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Corner Ajax Amsterdam Over 2.5",
+     "p": 84
+    },
+    {
+     "m": "SC Freiburg - FC Twente",
+     "t": "20:00",
+     "label": "Corner FC Twente Over 1.5",
+     "p": 84
+    },
+    {
+     "m": "Braga - KuPS Kuopio",
+     "t": "20:00",
+     "label": "Corner Braga Over 2.5",
+     "p": 84
+    },
+    {
+     "m": "Sunderland - Jagiellonia Bialystok",
+     "t": "20:00",
+     "label": "Corner Sunderland Over 2.5",
+     "p": 84
+    },
+    {
+     "m": "Lyon - Lillestrom",
+     "t": "20:00",
+     "label": "Corner Lyon Over 2.5",
+     "p": 84
+    }
+   ]
+  },
+  {
+   "nome": "Tiri in porta",
+   "quota_giusta": 112.2,
+   "gambe": [
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta Heart of Midlothian Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Tiri in porta FC Copenhagen Over 2.5",
+     "p": 88
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "Tiri in porta Trabzonspor Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Tiri in porta Torreense Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Juventus - Omonia Nicosia",
+     "t": "20:00",
+     "label": "Tiri in porta Juventus Over 3.5",
+     "p": 87
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Tiri in porta Celtic Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Tiri in porta Benfica Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Viktor Dadason almeno 1 tiro in porta",
+     "p": 86
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta AS Monaco Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "SC Freiburg - FC Twente",
+     "t": "20:00",
+     "label": "Tiri in porta SC Freiburg Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Tiri in porta Getafe Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Tiri in porta Ajax Amsterdam Over 3.5",
+     "p": 86
+    },
+    {
+     "m": "Lyon - Lillestrom",
+     "t": "20:00",
+     "label": "Tiri in porta Lyon Over 3.5",
+     "p": 86
+    },
+    {
+     "m": "Borac Banja Luka - Atalanta",
+     "t": "20:00",
+     "label": "Tiri in porta Borac Banja Luka Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Tiri in porta Iberia 1999 Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Tiri in porta Dinamo Zagreb Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "Tiri in porta CSKA Sofia Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Braga - KuPS Kuopio",
+     "t": "20:00",
+     "label": "Tiri in porta Braga Over 3.5",
+     "p": 85
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Tiri in porta RB Salzburg Over 3.5",
+     "p": 85
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "Tiri in porta Lincoln Red Imps Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Tiri in porta Anderlecht Over 2.5",
+     "p": 84
+    },
+    {
+     "m": "KAA Gent - Red Star Belgrade",
+     "t": "20:00",
+     "label": "Tiri in porta totali Over 4.5",
+     "p": 84
+    },
+    {
+     "m": "SC Freiburg - FC Twente",
+     "t": "20:00",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "Sunderland - Jagiellonia Bialystok",
+     "t": "20:00",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "Brighton & Hove Albion - CSU Craiova",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 83
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 83
+    },
+    {
+     "m": "Hajduk Split - Sint-Truidense",
+     "t": "20:00",
+     "label": "Tiri in porta Hajduk Split Over 2.5",
+     "p": 83
+    },
+    {
+     "m": "Besiktas - Hapoel Be'er",
+     "t": "17:45",
+     "label": "Tiri in porta Hapoel Be'er Over 1.5",
+     "p": 83
+    }
+   ]
+  },
+  {
+   "nome": "Falli e cartellini",
+   "quota_giusta": 106.3,
+   "gambe": [
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Ramón Terrats almeno 1 fallo subito",
+     "p": 87
+    },
+    {
+     "m": "KAA Gent - Red Star Belgrade",
+     "t": "20:00",
+     "label": "Rade Krunic almeno 1 fallo subito",
+     "p": 87
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "Oumar Diakité almeno 1 fallo commesso",
+     "p": 86
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Enric Llansana almeno 1 fallo commesso",
+     "p": 86
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Sofus Johannesen almeno 1 fallo subito",
+     "p": 86
+    },
+    {
+     "m": "KAA Gent - Red Star Belgrade",
+     "t": "20:00",
+     "label": "Josué Yamir Vergara Ortega almeno 1 fallo subito",
+     "p": 85
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Aldair almeno 1 fallo subito",
+     "p": 85
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Elias Pihlström almeno 1 fallo subito",
+     "p": 84
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "Luca Weinhandl almeno 1 fallo subito",
+     "p": 84
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Thiago Nuss almeno 1 fallo commesso",
+     "p": 84
+    },
+    {
+     "m": "SC Freiburg - FC Twente",
+     "t": "20:00",
+     "label": "Falli totali Over 14.5",
+     "p": 84
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Falli totali Over 14.5",
+     "p": 84
+    },
+    {
+     "m": "Celta Vigo - AFC Bournemouth",
+     "t": "17:45",
+     "label": "Falli totali Over 14.5",
+     "p": 83
+    },
+    {
+     "m": "FC Nordsjælland - Panathinaikos",
+     "t": "20:00",
+     "label": "Falli totali Over 14.5",
+     "p": 83
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Nikoloz Dadiani almeno 1 fallo subito",
+     "p": 83
+    },
+    {
+     "m": "Kauno Zalgiris - Riga FC",
+     "t": "17:45",
+     "label": "Motiejus Burba almeno 1 fallo subito",
+     "p": 83
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Ivan Šunjić almeno 1 fallo commesso",
+     "p": 83
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Artur Serobyan almeno 1 fallo subito",
+     "p": 83
+    },
+    {
+     "m": "Ferencvaros - NK Celje",
+     "t": "20:00",
+     "label": "Veljko Birmančević almeno 1 fallo subito",
+     "p": 82
+    },
+    {
+     "m": "Ferencvaros - NK Celje",
+     "t": "20:00",
+     "label": "Falli totali Over 16.5",
+     "p": 82
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Falli totali Over 16.5",
+     "p": 82
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Falli totali Over 16.5",
+     "p": 82
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Falli totali Over 14.5",
+     "p": 82
+    },
+    {
+     "m": "Juventus - Omonia Nicosia",
+     "t": "20:00",
+     "label": "Jaden Montnor almeno 1 fallo commesso",
+     "p": 82
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Behruzjon Karimov almeno 1 fallo commesso",
+     "p": 81
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Falli totali Over 16.5",
+     "p": 81
+    }
+   ]
+  },
+  {
+   "nome": "Marcatori nella direzione giusta + basi",
+   "quota_giusta": 109.7,
+   "gambe": [
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Gol Benfica Over 0.5",
+     "p": 88
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Gol Marseille Over 0.5",
+     "p": 87
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Gol Celtic Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "X2",
+     "p": 86
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "Gol FC Copenhagen Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Gol Bayer Leverkusen Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "Gol totali Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Ferencvaros - NK Celje",
+     "t": "20:00",
+     "label": "1X",
+     "p": 86
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "1X",
+     "p": 86
+    },
+    {
+     "m": "Kairat Almaty - Mjällby AIF",
+     "t": "15:30",
+     "label": "Gol Kairat Almaty Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "Borac Banja Luka - Atalanta",
+     "t": "20:00",
+     "label": "X2",
+     "p": 85
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "X2",
+     "p": 85
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "Gol Trabzonspor Over 0.5",
+     "p": 85
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "Gol Egnatia Over 0.5",
+     "p": 85
+    },
+    {
+     "m": "Besiktas - Hapoel Be'er",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 84
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "X2",
+     "p": 84
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "Gol totali Over 1.5",
+     "p": 84
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Gol AS Monaco Over 0.5",
+     "p": 83
+    },
+    {
+     "m": "SC Freiburg - FC Twente",
+     "t": "20:00",
+     "label": "Gol SC Freiburg Over 0.5",
+     "p": 83
+    },
+    {
+     "m": "NEC Nijmegen - Stade Rennais",
+     "t": "20:00",
+     "label": "Gol totali Over 1.5",
+     "p": 83
+    },
+    {
+     "m": "Juventus - Omonia Nicosia",
+     "t": "20:00",
+     "label": "Gol totali Over 1.5",
+     "p": 83
+    },
+    {
+     "m": "Lyon - Lillestrom",
+     "t": "20:00",
+     "label": "Gol totali Over 1.5",
+     "p": 82
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "Gol Anderlecht Over 0.5",
+     "p": 82
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 82
+    },
+    {
+     "m": "Ferencvaros - NK Celje",
+     "t": "20:00",
+     "label": "Gol totali Over 1.5",
+     "p": 82
+    },
+    {
+     "m": "Crystal Palace - Real Sociedad",
+     "t": "20:00",
+     "label": "Gol totali Over 1.5",
+     "p": 82
+    },
+    {
+     "m": "Crystal Palace - Real Sociedad",
+     "t": "20:00",
+     "label": "Gol Crystal Palace Over 0.5",
+     "p": 82
+    },
+    {
+     "m": "NEC Nijmegen - Stade Rennais",
+     "t": "20:00",
+     "label": "Gol Stade Rennais Over 0.5",
+     "p": 82
+    }
+   ]
+  },
+  {
+   "nome": "Marcatori forti + direzione (quota alta)",
+   "quota_giusta": 50.3,
+   "gambe": [
+    {
+     "m": "TSG Hoffenheim - SK Sturm Graz",
+     "t": "20:00",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Inter Escaldes - FC Copenhagen",
+     "t": "21:00",
+     "label": "X2",
+     "p": 86
+    },
+    {
+     "m": "Ferencvaros - NK Celje",
+     "t": "20:00",
+     "label": "1X",
+     "p": 86
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "1X",
+     "p": 86
+    },
+    {
+     "m": "Borac Banja Luka - Atalanta",
+     "t": "20:00",
+     "label": "X2",
+     "p": 85
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "X2",
+     "p": 85
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "X2",
+     "p": 84
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "1X",
+     "p": 80
+    },
+    {
+     "m": "Brighton & Hove Albion - CSU Craiova",
+     "t": "17:45",
+     "label": "1",
+     "p": 80
+    },
+    {
+     "m": "Braga - KuPS Kuopio",
+     "t": "20:00",
+     "label": "1",
+     "p": 80
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "X2",
+     "p": 79
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "X2",
+     "p": 78
+    },
+    {
+     "m": "CSKA Sofia - Trabzonspor",
+     "t": "20:00",
+     "label": "X2",
+     "p": 78
+    },
+    {
+     "m": "Lyon - Lillestrom",
+     "t": "20:00",
+     "label": "1",
+     "p": 77
+    },
+    {
+     "m": "OFI Crete - Anderlecht",
+     "t": "20:00",
+     "label": "X2",
+     "p": 77
+    },
+    {
+     "m": "Juventus - Omonia Nicosia",
+     "t": "20:00",
+     "label": "1",
+     "p": 77
+    },
+    {
+     "m": "Torreense - Celtic",
+     "t": "20:00",
+     "label": "X2",
+     "p": 77
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "1",
+     "p": 76
+    }
+   ]
+  }
+ ],
+ "xi_ufficiali_18_45": [
+  "Besiktas - Hapoel Be'er",
+  "Celta Vigo - AFC Bournemouth",
+  "Dinamo Zagreb - Bayer Leverkusen",
+  "Marseille - Levski Sofia",
+  "Olympiacos - AC Milan",
+  "RB Salzburg - Ararat-Armenia",
+  "Union St.-Gilloise - Lech Poznan",
+  "Viktoria Plzen - Benfica",
+  "Kairat Almaty - Mjällby AIF",
+  "Ajax Amsterdam - FC Thun",
+  "SK Brann - AGF",
+  "Brighton & Hove Albion - CSU Craiova",
+  "Egnatia - Lincoln Red Imps",
+  "Kauno Zalgiris - Riga FC",
+  "Heart of Midlothian - AS Monaco",
+  "Iberia 1999 - Getafe",
+  "Jablonec - FC Lugano",
+  "Pafos - FC Midtjylland"
+ ],
+ "schedine_18_45_solo": [
+  {
+   "nome": "Mista 18:45 · quota 100",
+   "quota_giusta": 103.9,
+   "gambe": [
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Gol Benfica Over 0.5",
+     "p": 88
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta Heart of Midlothian Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Celta Vigo - AFC Bournemouth",
+     "t": "17:45",
+     "label": "Corner Celta Vigo Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Kauno Zalgiris - Riga FC",
+     "t": "17:45",
+     "label": "Corner Kauno Zalgiris Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Corner FC Lugano Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Corner Pafos Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Ramón Terrats almeno 1 fallo subito",
+     "p": 87
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Corner Viktoria Plzen Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Gol Marseille Over 0.5",
+     "p": 87
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta AS Monaco Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Corner AC Milan Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Gol Bayer Leverkusen Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Sofus Johannesen almeno 1 fallo subito",
+     "p": 86
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Tiri in porta Getafe Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Tiri in porta Ajax Amsterdam Over 3.5",
+     "p": 86
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "1X",
+     "p": 86
+    },
+    {
+     "m": "Brighton & Hove Albion - CSU Craiova",
+     "t": "17:45",
+     "label": "Corner Brighton & Hove Albion Over 2.5",
+     "p": 85
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Corner Dinamo Zagreb Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "SK Brann - AGF",
+     "t": "17:45",
+     "label": "Corner AGF Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Tiri in porta RB Salzburg Over 3.5",
+     "p": 85
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "Tiri in porta Lincoln Red Imps Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "Gol Egnatia Over 0.5",
+     "p": 85
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Elias Pihlström almeno 1 fallo subito",
+     "p": 84
+    },
+    {
+     "m": "Besiktas - Hapoel Be'er",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 84
+    },
+    {
+     "m": "Besiktas - Hapoel Be'er",
+     "t": "17:45",
+     "label": "Ilhan Fakili almeno 1 fallo subito",
+     "p": 84
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Falli totali Over 14.5",
+     "p": 84
+    },
+    {
+     "m": "Brighton & Hove Albion - CSU Craiova",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "Celta Vigo - AFC Bournemouth",
+     "t": "17:45",
+     "label": "Falli totali Over 14.5",
+     "p": 83
+    }
+   ]
+  },
+  {
+   "nome": "Mista 18:45 · quota 190+",
+   "quota_giusta": 210.4,
+   "gambe": [
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Gol Benfica Over 0.5",
+     "p": 88
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta Heart of Midlothian Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Celta Vigo - AFC Bournemouth",
+     "t": "17:45",
+     "label": "Corner Celta Vigo Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "Kauno Zalgiris - Riga FC",
+     "t": "17:45",
+     "label": "Corner Kauno Zalgiris Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Corner FC Lugano Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Corner Pafos Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Ramón Terrats almeno 1 fallo subito",
+     "p": 87
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Corner Viktoria Plzen Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Gol Marseille Over 0.5",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Tiri in porta Benfica Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta AS Monaco Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Corner AC Milan Over 1.5",
+     "p": 86
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Gol Bayer Leverkusen Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "Pafos - FC Midtjylland",
+     "t": "17:45",
+     "label": "Sofus Johannesen almeno 1 fallo subito",
+     "p": 86
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Tiri in porta Getafe Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Tiri in porta Ajax Amsterdam Over 3.5",
+     "p": 86
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "1X",
+     "p": 86
+    },
+    {
+     "m": "Brighton & Hove Albion - CSU Craiova",
+     "t": "17:45",
+     "label": "Corner Brighton & Hove Albion Over 2.5",
+     "p": 85
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Corner Iberia 1999 Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Corner Dinamo Zagreb Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Tiri in porta Dinamo Zagreb Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "SK Brann - AGF",
+     "t": "17:45",
+     "label": "Corner AGF Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Tiri in porta RB Salzburg Over 3.5",
+     "p": 85
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "Tiri in porta Lincoln Red Imps Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Aldair almeno 1 fallo subito",
+     "p": 85
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "Gol Egnatia Over 0.5",
+     "p": 85
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Corner RB Salzburg Over 2.5",
+     "p": 85
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Corner Heart of Midlothian Over 1.5",
+     "p": 84
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Corner Ajax Amsterdam Over 2.5",
+     "p": 84
+    },
+    {
+     "m": "Jablonec - FC Lugano",
+     "t": "17:45",
+     "label": "Elias Pihlström almeno 1 fallo subito",
+     "p": 84
+    },
+    {
+     "m": "Besiktas - Hapoel Be'er",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 84
+    },
+    {
+     "m": "Besiktas - Hapoel Be'er",
+     "t": "17:45",
+     "label": "Ilhan Fakili almeno 1 fallo subito",
+     "p": 84
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Falli totali Over 14.5",
+     "p": 84
+    }
+   ]
+  },
+  {
+   "nome": "Marcatori + basi 18:45",
+   "quota_giusta": 45.0,
+   "gambe": [
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Gol Benfica Over 0.5",
+     "p": 88
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta Heart of Midlothian Over 1.5",
+     "p": 88
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "1X",
+     "p": 87
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "Gol Marseille Over 0.5",
+     "p": 87
+    },
+    {
+     "m": "Viktoria Plzen - Benfica",
+     "t": "17:45",
+     "label": "Tiri in porta Benfica Over 2.5",
+     "p": 87
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 87
+    },
+    {
+     "m": "Heart of Midlothian - AS Monaco",
+     "t": "17:45",
+     "label": "Tiri in porta AS Monaco Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Gol Bayer Leverkusen Over 0.5",
+     "p": 86
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Tiri in porta Getafe Over 2.5",
+     "p": 86
+    },
+    {
+     "m": "Ajax Amsterdam - FC Thun",
+     "t": "17:45",
+     "label": "Tiri in porta Ajax Amsterdam Over 3.5",
+     "p": 86
+    },
+    {
+     "m": "Marseille - Levski Sofia",
+     "t": "17:45",
+     "label": "1X",
+     "p": 86
+    },
+    {
+     "m": "Iberia 1999 - Getafe",
+     "t": "17:45",
+     "label": "Tiri in porta Iberia 1999 Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Dinamo Zagreb - Bayer Leverkusen",
+     "t": "17:45",
+     "label": "Tiri in porta Dinamo Zagreb Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "RB Salzburg - Ararat-Armenia",
+     "t": "17:45",
+     "label": "Tiri in porta RB Salzburg Over 3.5",
+     "p": 85
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "Tiri in porta Lincoln Red Imps Over 1.5",
+     "p": 85
+    },
+    {
+     "m": "Egnatia - Lincoln Red Imps",
+     "t": "17:45",
+     "label": "Gol Egnatia Over 0.5",
+     "p": 85
+    },
+    {
+     "m": "Besiktas - Hapoel Be'er",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 84
+    },
+    {
+     "m": "Union St.-Gilloise - Lech Poznan",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "Brighton & Hove Albion - CSU Craiova",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 84
+    },
+    {
+     "m": "Besiktas - Hapoel Be'er",
+     "t": "17:45",
+     "label": "Tiri in porta Hapoel Be'er Over 1.5",
+     "p": 83
+    },
+    {
+     "m": "Brighton & Hove Albion - CSU Craiova",
+     "t": "17:45",
+     "label": "Tiri in porta Brighton & Hove Albion Over 3.5",
+     "p": 82
+    },
+    {
+     "m": "Olympiacos - AC Milan",
+     "t": "17:45",
+     "label": "Tiri in porta totali Over 5.5",
+     "p": 82
+    },
+    {
+     "m": "SK Brann - AGF",
+     "t": "17:45",
+     "label": "Gol totali Over 1.5",
+     "p": 82
+    },
+    {
+     "m": "SK Brann - AGF",
+     "t": "17:45",
+     "label": "Tiri in porta SK Brann Over 2.5",
+     "p": 81
+    },
+    {
+     "m": "Kauno Zalgiris - Riga FC",
+     "t": "17:45",
+     "label": "Tiri in porta Riga FC Over 2.5",
+     "p": 81
+    }
+   ]
+  }
+ ],
+ "marcatori_18_45": [
+  [
+   "Patrik Schick",
+   "Dinamo Zagreb - Bayer Leverkusen",
+   61
+  ],
+  [
+   "Vangelis Pavlidis",
+   "Viktoria Plzen - Benfica",
+   60
+  ],
+  [
+   "Amine Gouiri",
+   "Marseille - Levski Sofia",
+   55
+  ]
+ ],
+ "ammoniti_18_45": {
+  "issued_at": "2026-11-26T17:09:40.352833Z",
+  "kickoff": "2026-11-26T17:45Z",
+  "xi": "ufficiali FotMob",
+  "regola": "match-first 4/2/1, ordine di consegna = ordine audit, vale anche il sostituto diretto",
+  "lista": [
+   {
+    "m": "Besiktas - Hapoel Be'er Sheva",
+    "nome": "Zahi Ahmed",
+    "p": 24.5
+   },
+   {
+    "m": "Besiktas - Hapoel Be'er Sheva",
+    "nome": "Miguel Vítor",
+    "p": 22.7
+   },
+   {
+    "m": "Besiktas - Hapoel Be'er Sheva",
+    "nome": "Djibril Diop",
+    "p": 21.4
+   },
+   {
+    "m": "Besiktas - Hapoel Be'er Sheva",
+    "nome": "Emir Han Topcu",
+    "p": 18.6
+   },
+   {
+    "m": "Egnatia - Lincoln Red Imps",
+    "nome": "Graeme Torrilla",
+    "p": 28.6
+   },
+   {
+    "m": "Egnatia - Lincoln Red Imps",
+    "nome": "Gabri Cardozo",
+    "p": 24.4
+   },
+   {
+    "m": "Brighton - CSU Craiova",
+    "nome": "Nicusor Bancu",
+    "p": 24.7
+   }
+  ]
+ }
 }
