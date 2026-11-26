@@ -3079,5 +3079,53 @@
     "p": 24.7
    }
   ]
+ },
+ "ammoniti_21_00_preXI": {
+  "issued_at": "2026-11-26T17:18:36.099606+00:00",
+  "kickoff": "2026-11-26T20:00Z",
+  "xi": "PRE_XI, conferma alle 20:00",
+  "top_certi": [
+   "Graeme Torrilla",
+   "Sivert Heggheim Mannsverk",
+   "Jonathan Mutombo",
+   "Mario Stroeykens"
+  ],
+  "lista": [
+   {
+    "m": "TSG Hoffenheim - SK Sturm Graz",
+    "nome": "Paul Koller",
+    "p": 19.6
+   },
+   {
+    "m": "TSG Hoffenheim - SK Sturm Graz",
+    "nome": "Ozan Kabak",
+    "p": 18.9
+   },
+   {
+    "m": "TSG Hoffenheim - SK Sturm Graz",
+    "nome": "Wouter Burger",
+    "p": 18.7
+   },
+   {
+    "m": "OFI Crete - Anderlecht",
+    "nome": "Mario Stroeykens",
+    "p": 25.4
+   },
+   {
+    "m": "OFI Crete - Anderlecht",
+    "nome": "Giulian Biancone",
+    "p": 22.0
+   },
+   {
+    "m": "Sparta Prague - AZ Alkmaar",
+    "nome": "Sivert Heggheim Mannsverk",
+    "p": 26.8
+   },
+   {
+    "m": "Torreense - Celtic",
+    "nome": "Jonathan Mutombo",
+    "p": 26.5
+   }
+  ]
  }
 }
