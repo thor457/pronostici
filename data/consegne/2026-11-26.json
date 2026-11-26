@@ -1,7 +1,724 @@
 {
 "giorno": "2026-11-26",
-"nota": "Europa League 26/11, consegnati da Claude alle 10:15 dal modello dell'app (unica fonte), formazioni probabili.",
+"nota": "Europa League e Conference League 26/11. Versione 15:20 dal modello dell'app (unica fonte), formazioni probabili; la versione delle 10:15 (solo Europa League) resta in consegna_10_15.",
 "partite": {
+"Besiktas - Hapoel Be'er": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Dusan Vlahović",
+"Ilhan Fakili"
+],
+"tiri_in_porta": [
+"Dusan Vlahović"
+],
+"falli_fatti_1": [
+"Djibril Diop"
+],
+"falli_subiti_1": [
+"Ilhan Fakili"
+],
+"ammoniti": [
+"Djibril Diop",
+"Emirhan Topçu"
+]
+},
+"Kairat Almaty - Mjällby AIF": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "1X",
+"marcatori": [],
+"tiri_in_porta": [
+"Jesper Gustavsson"
+],
+"falli_fatti_1": [
+"Max Nielsen"
+],
+"falli_subiti_1": [
+"Max Nielsen"
+],
+"ammoniti": [
+"Jaakko Oksanen"
+]
+},
+"Dinamo Zagreb - Bayer Leverkusen": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-2",
+"direzione": "2",
+"marcatori": [
+"Patrik Schick",
+"Afonso Moreira"
+],
+"tiri_in_porta": [
+"Patrik Schick"
+],
+"falli_fatti_1": [
+"Lukas Kacavenda"
+],
+"falli_subiti_1": [
+"Lukas Kacavenda"
+],
+"ammoniti": []
+},
+"Marseille - Levski Sofia": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Amine Gouiri",
+"Igor Paixão"
+],
+"tiri_in_porta": [
+"Serginho"
+],
+"falli_fatti_1": [
+"Aldair"
+],
+"falli_subiti_1": [
+"Serginho"
+],
+"ammoniti": []
+},
+"Celta Vigo - AFC Bournemouth": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "X2",
+"marcatori": [
+"Marcus Tavernier",
+"Rayan"
+],
+"tiri_in_porta": [
+"Rayan"
+],
+"falli_fatti_1": [
+"Yoel Lago"
+],
+"falli_subiti_1": [
+"Amine Adli"
+],
+"ammoniti": []
+},
+"RB Salzburg - Ararat-Armenia": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Edmund Baidoo",
+"Yorbe Vertessen"
+],
+"tiri_in_porta": [
+"Edmund Baidoo"
+],
+"falli_fatti_1": [
+"Abubakr Barry"
+],
+"falli_subiti_1": [
+"Hugo Oliveira"
+],
+"ammoniti": []
+},
+"Olympiacos - AC Milan": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "X2",
+"marcatori": [
+"Adrien Rabiot",
+"Armando Gonzalez"
+],
+"tiri_in_porta": [
+"Armando Gonzalez"
+],
+"falli_fatti_1": [
+"Konstantinos Fortounis"
+],
+"falli_subiti_1": [
+"Gelson Martins"
+],
+"ammoniti": []
+},
+"Inter Escaldes - FC Copenhagen": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "0-2",
+"direzione": "2",
+"marcatori": [
+"Viktor Dadason",
+"Mohamed Elyounoussi"
+],
+"tiri_in_porta": [],
+"falli_fatti_1": [
+"Thomas Delaney"
+],
+"falli_subiti_1": [
+"David López"
+],
+"ammoniti": []
+},
+"Ferencvaros - NK Celje": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Kristoffer Zachariassen",
+"Lenny Joseph"
+],
+"tiri_in_porta": [
+"Lenny Joseph"
+],
+"falli_fatti_1": [
+"Artemijus Tutyškinas"
+],
+"falli_subiti_1": [
+"Veljko Birmančević"
+],
+"ammoniti": []
+},
+"Egnatia - Lincoln Red Imps": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "1",
+"marcatori": [],
+"tiri_in_porta": [
+"Manu Toledano"
+],
+"falli_fatti_1": [],
+"falli_subiti_1": [],
+"ammoniti": [
+"Graeme Torrilla"
+]
+},
+"SK Brann - AGF": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "1X",
+"marcatori": [
+"Noah Holm",
+"Niklas Castro"
+],
+"tiri_in_porta": [
+"Noah Holm"
+],
+"falli_fatti_1": [
+"Stefen Tchamche"
+],
+"falli_subiti_1": [
+"Gift Links"
+],
+"ammoniti": []
+},
+"Kauno Zalgiris - Riga FC": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "X2",
+"marcatori": [
+"Reginaldo Ramires"
+],
+"tiri_in_porta": [
+"Reginaldo Ramires"
+],
+"falli_fatti_1": [
+"Vykintas Slivka"
+],
+"falli_subiti_1": [
+"Iago Siqueira"
+],
+"ammoniti": []
+},
+"Brighton & Hove Albion - CSU Craiova": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Charalampos Kostoulas",
+"Georginio Rutter"
+],
+"tiri_in_porta": [
+"Charalampos Kostoulas"
+],
+"falli_fatti_1": [
+"Nicusor Bancu"
+],
+"falli_subiti_1": [
+"Stefan Baiaram"
+],
+"ammoniti": []
+},
+"Borac Banja Luka - Atalanta": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "0-2",
+"direzione": "2",
+"marcatori": [
+"Kamaldeen Sulemana",
+"Gianluca Scamacca"
+],
+"tiri_in_porta": [
+"Gianluca Scamacca"
+],
+"falli_fatti_1": [
+"Stefan Savić"
+],
+"falli_subiti_1": [
+"Sebastián Herrera"
+],
+"ammoniti": []
+},
+"Braga - KuPS Kuopio": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Ricardo Horta",
+"Gabriel Silva"
+],
+"tiri_in_porta": [
+"Jovan Milosevic"
+],
+"falli_fatti_1": [
+"Valentín Gasc"
+],
+"falli_subiti_1": [
+"Gabriel Silva"
+],
+"ammoniti": []
+},
+"KAA Gent - Red Star Belgrade": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "1X",
+"marcatori": [],
+"tiri_in_porta": [
+"Josué Yamir Vergara Ortega"
+],
+"falli_fatti_1": [
+"Mouhamed Ngom"
+],
+"falli_subiti_1": [
+"Rade Krunic"
+],
+"ammoniti": []
+},
+"NEC Nijmegen - Stade Rennais": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "X2",
+"marcatori": [
+"Esteban Lepaul",
+"Tjaronn Chery"
+],
+"tiri_in_porta": [
+"Esteban Lepaul"
+],
+"falli_fatti_1": [
+"Valentin Rongier"
+],
+"falli_subiti_1": [
+"Noé Lebreton"
+],
+"ammoniti": []
+},
+"Iberia 1999 - Getafe": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "0-1",
+"direzione": "2",
+"marcatori": [
+"Martín Satriano",
+"Ivan Azón"
+],
+"tiri_in_porta": [
+"Ivan Azón"
+],
+"falli_fatti_1": [
+"Orel Mangala"
+],
+"falli_subiti_1": [
+"Nikoloz Dadiani"
+],
+"ammoniti": []
+},
+"Hajduk Split - Sint-Truidense": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "1X",
+"marcatori": [],
+"tiri_in_porta": [
+"Ilias Sebaoui"
+],
+"falli_fatti_1": [
+"Ilias Sebaoui"
+],
+"falli_subiti_1": [
+"Rihito Yamamoto"
+],
+"ammoniti": []
+},
+"Viktoria Plzen - Benfica": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-2",
+"direzione": "2",
+"marcatori": [
+"Jhon Durán",
+"Andreas Schjelderup"
+],
+"tiri_in_porta": [
+"Dodi Lukébakio"
+],
+"falli_fatti_1": [
+"Merchas Doski"
+],
+"falli_subiti_1": [
+"Jhon Durán"
+],
+"ammoniti": []
+},
+"Sparta Prague - AZ Alkmaar": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "X2",
+"marcatori": [
+"Ro-Zangelo Daal",
+"Jonatan Braut Brunes"
+],
+"tiri_in_porta": [
+"Ro-Zangelo Daal"
+],
+"falli_fatti_1": [
+"Peer Koopmeiners"
+],
+"falli_subiti_1": [
+"Dave Kwakman"
+],
+"ammoniti": [
+"Sivert Heggheim Mannsverk"
+]
+},
+"TSG Hoffenheim - SK Sturm Graz": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Fisnik Asllani",
+"Andrej Kramaric"
+],
+"tiri_in_porta": [
+"Andrej Kramaric"
+],
+"falli_fatti_1": [
+"Oumar Diakité"
+],
+"falli_subiti_1": [
+"Luca Weinhandl"
+],
+"ammoniti": [
+"Paul Koller",
+"Ozan Kabak",
+"Wouter Burger",
+"Alexander Prass"
+]
+},
+"Torreense - Celtic": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-2",
+"direzione": "2",
+"marcatori": [
+"Camilo Duran",
+"Callum McGregor"
+],
+"tiri_in_porta": [
+"Camilo Duran"
+],
+"falli_fatti_1": [
+"Musa Drammeh"
+],
+"falli_subiti_1": [
+"João Marques"
+],
+"ammoniti": [
+"Jonathan Mutombo"
+]
+},
+"Sunderland - Jagiellonia Bialystok": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Jules Ahoka",
+"Malick Fofana"
+],
+"tiri_in_porta": [
+"Malick Fofana"
+],
+"falli_fatti_1": [
+"Jeremy Agbonifo"
+],
+"falli_subiti_1": [
+"Enzo Le Fee"
+],
+"ammoniti": []
+},
+"Lyon - Lillestrom": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Corentin Tolisso",
+"Ernest Nuamah"
+],
+"tiri_in_porta": [
+"Corentin Tolisso"
+],
+"falli_fatti_1": [
+"Filip Ottosson"
+],
+"falli_subiti_1": [
+"Stian Kristiansen"
+],
+"ammoniti": []
+},
+"Pafos - FC Midtjylland": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "X2",
+"marcatori": [
+"Cho Gue-Sung"
+],
+"tiri_in_porta": [],
+"falli_fatti_1": [],
+"falli_subiti_1": [
+"Sofus Johannesen"
+],
+"ammoniti": []
+},
+"Crystal Palace - Real Sociedad": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "1X",
+"marcatori": [
+"Mikel Oyarzabal",
+"Jørgen Strand Larsen"
+],
+"tiri_in_porta": [
+"Jørgen Strand Larsen"
+],
+"falli_fatti_1": [
+"Igor Zubeldía"
+],
+"falli_subiti_1": [
+"Mikel Oyarzabal"
+],
+"ammoniti": []
+},
+"Union St.-Gilloise - Lech Poznan": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Raul Florucz",
+"Relebohile Mofokeng"
+],
+"tiri_in_porta": [
+"Raul Florucz"
+],
+"falli_fatti_1": [
+"Terry Yegbe"
+],
+"falli_subiti_1": [
+"Antoni Kozubal"
+],
+"ammoniti": []
+},
+"OFI Crete - Anderlecht": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "X2",
+"marcatori": [
+"Mihajlo Cvetković",
+"Danylo Sikan"
+],
+"tiri_in_porta": [
+"Mihajlo Cvetković"
+],
+"falli_fatti_1": [
+"Enric Llansana"
+],
+"falli_subiti_1": [
+"Mihajlo Cvetković"
+],
+"ammoniti": [
+"Mario Stroeykens"
+]
+},
+"Juventus - Omonia Nicosia": {
+"lg": "uefa.europa",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "2-0",
+"direzione": "1",
+"marcatori": [
+"Randal Kolo Muani",
+"Nick Woltemade"
+],
+"tiri_in_porta": [
+"Jeremie Boga"
+],
+"falli_fatti_1": [
+"Florin Tanase"
+],
+"falli_subiti_1": [
+"Nick Woltemade"
+],
+"ammoniti": []
+},
+"Ajax Amsterdam - FC Thun": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "3-0",
+"direzione": "1",
+"marcatori": [
+"Tolu Arokodare",
+"Oscar Gloukh"
+],
+"tiri_in_porta": [
+"Tolu Arokodare"
+],
+"falli_fatti_1": [
+"Brighton Labeau"
+],
+"falli_subiti_1": [
+"Nils Reichmuth"
+],
+"ammoniti": [
+"Mohamed Abdalla"
+]
+},
+"Heart of Midlothian - AS Monaco": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-2",
+"direzione": "X2",
+"marcatori": [
+"Cláudio Braga",
+"Matthis Abline"
+],
+"tiri_in_porta": [
+"Matthis Abline"
+],
+"falli_fatti_1": [
+"Cláudio Braga"
+],
+"falli_subiti_1": [
+"Joshua McPake"
+],
+"ammoniti": []
+},
+"CSKA Sofia - Trabzonspor": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "2",
+"marcatori": [
+"Paul Onuachu",
+"Mohamed Salah"
+],
+"tiri_in_porta": [
+"Paul Onuachu"
+],
+"falli_fatti_1": [
+"Paul Onuachu"
+],
+"falli_subiti_1": [
+"Ioannis Pittas"
+],
+"ammoniti": []
+},
+"FC Nordsjælland - Panathinaikos": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "1X",
+"marcatori": [
+"Vicente Taborda",
+"Levi Garcia"
+],
+"tiri_in_porta": [
+"Levi Garcia"
+],
+"falli_fatti_1": [
+"Rick van Drongelen"
+],
+"falli_subiti_1": [
+"Malte Heyde"
+],
+"ammoniti": []
+},
+"SC Freiburg - FC Twente": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "1X",
+"marcatori": [
+"Igor Matanovic",
+"Wout Weghorst"
+],
+"tiri_in_porta": [
+"Igor Matanovic"
+],
+"falli_fatti_1": [
+"Cyriaque Irié"
+],
+"falli_subiti_1": [
+"Igor Matanovic"
+],
+"ammoniti": []
+},
+"Jablonec - FC Lugano": {
+"lg": "uefa.europa.conf",
+"consegna": "26/11 15:20 (formazioni probabili)",
+"esatto": "1-1",
+"direzione": "X2",
+"marcatori": [
+"Yanis Cimignani"
+],
+"tiri_in_porta": [
+"Yanis Cimignani"
+],
+"falli_fatti_1": [
+"Sebastian Nebyla"
+],
+"falli_subiti_1": [
+"Uran Bislimi"
+],
+"ammoniti": []
+}
+},
+"consegna_10_15": {
 "Besiktas - Hapoel Be'er": {
 "lg": "uefa.europa",
 "consegna": "26/11 10:15 (formazioni probabili, da confermare con le ufficiali)",
