@@ -1,0 +1,22 @@
+{"giorno":"2026-11-25","nota":"Pronostici consegnati da Claude in chat il 25/11/2026, nella versione consegnata (orario della consegna). Registrati il 26/11 alle 07:00 per l'audit: nessuna modifica dopo i risultati.",
+"partite":{
+"Sabah FK - Barcelona":{"lg":"uefa.champions","consegna":"18:20 (formazioni ufficiali)","esatto":"0-3","direzione":"2","marcatori":["Gabriel Jesus","Karim Adeyemi","Anthony Gordon","Fermín López"],"tiri_in_porta":["Gabriel Jesus","Anthony Gordon","Fermín López"],"falli_fatti_1":["Fermín López"],"falli_subiti_1":["Akim Zedadka"],"ammoniti":["Ivan Lepinjica","Steve Solvet","Akim Zedadka"]},
+"Slavia Prague - Villarreal":{"lg":"uefa.champions","consegna":"18:20 (formazioni ufficiali)","esatto":"1-1","direzione":"X2","marcatori":["Tomáš Chytil","Tani Oluwaseyi","Ayoze Pérez"],"tiri_in_porta":["Tomáš Chytil"],"falli_fatti_1":["Ange N'Guessan"],"falli_subiti_1":["Tajon Buchanan","Pape Gueye"],"ammoniti":["Santiago Mouriño","Wiktor Nowak","Pape Gueye"]},
+"Shakhtar Donetsk - Fenerbahce":{"lg":"uefa.champions","consegna":"20:11 (ufficiali)","esatto":"1-1","direzione":"Goal","marcatori":["Mason Greenwood"],"tiri_in_porta":["Mason Greenwood"],"ammoniti":["Marlon Gomes","İsmail Yüksek","Nélson Semedo","Vinicius Tobias"],"alternative":["Valeriy Bondar"]},
+"Atlético Madrid - Viking FK":{"lg":"uefa.champions","consegna":"20:11 (ufficiali)","esatto":"3-0","direzione":"1","marcatori":["Alexander Sørloth","Julián Álvarez"],"tiri_in_porta":["Alexander Sørloth"],"ammoniti":["Tobias Moi","Kristoffer Askildsen"],"alternative":["Herman Haugen"]},
+"Club Brugge - Liverpool":{"lg":"uefa.champions","consegna":"20:11 (ufficiali)","esatto":"1-2","direzione":"X2","marcatori":["Alexander Isak"],"tiri_in_porta":["Alexander Isak"],"ammoniti":["Jorne Spileers"]},
+"Lille - Bayern Munich":{"lg":"uefa.champions","consegna":"20:11 (ufficiali)","esatto":"0-1","direzione":"X2","marcatori":["Lennart Karl"],"tiri_in_porta":["Lennart Karl"],"ammoniti":["Konrad Laimer"]},
+"Sporting CP - Manchester United":{"lg":"uefa.champions","consegna":"20:11 (ufficiali)","esatto":"1-1","direzione":"Goal","marcatori":["Luis Suárez"],"tiri_in_porta":["Luis Suárez"],"ammoniti":["Harry Maguire"]},
+"Internazionale - VfB Stuttgart":{"lg":"uefa.champions","consegna":"20:11 (ufficiali)","esatto":"2-1","direzione":"1","marcatori":["Francesco Pio Esposito","Marcus Thuram"],"tiri_in_porta":["Francesco Pio Esposito"],"ammoniti":[]},
+"Paris Saint-Germain - AS Roma":{"lg":"uefa.champions","consegna":"20:11 (ufficiali)","esatto":"2-1","direzione":"1","marcatori":["Ferran Torres"],"tiri_in_porta":["Ferran Torres"],"ammoniti":[]},
+"Atlético-MG - Corinthians":{"lg":"bra.1","eid":"401841319","consegna":"23:38 (ufficiali), ordine consegnato","ammoniti":["Fabrizio Angileri","Raniele","Ruan","Breno Bidon","Kaio","Kevin Castaño"]}},
+"schedina_utente_cl":["Francesco Pio Esposito:marcatore_o_sostituto_o_palo","Konrad Laimer:ammonito","Jorne Spileers:ammonito","Tobias Moi:ammonito","Marlon Gomes:ammonito","İsmail Yüksek:ammonito"],
+"bomba_finale":[
+["Sabah FK - Barcelona","team_gol_over","away",1.5],["Sabah FK - Barcelona","team_sot_over","away",4.5],["Sabah FK - Barcelona","team_corner_over","away",2.5],
+["Slavia Prague - Villarreal","player_fs1","Tajon Buchanan",1],["Slavia Prague - Villarreal","tot_falli_over","",18.5],["Slavia Prague - Villarreal","tot_sot_over","",5.5],["Slavia Prague - Villarreal","team_corner_over","home",2.5],
+["Internazionale - VfB Stuttgart","1X","",0],["Internazionale - VfB Stuttgart","team_corner_over","home",2.5],["Internazionale - VfB Stuttgart","tot_sot_over","",5.5],["Internazionale - VfB Stuttgart","player_f1","Marcus Thuram",1],
+["Shakhtar Donetsk - Fenerbahce","team_segna","away",0],["Shakhtar Donetsk - Fenerbahce","tot_falli_over","",18.5],["Shakhtar Donetsk - Fenerbahce","tot_sot_over","",5.5],["Shakhtar Donetsk - Fenerbahce","team_corner_over","home",2.5],
+["Club Brugge - Liverpool","X2","",0],["Club Brugge - Liverpool","team_corner_over","away",2.5],["Club Brugge - Liverpool","tot_sot_over","",5.5],
+["Atlético Madrid - Viking FK","team_sot_over","home",3.5],["Atlético Madrid - Viking FK","tot_corner_over","",6.5],["Atlético Madrid - Viking FK","team_gol_over","home",1.5],
+["Sporting CP - Manchester United","team_corner_over","home",2.5],
+["Paris Saint-Germain - AS Roma","team_sot_over","home",2.5],["Paris Saint-Germain - AS Roma","team_corner_over","home",2.5],["Paris Saint-Germain - AS Roma","tot_falli_over","",18.5],["Paris Saint-Germain - AS Roma","player_f1","Maghnes Akliouche",1]]}

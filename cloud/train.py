@@ -116,6 +116,17 @@ async def main():
         nver = await pg.evaluate("Object.keys(window.__S().ver||{}).length")
         await b.close(); await rb.close()
     os.makedirs(os.path.join(ROOT, 'state'), exist_ok=True)
+    # consegne di Claude (data/consegne): audit automatico il giorno dopo e risultati per tipo nello stato dell'app
+    try:
+        import glob, subprocess as sp, datetime as dt
+        oo = json.loads(out); C = oo.get('consegne') or {}
+        for f in sorted(glob.glob(os.path.join(ROOT, 'data', 'consegne', '????-??-??.json'))):
+            day = os.path.basename(f)[:10]; fe = f.replace('.json', '_esito.json')
+            if not os.path.exists(fe) and day < dt.date.today().isoformat():
+                sp.run([sys.executable, os.path.join(ROOT, 'cloud', 'audit_consegne.py'), f], timeout=300)
+            if os.path.exists(fe): C[day] = json.load(open(fe))
+        if C: oo['consegne'] = C; out = json.dumps(oo)
+    except Exception as e: print('   consegne non lette:', e)
     open(st_path, 'w').write(out)
     meta = {'t': int(time.time() * 1000), 'score': score, 'verificate': nver, 'size': len(out), 'minuti': round((time.time() - t0) / 60, 1), 'mk': mk}
     open(os.path.join(ROOT, 'state', 'meta.json'), 'w').write(json.dumps(meta))
