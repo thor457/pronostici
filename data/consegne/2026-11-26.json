@@ -3145,5 +3145,39 @@
    }
   ],
   "confermate": "tutte le altre gambe delle 21:00 invariate entro 1 punto; Hoffenheim 1X salito a 89%"
+ },
+ "controllo_20_00": {
+  "at": "2026-11-26T19:01:57.954438+00:00",
+  "xi": "FotMob ufficiali per 13 gare; in attesa: Torreense-Celtic, Borac-Atalanta, Nordsjaelland-Panathinaikos, Gent-Stella Rossa, Hajduk-Sint-Truiden",
+  "sostituzioni": [
+   {
+    "m": "OFI Crete - Anderlecht",
+    "fuori": "Enric Llansana almeno 1 fallo commesso",
+    "motivo": "non titolare",
+    "dentro": "Tiri in porta OFI Crete Over 1.5 (88%)"
+   },
+   {
+    "m": "Ferencvaros - NK Celje",
+    "fuori": "Veljko Birmančević almeno 1 fallo subito",
+    "motivo": "non titolare",
+    "dentro": "Gol Ferencvaros Over 0.5 (89%)"
+   }
+  ],
+  "confermate_19_00": [
+   "Oumar Diakité almeno 1 fallo commesso (titolare)",
+   "Tibe De Vlieger almeno 1 fallo subito (XI Gent non ancora ufficiale)"
+  ],
+  "confermate": "Dadason titolare (Viktor Daðason) 86%; tutte le altre gambe invariate entro 1 punto",
+  "ammoniti_21_00": {
+   "fuori": "Paul Koller (non titolare), nessun sostituto sopra soglia",
+   "lista": [
+    "Ozan Kabak",
+    "Wouter Burger",
+    "Mario Stroeykens",
+    "Giulian Biancone",
+    "Sivert Heggheim Mannsverk",
+    "Jonathan Mutombo (XI non ancora ufficiale)"
+   ]
+  }
  }
 }
