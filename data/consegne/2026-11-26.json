@@ -3127,5 +3127,23 @@
     "p": 26.5
    }
   ]
+ },
+ "controllo_19_00": {
+  "at": "2026-11-26T18:02:20.682737+00:00",
+  "da_sostituire": [
+   {
+    "m": "TSG Hoffenheim - SK Sturm Graz",
+    "leg": "Luca Weinhandl almeno 1 fallo subito",
+    "motivo": "17 anni nella lista UEFA, titolarità incerta; modello ora 45%",
+    "sostituto": "Oumar Diakité almeno 1 fallo commesso (86%)"
+   },
+   {
+    "m": "KAA Gent - Red Star Belgrade",
+    "leg": "Vergara almeno 1 fallo subito",
+    "motivo": "modello sceso a 71%",
+    "sostituto": "Tibe De Vlieger almeno 1 fallo subito (85%)"
+   }
+  ],
+  "confermate": "tutte le altre gambe delle 21:00 invariate entro 1 punto; Hoffenheim 1X salito a 89%"
  }
 }
