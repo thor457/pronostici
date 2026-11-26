@@ -3179,5 +3179,63 @@
     "Jonathan Mutombo (XI non ancora ufficiale)"
    ]
   }
+ },
+ "ammoniti_21_00_finale": {
+  "issued_at": "2026-11-26T19:12:51.217751+00:00",
+  "kickoff": "2026-11-26T20:00Z",
+  "correzione": "dalle 18:45 (parziale 0/7, gialli a Özcan, Malede, Nano, Kryeziu, Jaime): nelle gare calde un nome anche dalla squadra favorita/di casa, non tutti sulla sfavorita",
+  "lista": [
+   {
+    "m": "TSG Hoffenheim - SK Sturm Graz",
+    "nome": "Ozan Kabak",
+    "p": 19.1
+   },
+   {
+    "m": "TSG Hoffenheim - SK Sturm Graz",
+    "nome": "Wouter Burger",
+    "p": 18.9
+   },
+   {
+    "m": "TSG Hoffenheim - SK Sturm Graz",
+    "nome": "Joshua Quarshie",
+    "p": 15.2
+   },
+   {
+    "m": "OFI Crete - Anderlecht",
+    "nome": "Mario Stroeykens",
+    "p": 26.0
+   },
+   {
+    "m": "OFI Crete - Anderlecht",
+    "nome": "Giulian Biancone",
+    "p": 22.6
+   },
+   {
+    "m": "OFI Crete - Anderlecht",
+    "nome": "Andreas Bouchalakis",
+    "p": 19.9
+   },
+   {
+    "m": "Ferencvaros - NK Celje",
+    "nome": "Toon Raemaekers",
+    "p": 24.0
+   },
+   {
+    "m": "Ferencvaros - NK Celje",
+    "nome": "Artemijus Tutyškinas",
+    "p": 20.5
+   },
+   {
+    "m": "Sparta Prague - AZ Alkmaar",
+    "nome": "Sivert Heggheim Mannsverk",
+    "p": 27.4
+   },
+   {
+    "m": "Torreense - Celtic",
+    "nome": "Jonathan Mutombo",
+    "p": 27.0,
+    "xi": "PRE_XI"
+   }
+  ]
  }
 }
