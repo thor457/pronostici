@@ -3237,5 +3237,65 @@
     "xi": "PRE_XI"
    }
   ]
+ },
+ "schedine_utente_marcatori": {
+  "fonte": "screenshot DAZN Bet 23:25",
+  "verifica": "ESPN + FotMob",
+  "schedine": [
+   {
+    "ref": "DF07EA0B1A334AE55F06",
+    "quota": 16.38,
+    "esito": "PERSA 4/5",
+    "gambe": [
+     [
+      "Pau Víctor",
+      "WIN gol 18"
+     ],
+     [
+      "Mateta",
+      "WIN rigore 73"
+     ],
+     [
+      "Lepaul",
+      "LOSE niente gol, sostituito 72 da Soumaré, nessun legno"
+     ],
+     [
+      "Scamacca",
+      "WIN tramite sostituto Krstović gol 86"
+     ],
+     [
+      "Conceição gol o assist",
+      "WIN gol 68, assist 37"
+     ]
+    ]
+   },
+   {
+    "ref": "DF07EA0B1A32EAF2200C",
+    "quota": 26.6,
+    "esito": "PERSA 4/5",
+    "gambe": [
+     [
+      "Ekhator",
+      "WIN gol 43"
+     ],
+     [
+      "Scamacca",
+      "WIN tramite sostituto Krstović gol 86"
+     ],
+     [
+      "Mohamed Salah (Trabzonspor)",
+      "WIN gol 69"
+     ],
+     [
+      "Pau Víctor",
+      "WIN gol 18"
+     ],
+     [
+      "Boulaye Dia",
+      "LOSE niente gol, sostituito 72 da Al Tamari, nessun legno"
+     ]
+    ]
+   }
+  ]
  }
 }
