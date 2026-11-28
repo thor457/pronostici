@@ -18,6 +18,30 @@ OK = ['www.olbg.com', 'webws.365scores.com', 'site.api.espn.com', 'www.fotmob.co
 REAL = ['www.mondopengwin.it']
 LOCAL = ['wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'cloud']
 
+def phone_slim(S):
+    """Solo cio' che serve al telefono: modello addestrato completo (taratura, Elo, statistiche squadre e giocatori),
+    partite di oggi e dei prossimi giorni, verifiche recenti. Lo storico grezzo resta nel cloud."""
+    import datetime as _dt
+    now = time.time() * 1000
+    def kt(x):
+        try: return _dt.datetime.fromisoformat(str(x.get('kick')).replace('Z', '+00:00')).timestamp() * 1000
+        except Exception: return 0
+    O = dict(S)
+    for k in ('seen', 'tcSeen', 'fmSeen', 'resolvedIds', 'fmIng', 'preLam'): O.pop(k, None)
+    keep = lambda o, h: {i: v for i, v in (o or {}).items() if isinstance(v, dict) and (not kt(v) or kt(v) > now - h * 3600e3)}
+    fut = lambda o, h, ah: {i: v for i, v in (o or {}).items() if isinstance(v, dict) and (not kt(v) or (now - h * 3600e3 < kt(v) < now + ah * 3600e3))}
+    O['snap'] = fut(S.get('snap'), 24, 30); O['snapPre'] = fut(S.get('snapPre'), 24, 30)
+    O['pd'] = fut(S.get('pd'), 6, 30); O['pps'] = keep(S.get('pps'), 24); O['apk'] = keep(S.get('apk'), 24)
+    O.pop('picks', None)  # le registrazioni da verificare le verifica il cloud
+    ids = set(O['snap'])
+    for k in ('xi', 'cp', 'tipA', 'news', 'refOf'): O[k] = {i: v for i, v in (S.get(k) or {}).items() if i in ids}
+    V = S.get('ver') or {}; O['ver'] = dict(sorted(V.items(), key=lambda x: -(x[1].get('t') or 0) if isinstance(x[1], dict) else 0)[:250])
+    O['audits'] = (S.get('audits') or [])[:60]
+    O['players'] = {k: v for k, v in (S.get('players') or {}).items() if isinstance(v, list) and (v[0] or 0) >= 3}
+    O['fmP'] = {k: v for k, v in (S.get('fmP') or {}).items() if isinstance(v, dict) and now - (v.get('t') or 0) < 864e5}
+    O['lamPre'] = {k: v for k, v in (S.get('lamPre') or {}).items() if isinstance(v, list) and now - (v[3] if len(v) > 3 else v[2]) < 2 * 864e5}
+    return json.dumps(O, separators=(',', ':'))
+
 async def main():
     t0 = time.time(); st_path = os.path.join(ROOT, 'state', 'state.json')
     print('0. tutti i mercati dei bookmaker (statistiche ufficiali football-data.co.uk)')
@@ -30,6 +54,28 @@ async def main():
         try: mk = json.load(open(os.path.join(ROOT, 'state', 'markets.json')))['t']
         except Exception: mk = None
     prev = open(st_path).read() if os.path.exists(st_path) else 'null'
+    # CORREZIONE UNA TANTUM (28/11): dal 23/11 la taratura riceveva registrazioni fatte con gol attesi ricalcolati DOPO il risultato
+    # (favorita indovinata 83-97% contro 75% vero). Si tolgono quelle registrazioni; da ora si registra solo ciò che era scritto prima del via.
+    try:
+        fxp = os.path.join(ROOT, 'data', 'fix', 'leak_2026-11-28.json')
+        if prev != 'null' and os.path.exists(fxp):
+            SS = json.loads(prev)
+            if not SS.get('fixLeak1'):
+                FX = json.load(open(fxp)); nk = 0
+                for k, d in FX['tracker'].items():
+                    t = (SS.get('tracker') or {}).get(k)
+                    if not t or t.get('n', 0) <= d['n']: continue
+                    for f in ('n', 'hits', 'sumP', 'br'): t[f] = max(0, (t.get(f) or 0) - d.get(f, 0))
+                    for f in ('bd', 'hb'):
+                        if d.get(f) and t.get(f): t[f] = [[max(0, t[f][i][j] - d[f][i][j]) for j in range(3)] for i in range(len(t[f]))]
+                    nk += 1
+                for lg, m in FX['ctr'].items():
+                    for key, dv in m.items():
+                        v = ((SS.get('ctr') or {}).get(lg) or {}).get(key)
+                        if v and v[0] > dv[0]: SS['ctr'][lg][key] = [v[0] - dv[0], v[1] - dv[1], v[2] - dv[2]]
+                SS['fixLeak1'] = 1; prev = json.dumps(SS); print('   correzione taratura contaminata: tolte le registrazioni dal 23/11 su', nk, 'mercati')
+            del SS
+    except Exception as e: print('   correzione non applicata:', e)
     async with async_playwright() as p:
         b = await p.chromium.launch(); pg = await b.new_page()
         rb = await p.chromium.launch(proxy={'server': os.environ.get('HTTPS_PROXY') or os.environ.get('https_proxy') or 'http://127.0.0.1:36429'}, args=['--disable-blink-features=AutomationControlled'])
@@ -128,7 +174,12 @@ async def main():
         if C: oo['consegne'] = C; out = json.dumps(oo)
     except Exception as e: print('   consegne non lette:', e)
     open(st_path, 'w').write(out)
-    meta = {'t': int(time.time() * 1000), 'score': score, 'verificate': nver, 'size': len(out), 'minuti': round((time.time() - t0) / 60, 1), 'mk': mk}
+    # VERSIONE LEGGERA PER IL TELEFONO (28/11): 36 MB rendevano l'app lenta; il telefono riceve solo cio' che gli serve
+    ph = None
+    try:
+        ph = phone_slim(json.loads(out)); open(os.path.join(ROOT, 'state', 'phone.json'), 'w').write(ph)
+    except Exception as e: print('   versione telefono non creata:', e)
+    meta = {'t': int(time.time() * 1000), 'score': score, 'verificate': nver, 'size': len(out), 'ph': len(ph) if ph else 0, 'minuti': round((time.time() - t0) / 60, 1), 'mk': mk}
     open(os.path.join(ROOT, 'state', 'meta.json'), 'w').write(json.dumps(meta))
     print('FATTO', json.dumps(meta))
 

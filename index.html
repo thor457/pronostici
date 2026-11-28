@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795704281;</script><style>
+<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0e1420"><title>Pronostici Pro</title><script>window.__BUILT=1795862108;</script><style>
 .updb{position:fixed;left:10px;right:10px;bottom:76px;background:#0b1220f2;color:#fff;border:1px solid #ffffff22;border-radius:14px;padding:11px 13px;font-size:13px;z-index:998;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .rap{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.45;margin:0;color:var(--tx)}
 .xip{width:100%;height:auto;display:block;border-radius:12px;margin:6px 0;box-shadow:0 8px 20px #0004}
@@ -75,7 +75,7 @@ nav svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;st
 const E = {};
 const K = 8;
 const FACT = Array.from({length: K}, (_, k) => { let f = 1; for (let i = 2; i <= k; i++) f *= i; return f; });
-const norm = s => String(s || '').normalize('NFKD').toLowerCase().replace(/[^a-z0-9]/g, '');
+const NORMC = new Map(); const norm = s => { s = String(s == null ? '' : s); let v = NORMC.get(s); if (v === undefined) { v = s.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]/g, ''); if (NORMC.size > 60000) NORMC.clear(); NORMC.set(s, v); } return v; };
 E.norm = norm;
 // STESSO GIOCATORE? Le fonti scrivono i nomi in modi diversi («Lucas Cohener» / «Lucas Andres Cohener Gonzalez», «Z. Baha» / «Ziyad Baha», «Vitaly» / «Vitaliy»):
 // conta il cognome con il nome compatibile, mai il solo nome di battesimo («James Garner» non è «James Tarkowski», «Lisandro» non è «Lautaro»)
@@ -110,7 +110,7 @@ const ALIAS = {
 };
 const CLUB_STRIP = /^(fc|cf|ac|as|ss|us|sc|rc|cd|ud|sv|vfb|vfl|fsv|tsg|rb|ssc|afc|bsc|1fc|1fsv|real)|(fc|cf|ac|sc|afc)$/;
 E.keyName = (name) => { let n = norm(name); return ALIAS[n] || n; };
-E.clubKey = (name) => { let n = norm(name).replace(CLUB_STRIP, ''); return n; };
+const CLUBC = new Map(); E.clubKey = (name) => { const n0 = norm(name); let v = CLUBC.get(n0); if (v === undefined) { v = n0.replace(CLUB_STRIP, ''); if (CLUBC.size > 60000) CLUBC.clear(); CLUBC.set(n0, v); } return v; };
 
 // ---------- matrice e mercati ----------
 E.matrix = function (lh, la, rho) {
@@ -194,8 +194,8 @@ E.lgKey = ev => E.keyName(String(ev.lgName || ev.league || '')).slice(0, 28);
 E.lgLearn = function (S, ev) { const k = E.lgKey(ev); if (!k || !(ev.hs >= 0) || !(ev.as >= 0)) return;
   S.lg = S.lg || {}; const v = S.lg[k] || [0, 0, 0]; v[0]++; v[1] += ev.hs + ev.as; v[2] += ev.hs; S.lg[k] = v; };
 // quanto quella competizione segna rispetto alla media generale, con restringimento sui pochi dati
-E.lgFactor = function (S, ev) { const v = (S.lg || {})[E.lgKey(ev)]; if (!v || v[0] < 8) return null;
-  let tot = 0, n = 0; Object.keys(S.lg).forEach(k => { const x = S.lg[k]; if (x[0] >= 8) { tot += x[1]; n += x[0]; } });
+const LGFC = { t: 0, lg: null, tot: 0, n: 0 }; E.lgFactor = function (S, ev) { const v = (S.lg || {})[E.lgKey(ev)]; if (!v || v[0] < 8) return null;
+  if (LGFC.lg !== S.lg || Date.now() - LGFC.t > 60000) { let t0 = 0, n0 = 0; Object.keys(S.lg).forEach(k => { const x = S.lg[k]; if (x[0] >= 8) { t0 += x[1]; n0 += x[0]; } }); Object.assign(LGFC, { t: Date.now(), lg: S.lg, tot: t0, n: n0 }); } let tot = LGFC.tot, n = LGFC.n;
   const glob = n ? tot / n : 2.7, mine = v[1] / v[0], w = v[0] / (v[0] + 30);
   const f = (mine * w + glob * (1 - w)) / (glob || 2.7);
   const hs = v[2] / Math.max(1, v[1]), hw = v[0] / (v[0] + 40);
@@ -213,10 +213,12 @@ E.oddsProbs = function (od) { if (!od) return null; const ih = 1 / od.h, id = 1 
   if (od.ou && od.ov && od.un) { const io = 1 / od.ov, iu = 1 / od.un; r.un = iu / (io + iu); r.ou = od.ou; } return r; };
 const MLC = {};
 E.marketLam = function (od) { const q = E.oddsProbs(od); if (!q) return null; const key = [q.h, q.a, q.un, q.ou].map(x => x == null ? '' : (+x).toFixed(3)).join('|'); const lim = q.ou ? Math.floor(q.ou) : 2; if (MLC[key]) return MLC[key];
-  const f = [1]; for (let k = 1; k < 11; k++) f[k] = f[k - 1] * k; let best = null;
-  for (let lh = 0.2; lh <= 3.6; lh += 0.04) for (let la = 0.15; la <= 3.4; la += 0.04) { let H = 0, A = 0, U = 0; const eh = Math.exp(-lh), ea = Math.exp(-la);
-    for (let i = 0; i < 11; i++) { const pi = eh * Math.pow(lh, i) / f[i]; for (let j = 0; j < 11; j++) { const pr = pi * ea * Math.pow(la, j) / f[j]; if (i > j) H += pr; else if (i < j) A += pr; if (i + j <= lim) U += pr; } }
-    let err = (H - q.h) ** 2 + (A - q.a) ** 2; if (q.un != null) err += (U - q.un) ** 2; else err += 0.02 * (lh + la - 2.65) ** 2; if (!best || err < best[0]) best = [err, lh, la]; }
+  // ricerca a due passi (griglia larga, poi fine attorno al minimo): stesso risultato, circa 15 volte più veloce
+  const f = [1]; for (let k = 1; k < 11; k++) f[k] = f[k - 1] * k; const pmf = l => { const e = Math.exp(-l), v = new Array(11); let pw = 1; for (let i = 0; i < 11; i++) { v[i] = e * pw / f[i]; pw *= l; } return v; };
+  const errAt = (lh, la) => { const P1 = pmf(lh), P2 = pmf(la); let H = 0, A = 0, U = 0; for (let i = 0; i < 11; i++) { const pi = P1[i]; for (let j = 0; j < 11; j++) { const pr = pi * P2[j]; if (i > j) H += pr; else if (i < j) A += pr; if (i + j <= lim) U += pr; } }
+    let err = (H - q.h) ** 2 + (A - q.a) ** 2; if (q.un != null) err += (U - q.un) ** 2; else err += 0.02 * (lh + la - 2.65) ** 2; return err; };
+  let best = null; for (let lh = 0.2; lh <= 3.6; lh += 0.2) for (let la = 0.15; la <= 3.4; la += 0.2) { const e = errAt(lh, la); if (!best || e < best[0]) best = [e, lh, la]; }
+  const c0 = best.slice(); for (let lh = Math.max(0.2, c0[1] - 0.24); lh <= Math.min(3.6, c0[1] + 0.24); lh += 0.04) for (let la = Math.max(0.15, c0[2] - 0.24); la <= Math.min(3.4, c0[2] + 0.24); la += 0.04) { const e = errAt(lh, la); if (e < best[0]) best = [e, lh, la]; }
   return (MLC[key] = { lh: best[1], la: best[2], p: q }); };
 const p3 = (lh, la) => { const M = E.matrix(lh, la); let H = 0, D = 0, A = 0; for (let i = 0; i < M.length; i++) for (let j = 0; j < M.length; j++) { if (i > j) H += M[i][j]; else if (i < j) A += M[i][j]; else D += M[i][j]; } return [H, D, A]; };
 // peso delle quote imparato dalle partite verificate: si sceglie il peso che avrebbe dato l'errore (Brier) piu basso, partendo da 0,85
@@ -295,7 +297,7 @@ E.calibrate = function (S, key, p, ev) {
     const bs = (logit(bo) - logit(bp)) * v[0] / (v[0] + 60), w = v[0] / (v[0] + 120);
     shift = shift * (1 - w) + bs * w; }
   // RISULTATI VERI PRIMA DEL VIA: i pronostici salvati prima del calcio d'inizio e verificati correggono la taratura dello storico; più partite vere verifica, più contano
-  const tr = S.tracker['PRE_' + key]; if (tr && tr.n >= 80) { const o2 = (tr.hits + 0.5) / (tr.n + 1), p2 = Math.min(0.99, Math.max(0.01, (tr.sumP + 0.5) / (tr.n + 1))), s2 = (logit(o2) - logit(p2)) * tr.n / (tr.n + 80), w2 = tr.n / (tr.n + 400); shift = shift * (1 - w2) + s2 * w2; }
+  const tr = S.tracker['PRE_' + key]; if (tr && tr.n >= 60) { const o2 = (tr.hits + 0.5) / (tr.n + 1), p2 = Math.min(0.99, Math.max(0.01, (tr.sumP + 0.5) / (tr.n + 1))), s2 = (logit(o2) - logit(p2)) * tr.n / (tr.n + 80), w2 = tr.n / (tr.n + 150); /* 28/11: i casi veri (registrati prima del via) pesano di più: con il peso vecchio la taratura peggiorava 1° tempo e Over 1,5 */ shift = shift * (1 - w2) + s2 * w2; }
   // correzione specifica della competizione, quando ha abbastanza partite
   if (ev && CKEYS[key]) { const v = ((S.ctr || {})[E.lgKey(ev)] || {})[key];
     if (v && v[0] >= 40) { const co = (v[1] + 0.5) / (v[0] + 1), cp = Math.min(0.99, Math.max(0.01, (v[2] + 0.5) / (v[0] + 1)));
@@ -1116,10 +1118,11 @@ E.xgAdd = function (S, team, f, a) { if (!team || !(f >= 0) || !(a >= 0)) return
 // chiave della squadra anche con nomi diversi tra le fonti (AS Roma / Roma, Manchester City / Man City)
 const TKC = {}, TKW = /^(as|ac|fc|ssc|us|sc|ss|afc|cf|cfc|calcio|club|united|city|sv|vfb|vfl|tsg|rc|ogc|sl|cd|ud|1fc|real)$/;
 const TKX = (a, b) => { if (b.length < 4 || a === b) return false; const i = a.indexOf(b); if (i < 0) return false; return TKW.test(a.slice(0, i)) && a.slice(i + b.length) === '' || i === 0 && TKW.test(a.slice(b.length)); };
-E.tkey = function (M, team) { const k = E.keyName(team); if (!M || M[k] !== undefined) return k; const ck = E.clubKey(team), c0 = TKC[k]; if (c0 && M[c0] !== undefined) return c0;
-  let best = null; for (const x in M) { if (x === ck || E.clubKey(x) === ck || TKX(x, k) || TKX(k, x)) { if (!best || Math.abs(x.length - k.length) < Math.abs(best.length - k.length)) best = x; } } if (best) TKC[k] = best; return best || k; };
+const TKM = new WeakMap(); E.tkey = function (M, team) { const k = E.keyName(team); if (!M || M[k] !== undefined) return k; const ck = E.clubKey(team), c0 = TKC[k]; if (c0 && M[c0] !== undefined) return c0;
+  let mm = TKM.get(M); if (!mm) { mm = new Map(); TKM.set(M, mm); } const hit = mm.get(k); if (hit && Date.now() - hit[1] < 60000) return hit[0];
+  let best = null; for (const x in M) { if (x === ck || E.clubKey(x) === ck || TKX(x, k) || TKX(k, x)) { if (!best || Math.abs(x.length - k.length) < Math.abs(best.length - k.length)) best = x; } } if (best) TKC[k] = best; mm.set(k, [best || k, Date.now()]); return best || k; };
 E.xgOf = function (S, team) { const v = (S.xg || {})[E.tkey(S.xg, team)]; return v && v[0] >= 3 ? { n: v[0], f: v[1] / v[0], a: v[2] / v[0] } : null; };
-E.xgGlobal = function (S) { const X = S.xg || {}; let n = 0, f = 0; Object.keys(X).forEach(k => { if (X[k][0] >= 3) { n += X[k][0]; f += X[k][1]; } }); return n >= 20 ? f / n : null; };
+const XGGC = { t: 0, X: null, v: null }; E.xgGlobal = function (S) { const X = S.xg || {}; if (XGGC.X === X && Date.now() - XGGC.t < 60000) return XGGC.v; let n = 0, f = 0; Object.keys(X).forEach(k => { if (X[k][0] >= 3) { n += X[k][0]; f += X[k][1]; } }); XGGC.X = X; XGGC.t = Date.now(); return (XGGC.v = n >= 20 ? f / n : null); };
 // xG per giocatore (dalla mappa dei tiri)
 E.pxgAdd = function (S, name, xg, shots) { if (!name) return; S.pxg = S.pxg || {}; const k = E.keyName(name), v = S.pxg[k] || [0, 0, 0];
   const d = 0.97; v[0] = v[0] * d + 1; v[1] = v[1] * d + (xg || 0); v[2] = v[2] * d + (shots || 0); S.pxg[k] = v; };
@@ -1434,11 +1437,18 @@ if (!S.fix1T) { ['O05_1T', 'O15_1T', 'C_O05_1T', 'C_O15_1T', 'PRE_O05_1T', 'PRE_
 // correzione 24/11/2026: ammoniti e marcatori presi ma scritti diversamente dalle fonti («Lucas Cohener» / «Lucas Andres Cohener Gonzalez», «Z. Baha» / «Ziyad Baha») erano contati come sbagliati
 if (!S.fixNm1) { let n = 0; const fx = (v, its) => (its || []).forEach(it => { const m = /^(Ammonito|Marcatore)[^:]*: (.*)$/.exec(it[0]); if (!m || it[1] !== false) return; const x = ((m[1] === 'Ammonito' ? v.booked : v.scorers) || []).find(y => P.samePlayer(m[2], y)); if (!x) return; it[1] = true; it[2] = (it[2] || '') + ' · preso: la fonte lo scrive «' + x + '»'; n++; return true; });
   Object.keys(S.ver || {}).forEach(k => { const v = S.ver[k]; if (!v || !v.items) return; fx(v, v.items); v.ok = v.items.filter(x => x[1] === true).length; v.ko = v.items.filter(x => x[1] === false).length; if (v.pre && v.pre.items) { fx(v, v.pre.items); v.pre.ok = v.pre.items.filter(x => x[1] === true).length; v.pre.ko = v.pre.items.filter(x => x[1] === false).length; } }); S.fixNm1 = 1; if (n) S.__fixNmN = n; }
-function prune() { const big = IDB.ok !== false;
+function prune() { const big = !!window.__CLOUD; const PH = !window.__CLOUD;
+  // TELEFONO LEGGERO (28/11): l'archivio da 36 MB rendeva l'app lenta (ogni salvataggio copiava tutto). Sul telefono restano solo le partite recenti e future
+  if (PH) { const now = Date.now(), kt = x => new Date((x && x.kick) || 0).getTime(), old = (o, h) => { if (o) Object.keys(o).forEach(k => { const x = o[k]; if (!x || (kt(x) && now - kt(x) > h * 3600e3)) delete o[k]; }); };
+    old(S.pd, 12); old(S.pps, 36); old(S.apk, 36); old(S.picks, 72); if (S.snapPre) old(S.snapPre, 48);
+    if (S.lamPre) Object.keys(S.lamPre).forEach(k => { const v = S.lamPre[k]; if (!v || now - (v[3] || v[2] || 0) > 5 * 864e5) delete S.lamPre[k]; });
+    if (S.players) { const ks = Object.keys(S.players); if (ks.length > 30000) ks.forEach(k => { const v = S.players[k]; if (!v || (v[0] || 0) < 2) delete S.players[k]; }); }
+    if (S.fmP) Object.keys(S.fmP).forEach(k => { const x = S.fmP[k]; if (!x || now - (x.t || 0) > 2 * 864e5) delete S.fmP[k]; });
+    ['tipA', 'news', 'refOf'].forEach(nm => { const o = S[nm]; if (!o) return; const ks = Object.keys(o); if (ks.length > 500) ks.sort((a, b) => (o[a].t || 0) - (o[b].t || 0)).slice(0, ks.length - 500).forEach(k => delete o[k]); }); }
   if (S.preLam) { const lim = Date.now() - 6 * 864e5; Object.keys(S.preLam).forEach(k => { if ((S.preLam[k][2] || 0) < lim) delete S.preLam[k]; }); }
   if (S.seen) { const ks = Object.keys(S.seen); const lim = big ? 60000 : 12000; if (ks.length > lim) ks.slice(0, ks.length - lim).forEach(k => delete S.seen[k]); }
   if (S.tcSeen) { const ks = Object.keys(S.tcSeen); const lim = big ? 40000 : 8000; if (ks.length > lim) ks.slice(0, ks.length - lim).forEach(k => delete S.tcSeen[k]); }
-  if (S.ver) { const ks = Object.keys(S.ver); const lim = big ? 2000 : 300; if (ks.length > lim) ks.sort((a, b) => (S.ver[a].t || 0) - (S.ver[b].t || 0)).slice(0, ks.length - lim).forEach(k => delete S.ver[k]); }
+  if (S.ver) { const ks = Object.keys(S.ver); const lim = big ? 2000 : 250; if (ks.length > lim) ks.sort((a, b) => (S.ver[a].t || 0) - (S.ver[b].t || 0)).slice(0, ks.length - lim).forEach(k => delete S.ver[k]); }
   if (S.refOf) { const ks = Object.keys(S.refOf); const lim = big ? 5000 : 800; if (ks.length > lim) ks.sort((a, b) => (S.refOf[a].t || 0) - (S.refOf[b].t || 0)).slice(0, ks.length - lim).forEach(k => delete S.refOf[k]); }
   if (S.audits && S.audits.length > (big ? 400 : 120)) S.audits = S.audits.slice(0, big ? 400 : 120); if (S.snap) Object.keys(S.snap).forEach(k => { const s = S.snap[k]; if (s.audited && !(s.rec === 'late' && !(S.ver && S.ver[k])) && Date.now() - new Date(s.kick).getTime() > 2 * 864e5) delete S.snap[k]; });
   const cap = (o, n, f) => { if (!o) return; const ks = Object.keys(o); if (ks.length > n) ks.sort(f).slice(0, ks.length - n).forEach(k => delete o[k]); };
@@ -1452,9 +1462,9 @@ function prune() { const big = IDB.ok !== false;
     if (!S.fixCfR && S.ver) { const R = { n: 0, act: 0, exp: 0 }; Object.keys(S.ver).forEach(k => { const v = S.ver[k], sn = S.snap && S.snap[k]; if (!v || !sn || !sn.lg || sn.lg === 'all' || /^s365_/.test(k)) return; (v.items || []).forEach(it => { const m = /attesi ≈([\d,.]+)/.exec(it[0] || ''), m2 = /reali (\d+)/.exec(it[2] || ''); if (m && m2) { R.n++; R.exp += +m[1].replace(',', '.'); R.act += +m2[1]; } }); }); if (R.n) S.cfR = R; S.fixCfR = 1; }
     if (!S.fixDup1 && S.snap) { Object.keys(S.snap).forEach(k => { if (!/^s365_/.test(k) || (S.ver && S.ver[k])) return; const v = S.snap[k]; if (v && v.kick && twinSnap({ id: k, date: v.kick, home: v.home, away: v.away })) { delete S.snap[k]; if (S.snapPre) delete S.snapPre[k]; } }); S.fixDup1 = 1; }
     if (!S.fixPk1 && S.picks) { Object.values(S.picks).forEach(x => { if (x && x.pr) Object.keys(x.pr).forEach(k => { if (typeof x.pr[k] === 'number') x.pr[k] = +x.pr[k].toFixed(4); }); if (x && Array.isArray(x.m3)) x.m3 = x.m3.map(v => typeof v === 'number' ? +v.toFixed(4) : v); }); S.fixPk1 = 1; } }
-  cap(S.xi, big ? 1200 : 300, (a, c) => +a - +c); cap(S.cp, big ? 3000 : 600, (a, c) => (S.cp[a].t || 0) - (S.cp[c].t || 0)); cap(S.picks, big ? 6000 : 1200, (a, c) => (S.picks[a].t || 0) - (S.picks[c].t || 0)); }
+  cap(S.xi, big ? 1200 : 200, (a, c) => +a - +c); cap(S.cp, big ? 3000 : 400, (a, c) => (S.cp[a].t || 0) - (S.cp[c].t || 0)); cap(S.picks, big ? 6000 : 1200, (a, c) => (S.picks[a].t || 0) - (S.picks[c].t || 0)); }
 let saveT = null, lastSave = '', dirty = false, saving = false, saveFail = 0;
-function save(now) { dirty = true; if (!now) { if (!saveT) saveT = setTimeout(() => { saveT = null; save(true); }, IDB.ok ? 4000 : 10000); return; }
+function save(now) { dirty = true; if (!now) { if (!saveT) saveT = setTimeout(() => { saveT = null; if (!window.__CLOUD && busy()) { save(); return; } save(true); }, window.__CLOUD ? 4000 : IDB.ok ? 15000 : 20000); return; }
   if (saveT) { clearTimeout(saveT); saveT = null; } if (saving) { if (!saveT) saveT = setTimeout(() => { saveT = null; save(true); }, 3000); return; }
   saving = true; prune();
   (async () => { try {
@@ -1580,8 +1590,12 @@ const backAltro = () => { const b = $('#bkm'); if (b) b.onclick = () => setTab('
 
 // palinsesto completo di una data: ESPN + 365Scores + SofaScore, senza toccare la lista corrente
 const evNear = (a, b) => Math.abs(new Date(a.date) - new Date(b.date)) < 4 * 3600e3 && (sameT(a.home, b.home) && sameT(a.away, b.away) || sameT(a.home, b.away) && sameT(a.away, b.home)), evNear2 = (a, b) => Math.abs(new Date(a.date) - new Date(b.date)) < 20 * 60e3 && (sameT(a.home, b.home) || sameT(a.away, b.away)) && (a.league === b.league || a.league === 'all' || b.league === 'all');
-function dedupEv(L) { const out = []; (L || []).forEach(x => { const i = out.findIndex(e => e.id === x.id || evNear(e, x) || evNear2(e, x)); if (i < 0) { out.push(x); return; } const m = out[i], keepX = /^\d+$/.test(String(x.id)) && !/^\d+$/.test(String(m.id)), a = keepX ? x : m, b = keepX ? m : x;
-    if ((!a.league || a.league === 'all') && b.league && b.league !== 'all') a.league = b.league; if (!a.lgName && b.lgName) a.lgName = b.lgName; a.g365id = a.g365id || b.g365id; a.sid = a.sid || b.sid; a.venue = a.venue || b.venue; if (keepX) out[i] = x; }); return out; }
+function dedupEv(L) { const out = [], byId = new Map(), bk = new Map(), tOf = e => { const t = new Date(e.date).getTime(); return isNaN(t) ? 0 : t; };
+  const KK = new Map(), kOf = e => { let v = KK.get(e); if (!v) { v = [tOf(e), P.keyName(e.home), P.keyName(e.away)]; KK.set(e, v); } return v; }, sk = (p, q) => p === q || (Math.min(p.length, q.length) >= 4 && (p.indexOf(q) >= 0 || q.indexOf(p) >= 0));
+  const near = (e, x) => { const a = kOf(e), b = kOf(x), dt = Math.abs(a[0] - b[0]); if (dt >= 4 * 3600e3) return false; if ((sk(a[1], b[1]) && sk(a[2], b[2])) || (sk(a[1], b[2]) && sk(a[2], b[1]))) return true; return dt < 20 * 60e3 && (sk(a[1], b[1]) || sk(a[2], b[2])) && (e.league === x.league || e.league === 'all' || x.league === 'all'); };
+  const cand = x => { const t = kOf(x)[0], h = Math.floor(t / 3600e3); let best = -1; const j = byId.get(x.id); if (j != null) best = j; for (let d = -4; d <= 4; d++) { const A = bk.get(h + d); if (!A) continue; for (const i of A) { if (best >= 0 && i >= best) continue; if (near(out[i], x)) best = i; } } return best; };
+  (L || []).forEach(x => { const i = cand(x); if (i < 0) { const n = out.push(x) - 1; byId.set(x.id, n); const h = Math.floor(kOf(x)[0] / 3600e3); (bk.get(h) || bk.set(h, []).get(h)).push(n); return; } if (i < 0) { out.push(x); return; } const m = out[i], keepX = /^\d+$/.test(String(x.id)) && !/^\d+$/.test(String(m.id)), a = keepX ? x : m, b = keepX ? m : x;
+    if ((!a.league || a.league === 'all') && b.league && b.league !== 'all') a.league = b.league; if (!a.lgName && b.lgName) a.lgName = b.lgName; a.g365id = a.g365id || b.g365id; a.sid = a.sid || b.sid; a.venue = a.venue || b.venue; if (keepX) { out[i] = x; byId.set(x.id, i); } }); return out; }
 async function dayEvents(date) { const ds = ymd(date), ls = LGSEL(); let out = [];
   const res = await Promise.all(ls.map(l => P.fetchDay(l, ds).catch(() => [])));
   res.forEach(r => out = out.concat(r)); { const seen = new Set(); out = out.filter(e => seen.has(e.id) ? false : (seen.add(e.id), true)); }
@@ -1603,7 +1617,7 @@ function mktLamFromQ(Q, tot0) { const pois = (l, k) => { let p = Math.exp(-l), s
   const fac = n => { let f = 1; for (let i = 2; i <= n; i++) f *= i; return f; }; const tgt = p1 - p2; let lo = -T + 0.1, hi = T - 0.1; for (let it = 0; it < 40; it++) { const m = (lo + hi) / 2; res(m) < tgt ? lo = m : hi = m; } const d = (lo + hi) / 2; return { lh: (T + d) / 2, la: (T - d) / 2, hasOU: !!(o && u) }; }
 function lamOf(ev) { const lam = P.lambdas(S, SEED, ev); try { const Q = typeof taOdds === 'function' ? taOdds(ev) : null; if (!Q) return lam; const m = mktLamFromQ(Q, lam.lh + lam.la); if (!m || !(m.lh > 0) || !(m.la > 0)) return lam; const w = Math.max(0.6, Math.min(0.95, P.mktWeight(S).w));
     return Object.assign({}, lam, { lh: w * m.lh + (1 - w) * lam.lh, la: w * m.la + (1 - w) * lam.la, mkt: { w, lh: m.lh, la: m.la, dlh: lam.lh, dla: lam.la }, known: true }); } catch (e) { return lam; } }
-function prepEv(ev) { if (ev.lam) return ev; const lam = lamOf(ev); ev.lam = lam; try { if (!ev.tcx) P.cardsForecast(S, ev, lam, null, '', null); /* cartellini attesi subito: così si salvano e si verificano anche i mercati cartellini */ } catch (e) { } let EXR = null; try { EXR = P.exactMatrix(S, ev, exExtra(ev)); } catch (e) { } ev.mk = P.markets(lam.lh, lam.la, EXR && !lam.mkt ? EXR.M : undefined); /* con le quote: matrice dai gol attesi ancorati al mercato */ if (EXR) { ev.mk.exWhy = EXR.why; ev.exR = EXR; } ev.list = P.marketList(S, ev.mk, lam.lh, lam.la, SEED, ev); ev.list.forEach(x => { if (!MLBL[x.key]) MLBL[x.key] = x.label; }); ev.favHome = lam.lh >= lam.la;
+function prepEv(ev) { if (ev.lam) return ev; const lam = lamOf(ev); ev.lam = lam; try { const kt = new Date(ev.date).getTime(); if (!ev.done && ev.state === 'pre' && kt > Date.now() && lam && lam.lh > 0 && lam.la > 0) { S.lamPre = S.lamPre || {}; S.lamPre[ev.id] = [+lam.lh.toFixed(4), +lam.la.toFixed(4), Date.now(), kt]; } } catch (e) { } /* LEZIONE 28/11: i gol attesi ricalcolati a partita finita contengono il risultato (favorita indovinata 83% contro 75% vero); si verifica solo ciò che era scritto prima del via */ try { if (!ev.tcx) P.cardsForecast(S, ev, lam, null, '', null); /* cartellini attesi subito: così si salvano e si verificano anche i mercati cartellini */ } catch (e) { } let EXR = null; try { EXR = P.exactMatrix(S, ev, exExtra(ev)); } catch (e) { } ev.mk = P.markets(lam.lh, lam.la, EXR && !lam.mkt ? EXR.M : undefined); /* con le quote: matrice dai gol attesi ancorati al mercato */ if (EXR) { ev.mk.exWhy = EXR.why; ev.exR = EXR; } ev.list = P.marketList(S, ev.mk, lam.lh, lam.la, SEED, ev); ev.list.forEach(x => { if (!MLBL[x.key]) MLBL[x.key] = x.label; }); ev.favHome = lam.lh >= lam.la;
   // ogni partita preparata ha la sua registrazione di tutti i mercati prima del via (poi verificata e usata per la taratura)
   if (!ev.done && ev.state === 'pre' && new Date(ev.date) > Date.now()) { S.picks = S.picks || {}; if (!S.picks[ev.id]) S.picks[ev.id] = { lg: ev.league, favHome: ev.favHome, pr: Object.fromEntries(ev.list.map(x => [x.key, +(+x.pRaw).toFixed(4)])), t: Date.now(), kick: ev.date, m3: lam.m3, k3: lam.mk ? [lam.mk.p.h, lam.mk.p.d, lam.mk.p.a] : null, tcx: ev.tcx || null }; }
   return ev; }
@@ -1611,17 +1625,19 @@ let DAYT = { key: '', t: 0 };
 async function loadDay(force) { const dk = ymd(curDate) + '|' + LGSEL().join(',');
   if (!force && DAYT.key === dk && events.length && Date.now() - DAYT.t < 150000) { return; }
   DAYT = { key: dk, t: Date.now() };
-  const ds = ymd(curDate), ls = LGSEL(); events = [];
+  const ds = ymd(curDate), ls = LGSEL(); let EV = []; /* la lista nuova si prepara a parte e sostituisce la vecchia solo quando è completa */
   const res = await Promise.all(ls.map(l => P.fetchDay(l, ds).catch(e => { log('Feed ' + l + ': ' + e.message); return []; })));
-  res.forEach(r => events = events.concat(r)); { const seen = new Set(); events = events.filter(e => seen.has(e.id) ? false : (seen.add(e.id), true)); }
+  res.forEach(r => EV = EV.concat(r)); { const seen = new Set(); EV = EV.filter(e => seen.has(e.id) ? false : (seen.add(e.id), true)); }
   { const extra = await Promise.all([P.day365(curDate).catch(e => { log('Palinsesto 365Scores: ' + e.message); return []; }), P.daySofa(ds).catch(() => [])]);
     const near = (a, b) => Math.abs(new Date(a.date) - new Date(b.date)) < 4 * 3600e3 && (sameT(a.home, b.home) && sameT(a.away, b.away) || sameT(a.home, b.away) && sameT(a.away, b.home)); const near2 = (a, b) => Math.abs(new Date(a.date) - new Date(b.date)) < 20 * 60e3 && (sameT(a.home, b.home) || sameT(a.away, b.away)) && (a.league === b.league || a.league === 'all' || b.league === 'all'); // stessa partita con nomi diversi (Inter/Internazionale, Slavia Praha/Prague, PSG)
-    extra.forEach(L => L.forEach(x => { const m = events.find(e => near(e, x)) || events.find(e => near2(e, x)); if (m) { if ((!m.league || m.league === 'all') && x.league && x.league !== 'all') m.league = x.league; if (!m.lgName && x.lgName) m.lgName = x.lgName; if (x.g365id) m.g365id = m.g365id || x.g365id; if (x.sid) m.sid = m.sid || x.sid; if (!m.venue && x.venue) m.venue = x.venue; if (x.done && !m.done && (x.hs || x.as)) { m.hs = x.hs; m.as = x.as; m.done = true; m.state = 'post'; } } else events.push(x); })); }
-  events.sort((a, b) => a.date.localeCompare(b.date));
-  events.forEach(ev => { const lam = lamOf(ev); const mk = P.markets(lam.lh, lam.la); ev.lam = lam; ev.mk = mk; ev.list = P.marketList(S, mk, lam.lh, lam.la, SEED, ev); ev.list.forEach(x => { if (!MLBL[x.key]) MLBL[x.key] = x.label; }); ev.favHome = lam.lh >= lam.la;
-    if (!ev.done && ev.state === 'pre') S.picks[ev.id] = S.picks[ev.id] || { lg: ev.league, favHome: ev.favHome, pr: Object.fromEntries(ev.list.map(x => [x.key, +(+x.pRaw).toFixed(4)])), t: Date.now(), kick: ev.date, m3: ev.lam && ev.lam.m3, k3: ev.lam && ev.lam.mk ? [ev.lam.mk.p.h, ev.lam.mk.p.d, ev.lam.mk.p.a] : null, tcx: ev.tcx || null }; });
-  { const k = '365_' + ymd(curDate); try { if (!cache[k]) { const l = await Promise.race([P.fetch365Day(curDate), new Promise(r => setTimeout(() => r(null), 9000))]); if (l) cache[k] = l; } const l = cache[k]; if (l) events.forEach(ev => { if (ev.league === 'all' && !ev.lgName) { const m = P.match365(l, ev); if (m && m.comp) ev.lgName = m.comp; } }); } catch (e) { } }
-  save(); tipGrade(); preSnapAll();
+    const BK = new Map(), hOf = e => Math.floor(new Date(e.date).getTime() / 3600e3), addB = e => { const h = hOf(e); (BK.get(h) || BK.set(h, []).get(h)).push(e); }; EV.forEach(addB);
+    const findN = (x, f) => { const h = hOf(x); for (let d = -4; d <= 4; d++) { const A = BK.get(h + d); if (A) for (const e of A) if (f(e, x)) return e; } return null; }; /* solo partite vicine nell'orario: prima ogni partita di 365Scores/SofaScore contro tutte */
+    extra.forEach(L => L.forEach(x => { const m = findN(x, near) || findN(x, near2); if (m) { if ((!m.league || m.league === 'all') && x.league && x.league !== 'all') m.league = x.league; if (!m.lgName && x.lgName) m.lgName = x.lgName; if (x.g365id) m.g365id = m.g365id || x.g365id; if (x.sid) m.sid = m.sid || x.sid; if (!m.venue && x.venue) m.venue = x.venue; if (x.done && !m.done && (x.hs || x.as)) { m.hs = x.hs; m.as = x.as; m.done = true; m.state = 'post'; } } else { EV.push(x); addB(x); } })); }
+  EV.sort((a, b) => a.date.localeCompare(b.date));
+  let li = 0; for (const ev of EV) { if (++li % 40 === 0) await new Promise(r => setTimeout(r, 0)); /* a blocchi: lo schermo resta libero */ const lam = lamOf(ev); const mk = P.markets(lam.lh, lam.la); ev.lam = lam; ev.mk = mk; ev.list = P.marketList(S, mk, lam.lh, lam.la, SEED, ev); ev.list.forEach(x => { if (!MLBL[x.key]) MLBL[x.key] = x.label; }); ev.favHome = lam.lh >= lam.la;
+    if (!ev.done && ev.state === 'pre') S.picks[ev.id] = S.picks[ev.id] || { lg: ev.league, favHome: ev.favHome, pr: Object.fromEntries(ev.list.map(x => [x.key, +(+x.pRaw).toFixed(4)])), t: Date.now(), kick: ev.date, m3: ev.lam && ev.lam.m3, k3: ev.lam && ev.lam.mk ? [ev.lam.mk.p.h, ev.lam.mk.p.d, ev.lam.mk.p.a] : null, tcx: ev.tcx || null }; }
+  { const k = '365_' + ymd(curDate); try { if (!cache[k]) { const l = await Promise.race([P.fetch365Day(curDate), new Promise(r => setTimeout(() => r(null), 9000))]); if (l) cache[k] = l; } const l = cache[k]; if (l) EV.forEach(ev => { if (ev.league === 'all' && !ev.lgName) { const m = P.match365(l, ev); if (m && m.comp) ev.lgName = m.comp; } }); } catch (e) { } }
+  events = EV; save(); tipGrade(); preSnapAll();
 }
 function vOggi() {
   const lab = curDate.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -1937,17 +1953,20 @@ async function prefetchAll(list) {
     pf.total = ms2.length; pf.done = 0; pf.ids = ms2.map(e => e.id); let idx = 0, since = 0;
     await Promise.all([0, 1, 2, 3, 4].map(async () => { for (;;) { await yieldFg(); const ev = (pf.extra && pf.extra.length) ? pf.extra.shift() : ms2[idx++]; if (!ev) break; if (AN[ev.id] && Date.now() - AN[ev.id].t < 8 * 60000) { pf.done++; continue; } if (busy()) await zz(600); try { if (!ev.mk || !ev.list) prepEv(ev); await analyzeMatch(ev); } catch (e) { log('Analisi ' + ev.home + '-' + ev.away + ': ' + e.message); } pf.done++; if (++since >= 25) { since = 0; save(); } await yieldUI(); } }));
     save(); } finally { pf.run = false; if (pf.next) { const n = pf.next; pf.next = null; setTimeout(() => prefetchAll(n).then(() => { if (tab === 'quadro' && window.__qdraw) window.__qdraw(); }), 0); } } }
+const MJX = new Map(), MJH = new Map(), QMS = { n: 30 }; window.__mjMore = () => { QMS.n += 30; if (window.__qdraw) window.__qdraw(); };
 function majorsHtml(out, pend) { let M = out.filter(x => isMajor(x.ev)).map(x => ({ x, d: new Date(x.ev.date) })).concat(pend.filter(isMajor).map(e => ({ e, d: new Date(e.date) }))).sort((a, b) => a.d - b.d);
-  { const K = []; M.forEach(z => { const e = z.x ? z.x.ev : z.e, i = K.findIndex(y => { const f = y.x ? y.x.ev : y.e; return f.id === e.id || evNear(f, e) || evNear2(f, e); }); if (i < 0) K.push(z); else if (z.x && !K[i].x) K[i] = z; }); M = K; }
+  { const evs = M.map(z => z.x ? z.x.ev : z.e), D0 = dedupEv(evs.slice()), keep = new Set(D0); const byK = new Map(); M.forEach((z, i) => { const e = evs[i]; const k = keep.has(e) ? e.id : (D0.find(f => evNear(f, e) || evNear2(f, e)) || e).id; const o = byK.get(k); if (!o) byK.set(k, z); else if (z.x && !o.x) byK.set(k, z); }); M = [...byK.values()].sort((a, b) => a.d - b.d); }
   if (!M.length) return '<div class="card"><div class="k">Campionati maggiori</div><div class="sm">' + (QM.t ? 'Nessuna partita dei campionati maggiori da giocare fino a dopodomani.' : 'Carico le partite dei campionati maggiori di domani e dopodomani…') + '</div></div>';
   // dopo mezzanotte fino alle 8 del mattino le partite sono «Stanotte» (Sudamerica, MLS, Centroamerica), in ordine di orario
   const day = d => { const t = new Date(), k = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(t.getFullYear(), t.getMonth(), t.getDate())) / 864e5); return k === 0 ? (d.getHours() < 8 && t.getHours() < 8 ? 'Stanotte' : 'Oggi') : k === 1 && d.getHours() < 8 ? 'Stanotte' : k === 1 ? 'Domani' : d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' }); };
   let h = '<h3 class="mt">Campionati maggiori e importanti · preanalisi pronta</h3><div class="sm">Serie A per prima, poi Premier, LaLiga, Bundesliga, Ligue 1 e coppe europee, poi Serie B, seconde divisioni, Portogallo, Olanda, Turchia, Belgio, Scozia, Grecia, coppe nazionali, Champions asiatica, Libertadores, Brasile, Argentina, MLS. Tocca una partita per il Ragionamento completo.</div>', last = '';
   const ord = z => { const l = (z.x ? z.x.ev : z.e).league || ''; return l === 'ita.1' ? 0 : /^(eng|esp|ger|fra)\.1|^uefa\.champ/.test(l) ? 1 : /^uefa\.|^ita\.(2|coppa)|^fifa\./.test(l) ? 2 : /^(por|ned|tur|bel)\.1|^(eng|esp|ger|fra)\.2/.test(l) ? 3 : 4; };
   const dk = d => { const t = day(d); return t === 'Oggi' ? 0 : t === 'Stanotte' ? 1 : 2; };
-  M.sort((a, b) => (dk(a.d) - dk(b.d)) || (day(a.d) === day(b.d) && day(a.d) !== 'Stanotte' ? ord(a) - ord(b) : 0) || a.d - b.d).forEach(z => { const dl = day(z.d); if (dl !== last) { h += '<h3 class="mt">' + esc(dl[0].toUpperCase() + dl.slice(1)) + '</h3>'; last = dl; }
+  M.sort((a, b) => (dk(a.d) - dk(b.d)) || (day(a.d) === day(b.d) && day(a.d) !== 'Stanotte' ? ord(a) - ord(b) : 0) || a.d - b.d); const mTot = M.length; M = M.slice(0, QMS.n); /* prima 30 schede, le altre a richiesta: prima si calcolavano centinaia di schede a ogni ridisegno */
+  M.forEach(z => { const dl = day(z.d); if (dl !== last) { h += '<h3 class="mt">' + esc(dl[0].toUpperCase() + dl.slice(1)) + '</h3>'; last = dl; }
     const hh = z.d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-    if (!z.x) { try { const e = z.e; if (!e.mk || !e.list) prepEv(e); const ab = {}, cd = P.pickCards(S, SEED, e, null, e.lam, ab), s2 = P.pickScorers(S, e, null, e.lam, ab), cf2 = P.cardsForecast(S, e, e.lam, null, ((S.refOf || {})[e.id] || {}).r || null, null); z.x = { ev: e, dt: { src: 'pre-XI storico: analisi completa in corso' }, cards: cd, sc: s2, cf: cf2 }; } catch (er) { h += '<div class="card" data-i="M' + esc(String(z.e.id)) + '"><b>' + hh + ' · ' + esc(z.e.home) + ' – ' + esc(z.e.away) + '</b> <span class="sm">' + esc(LG(z.e)) + '</span><div class="sm mut">Preanalisi in corso…</div></div>'; return; } }
+    if (!z.x) { try { const e = z.e, mc = MJX.get(e.id); if (mc && mc.ev === e && Date.now() - mc.t < 600000) z.x = mc.x; else { if (!e.mk || !e.list) prepEv(e); const ab = {}, cd = P.pickCards(S, SEED, e, null, e.lam, ab), s2 = P.pickScorers(S, e, null, e.lam, ab), cf2 = P.cardsForecast(S, e, e.lam, null, ((S.refOf || {})[e.id] || {}).r || null, null); z.x = { ev: e, dt: { src: 'pre-XI storico: analisi completa in corso' }, cards: cd, sc: s2, cf: cf2 }; MJX.set(e.id, { ev: e, x: z.x, t: Date.now() }); } } catch (er) { h += '<div class="card" data-i="M' + esc(String(z.e.id)) + '"><b>' + hh + ' · ' + esc(z.e.home) + ' – ' + esc(z.e.away) + '</b> <span class="sm">' + esc(LG(z.e)) + '</span><div class="sm mut">Preanalisi in corso…</div></div>'; return; } }
+    { const hc = MJH.get(z.x.ev.id); if (hc && hc.x === z.x && hc.lu === !!(S.lu && S.lu[z.x.ev.id]) && Date.now() - hc.t < 120000) { h += hc.h; return; } } const h0 = h.length;
     const x = z.x, ev = x.ev, D = ev.mk.dirp, te = tensionOf(ev, x.cf && x.cf.exp, x.dt && x.dt.ref); let sel = null; try { sel = selezione(ev, { LV: [], alert: x.alertTxt }); } catch (e) { }
     const best = sel && sel.ok.length ? sel.ok[0] : null, cards = (x.cards.items || []).slice(0, 3), scs = ['home', 'away'].map(s => (x.sc[s] || []).slice(0, 2)).flat().sort((a, b) => b.pc - a.pc).slice(0, 3), tf = taAgree(ev).filter(g => g.rs.length >= 2)[0];
     h += '<div class="card" data-i="M' + esc(String(ev.id)) + '"><b>' + hh + ' · ' + esc(ev.home) + ' – ' + esc(ev.away) + '</b> <span class="sm">' + esc(LG(ev)) + '</span>' +
@@ -1957,7 +1976,8 @@ function majorsHtml(out, pend) { let M = out.filter(x => isMajor(x.ev)).map(x =>
       '<div class="sm"><b>Marcatori forti:</b> ' + (scs.length ? scs.map(r => esc(r.name) + ' ' + fp(r.pc)).join(' · ') : '—') + '</div>' +
       (() => { const ap = appPick(ev); return ap ? '<div class="sm">🎯 <b>Giocata dell\'app:</b> <b>' + esc(ap.x.label) + '</b> ' + fp(ap.pv) + ' · verificata ' + fp(ap.e.acc) + ' su ' + ap.e.n.toLocaleString('it-IT') + ' · <b>da giocare solo a quota ' + ap.qmin.toFixed(2).replace('.', ',') + ' o più</b>' + (ap.q ? ' (quota attuale ' + ap.q.toFixed(2).replace('.', ',') + (ap.edge > 0 ? ', <span class="ok">conviene</span>' : '') + ')' : '') + '</div>' : ''; })() +
       (x.pd ? '<div class="sm mut">📊 Nomi da ' + esc(x.pd.src) + ', con dati di stagione, ultime 5, arbitro e ' + x.pd.news.length + ' notizie' + (x.pd.conf.length ? ' (' + x.pd.conf.length + ' da conferenze stampa)' : '') + '. Tocca per la scheda dei giocatori.</div>' : x.dt && x.dt.src ? '<div class="sm mut">Nomi da ' + esc(x.dt.src) + '</div>' : '') +
-      (te.why.length ? '<div class="sm mut">Tensione: ' + esc(te.why.slice(0, 3).join('; ')) + '</div>' : '') + (tf ? '<div class="sm">Fonti che combaciano: ' + taLbl(tf.k) + ' (' + tf.rs.map(r => TSRC[r.src]).join(' + ') + ')</div>' : '') + '</div>'; });
+      (te.why.length ? '<div class="sm mut">Tensione: ' + esc(te.why.slice(0, 3).join('; ')) + '</div>' : '') + (tf ? '<div class="sm">Fonti che combaciano: ' + taLbl(tf.k) + ' (' + tf.rs.map(r => TSRC[r.src]).join(' + ') + ')</div>' : '') + '</div>'; MJH.set(ev.id, { x, h: h.slice(h0), t: Date.now(), lu: !!(S.lu && S.lu[ev.id]) }); });
+  if (mTot > M.length) h += '<button class="btn" style="width:100%" onclick="window.__mjMore&&window.__mjMore()">Mostra altre ' + Math.min(30, mTot - M.length) + ' partite (' + (mTot - M.length) + ' in tutto)</button>';
   return h; }
 async function vQuadro() {
   root.innerHTML = head('Quadro', 'Tutto ciò che si può ancora giocare: oggi tutte le partite non iniziate, e i campionati maggiori fino a dopodomani, già analizzati. I live sono nella sezione Live.', '<button class="ib" id="rq" aria-label="Aggiorna">↻</button>') + '<button class="btn srcb" id="qcerca">🔎 Cerca una partita, una squadra o un campionato</button><div id="qq"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="sm mut">Analizzo le partite…</div></div>';
@@ -2154,9 +2174,9 @@ function vMulti() { let HP = ''; try { HP = appBoard(events.concat(QM.list || []
       const sn = new Set(); pool = dedupEv(pool.filter(x => { if (sn.has(x.id)) return false; sn.add(x.id); return !x.done && x.state === 'pre' && new Date(x.date) > Date.now() && lgPass(x, LGV) && !YOUTH.test(x.home + ' ' + x.away + ' ' + (x.lgName || '')); })).map(prepEv); /* niente giovanili, riserve, femminili: dati troppo poveri */ /* stessa partita da ESPN e 365Scores = una sola */ }
     if (pool.length < 2) { el.innerHTML = '<p class="empty">Non ci sono abbastanza partite non ancora iniziate nei giorni scelti.</p>'; return; }
     // SENZA aspettare le ufficiali: per le partite più importanti e più vicine l'app incrocia formazioni probabili, indisponibili con motivo, notizie e storico di ogni giocatore
-    { const toA = pool.filter(e => !AN[e.id]).sort((a, b) => (isMajor(b) - isMajor(a)) || new Date(a.date) - new Date(b.date)).slice(0, 16), t0 = Date.now(); let i = 0, done = 0;
+    { const cloudOk = e => { const sn = S.snap && S.snap[e.id]; return sn && sn.dir && Date.now() - (sn.t || 0) < 3 * 3600e3; }; /* le partite già analizzate dal cloud nell'ultima ora non si rianalizzano sul telefono */ const toA = pool.filter(e => !AN[e.id] && !cloudOk(e)).sort((a, b) => (isMajor(b) - isMajor(a)) || new Date(a.date) - new Date(b.date)).slice(0, 10), t0 = Date.now(); let i = 0, done = 0;
       if (toA.length) { el.innerHTML = '<div class="sm">Incrocio formazioni probabili, assenze, notizie e storico dei giocatori: 0 di ' + toA.length + ' partite…</div>';
-        await Promise.all([0, 1, 2, 3].map(async () => { while (i < toA.length && Date.now() - t0 < 45000) { const ev = toA[i++]; try { await Promise.race([analyzeMatch(ev), new Promise(r => setTimeout(r, 15000))]); /* una fonte lenta non blocca la multipla */ } catch (e) { } done++; el.innerHTML = '<div class="sm">Incrocio formazioni probabili, assenze, notizie e storico dei giocatori: ' + done + ' di ' + toA.length + ' partite…</div>'; } })); } }
+        await Promise.all([0, 1, 2, 3].map(async () => { while (i < toA.length && Date.now() - t0 < 25000) { const ev = toA[i++]; try { await Promise.race([analyzeMatch(ev), new Promise(r => setTimeout(r, 15000))]); /* una fonte lenta non blocca la multipla */ } catch (e) { } done++; el.innerHTML = '<div class="sm">Incrocio formazioni probabili, assenze, notizie e storico dei giocatori: ' + done + ' di ' + toA.length + ' partite…</div>'; } })); } }
     const real = p => (1 / p) / (1 + m), rel = (ev, x) => (x.bad ? 0.93 : 1) * (ev.lam && ev.lam.known ? 1 : 0.9) * (S.lu && S.lu[ev.id] ? 1.02 : 1);
     // regole dell'utente per le schedine: niente Under corner, niente «vince + Under», nessuna «vince» sotto l'85% come gamba
     const NOMULT = x => /^ST_corner_U_|^COR_U/.test(x.key) || x.key === 'FW_U35' || (/^(FAV_WIN|X1_H|X1_A)$/.test(x.key) && x.p < 0.85);
@@ -2326,7 +2346,7 @@ function preLamUndo(ev) { const kh = P.keyName(ev.home), ka = P.keyName(ev.away)
   try { const l = P.lambdas(S, SEED, ev); return [l.lh, l.la]; } finally { S.elo[kh] = H1; S.elo[ka] = A1; if (keep) S.lg[lk] = keep; } }
 function rebuildSnap(ev, sm, kind) {
   if (!ev || !ev.done || (S.snap && S.snap[ev.id])) return false;
-  const PL0 = kind === 'prelam' ? (S.preLam && S.preLam[ev.id]) : kind === 'undo' ? preLamUndo(ev) : null; if (kind === 'undo' && !PL0) kind = 'late';
+  const PL0 = kind === 'late' ? null : lamPreOf(ev); if (!PL0) kind = 'late'; else if (kind === 'undo') kind = 'prelam';
   const lam = PL0 ? Object.assign(P.lambdas(S, SEED, ev), { lh: PL0[0], la: PL0[1] }) : P.lambdas(S, SEED, ev), mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), keep = [ev.lam, ev.mk, ev.list, ev.favHome];
   ev.lam = lam; ev.mk = mk; ev.list = lst; ev.favHome = lam.lh >= lam.la;
   try { const ros = sm ? P.rostersMap(sm) : null, ref = sm && sm.referee || null, ab = {}, cards = P.pickCards(S, SEED, ev, ros, lam, ab), sc = P.pickScorers(S, ev, ros, lam, ab), cf = P.cardsForecast(S, ev, lam, ros, ref, null);
@@ -2437,7 +2457,16 @@ function learnAllHtml() {
   const DATI = '<div class="card"><div class="k">Dati raccolti finora</div><div class="sm">• Verifiche sullo storico (partite già giocate, una previsione per ogni mercato): <b>' + N(nT(/^(?!PRE_|C_|PP_|PLUS|APP)/)) + '</b><br>• Pronostici di mercato salvati PRIMA del via e verificati: <b>' + N(nT(/^PRE_/)) + '</b><br>• Partite verificate in dettaglio (esito, esatto, ammoniti, marcatori): <b>' + N(Object.keys(S.ver || {}).length) + '</b>' + (vt.length ? ' dal ' + new Date(vt[0]).toLocaleDateString('it-IT') : '') + '<br>• Previsioni sui giocatori verificate: <b>' + N(nT(/^PP_/)) + '</b> · giocate dell\'app verificate: <b>' + N(nT(/^APP$/)) + '</b><br>• Giocatori in archivio: <b>' + N(Object.keys(S.players || {}).length) + '</b> · squadre con forza calcolata: <b>' + N(Object.keys(S.elo || {}).length) + '</b> · arbitri: <b>' + N(Object.keys(S.refs || {}).length) + '</b></div></div>';
   const VL = S.val || {}, vk = Object.keys(VL).filter(k => VL[k].n >= 10), sg = v => (v >= 0 ? '+' : '') + v.toFixed(1).replace('.', ',');
   const VAL = '<div class="card"><div class="k">Valore contro le quote (il test che conta)</div><div class="sm">Quote vere salvate prima del via. «Tutte»: 1 unità su ogni pronostico; «quando l\'app vede valore»: solo se probabilità × quota ≥ 1,05. Se il secondo numero resta positivo su centinaia di giocate, l\'app batte il bookmaker; se no, no.</div>' + (vk.length ? '<table class="sm" style="width:100%"><tr><th style="text-align:left">Mercato</th><th>Tutte</th><th>Con valore</th></tr>' + vk.sort((a, b) => VL[b].bn - VL[a].bn).map(k => { const v = VL[k]; return '<tr><td>' + esc(MLBL[k] || lblK(k)) + '</td><td>' + v.n + ' · ' + sg(v.pl) + ' u</td><td>' + (v.bn ? v.bw + '/' + v.bn + ' · <b class="' + (v.bpl >= 0 ? 'ok' : 'warn') + '">' + sg(v.bpl) + ' u (' + sg(v.bpl / v.bn * 100) + '%)</b>' : '—') + '</td></tr>'; }).join('') + '</table>' : '<div class="sm mut">In raccolta: da oggi ogni pronostico salva anche la quota vera.</div>') + '</div>';
-  return CG + DATI + VAL + '<div class="card"><div class="k">Addestramento di ogni tipo di pronostico</div><div class="sm">Ogni pronostico viene salvato prima del calcio d\'inizio, verificato a fine gara e usato per correggere da solo le probabilità future (taratura per tipo, per fascia e per campionato, poi con i risultati veri prima del via).</div><table class="sm" style="width:100%"><tr><th style="text-align:left">Tipo</th><th>Entrate</th><th>Previste</th><th>Stato</th></tr>' + rows.join('') + '</table>' + (L.length ? '<div class="k" style="margin-top:8px">Ragionamento imparato (quanto vale ogni indizio)</div><div class="sm">' + L.map(x => '• ' + esc(x)).join('<br>') + '</div>' : '') + '</div>'; }
+  // VERIFICA ONESTA DELL'ADDESTRAMENTO (28/11): solo pronostici scritti prima del via, e ripasso delle stagioni partita per partita senza conoscere il futuro
+  let HON = ''; try { const ks = Object.keys(S.tracker).filter(k => k.indexOf('PRE_') === 0 && S.tracker[k].n >= 150); let eR = 0, eC = 0, nn = 0; const rows = [];
+    ks.forEach(pk => { const k = pk.slice(4), t = S.tracker[pk]; let r1 = 0, c1 = 0, n1 = 0; (t.bd || []).forEach(v => { if (v[0] < 20) return; const o = v[1] / v[0], r = v[2] / v[0], c = P.calibrate(S, k, r); r1 += Math.abs(o - r) * v[0]; c1 += Math.abs(o - c) * v[0]; n1 += v[0]; }); if (!n1) return; eR += r1; eC += c1; nn += n1; rows.push([k, t.n, t.hits / t.n, t.sumP / t.n, P.calibrate(S, k, t.sumP / t.n), r1 / n1, c1 / n1]); });
+    rows.sort((a, b) => b[1] - a[1]); const f1 = v => (v * 100).toFixed(1).replace('.', ',');
+    const RP = (S.rp && S.rp.st) || {}, mo = {}; Object.values(RP).forEach(T => Object.entries(T.mo || {}).forEach(([m, v]) => { if (v.ESITO) mo[m] = v.ESITO; })); const ms = Object.keys(mo).sort().slice(-6);
+    if (rows.length || ms.length) HON = '<div class="card"><h3>🧪 L\'addestramento funziona? Verifica onesta</h3><div class="sm mut">Contano solo i pronostici salvati PRIMA del calcio d\'inizio. Dal 28/11 le partite ricalcolate a risultato noto non entrano più nella taratura: davano numeri gonfiati (favorita indovinata 83-97% invece del 75% vero).</div>' +
+      (nn ? '<div class="kv"><span>Errore medio della probabilità</span><div><b>' + f1(eR / nn) + ' punti</b> col modello grezzo → <b class="ok">' + f1(eC / nn) + ' punti</b> dopo la taratura imparata (' + nn.toLocaleString('it-IT') + ' casi veri)</div></div>' : '') +
+      (ms.length ? '<div class="kv"><span>Ripasso stagioni (esito 1X2, partita per partita)</span><div>' + ms.map(m => m.slice(5) + '/' + m.slice(2, 4) + ' <b>' + f1(mo[m][1] / mo[m][0]) + '%</b> <span class="mut">(' + mo[m][0] + ')</span>').join(' · ') + '</div></div>' : '') +
+      '<details><summary>Ogni mercato: entrati, detto dal modello grezzo, detto dopo la taratura</summary><table class="tb"><tr><th>Mercato</th><th>Casi</th><th>Entrati</th><th>Grezzo</th><th>Tarato</th></tr>' + rows.slice(0, 30).map(r => '<tr><td>' + esc(MLBL[r[0]] || (typeof LBL !== 'undefined' && LBL[r[0]]) || r[0]) + '</td><td>' + r[1] + '</td><td>' + f1(r[2]) + '%</td><td>' + f1(r[3]) + '%</td><td class="' + (r[6] <= r[5] ? 'ok' : 'warn') + '">' + f1(r[4]) + '%</td></tr>').join('') + '</table></details></div>'; } catch (e) { }
+  return HON + CG + DATI + VAL + '<div class="card"><div class="k">Addestramento di ogni tipo di pronostico</div><div class="sm">Ogni pronostico viene salvato prima del calcio d\'inizio, verificato a fine gara e usato per correggere da solo le probabilità future (taratura per tipo, per fascia e per campionato, poi con i risultati veri prima del via).</div><table class="sm" style="width:100%"><tr><th style="text-align:left">Tipo</th><th>Entrate</th><th>Previste</th><th>Stato</th></tr>' + rows.join('') + '</table>' + (L.length ? '<div class="k" style="margin-top:8px">Ragionamento imparato (quanto vale ogni indizio)</div><div class="sm">' + L.map(x => '• ' + esc(x)).join('<br>') + '</div>' : '') + '</div>'; }
 function realHtml() { const T = S.tracker || {}, pc = v => (v * 100).toFixed(1).replace('.', ',') + '%', nm = k => esc(MLBL[k] || lblK(k));
   const core = ['OVER05', 'UNDER45', 'OVER15', 'UNDER35', 'FAV_SEGNA', 'FAV_NOLOSE', 'DNB_FAV', 'OVER25', 'UNDER25', 'BTTS', 'NOBTTS', 'FAV_WIN', 'TH_05', 'TA_05', 'O05_1T', 'COR_O85', 'EX1', 'EX3'];
   const rowsR = core.map(k => { const t = T['PRE_' + k]; if (!t || t.n < 30) return ''; const b = t.bd && t.bd[3], hb = b && b[0] >= 30 ? pc(b[1] / b[0]) + ' su ' + b[0] : '—'; return '<tr><td>' + nm(k) + '</td><td>' + pc(t.hits / t.n) + '</td><td>' + pc(t.sumP / t.n) + '</td><td>' + t.n + '</td><td>' + hb + '</td></tr>'; }).join('');
@@ -2558,11 +2587,13 @@ function queueRebuild(ev) { if (!ev || !ev.done || RQ.seen[ev.id]) return; RQ.se
 function tcRec(ev, sm) { if (!sm || !sm.events || !sm.events.length) return; S.tcSeen = S.tcSeen || {}; if (S.tcSeen[ev.id]) return;
   const hasC = sm.events.some(e => /Yellow|Red Card/i.test(e.type)); if (!hasC && sm.events.length < 6) return; S.tcSeen[ev.id] = 1;
   P.tcAdd(S, ev.home, sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length); P.tcAdd(S, ev.away, sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length); }
+// gol attesi salvati prima del calcio d'inizio (al massimo 4 giorni prima); null se non esistono: allora la partita aggiorna Elo e statistiche ma NON la taratura
+function lamPreOf(ev) { const v = S.lamPre && S.lamPre[ev.id], kt = new Date(ev.date).getTime(); return v && v[2] < kt && kt - v[2] < 4 * 864e5 ? v : null; }
 function learnEvent(ev, sm) { P.lgLearn(S, ev); if (sm && sm.tst && ev.done) { /* le statistiche si imparano dopo aver usato i dati precedenti nel test */ }
-  { const age = Date.now() - new Date(ev.date).getTime(); if (age < 5 * 864e5) { const l0 = P.lambdas(S, SEED, ev); S.preLam = S.preLam || {}; S.preLam[ev.id] = [+l0.lh.toFixed(4), +l0.la.toFixed(4), new Date(ev.date).getTime()]; } } if (sm && sm.events && sm.events.length) { const yh = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length, ya = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length;
-  if (sm.events.some(e => /Yellow|Red Card/i.test(e.type)) || sm.events.length > 6) { P.tcAdd(S, ev.home, yh, ya); P.tcAdd(S, ev.away, ya, yh); } } if (ev.done && !(S.snap && S.snap[ev.id]) && !S.seen[ev.id] && Date.now() - new Date(ev.date) < 3 * 864e5) rebuildSnap(ev, sm, 'pre'); /* solo partite recenti: lo storico vecchio riempiva l'archivio e cancellava i pre-pronostici delle partite di domani */ const lam = P.lambdas(S, SEED, ev), mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), fav = lam.lh >= lam.la;
-  if (lam.known) lst.forEach(x => { const hit = P.resolveMarket(x.key, { favHome: fav }, { hs: ev.hs, as: ev.as, ht: sm ? sm.ht : null, cor: sm ? sm.cor : null, tst: sm ? sm.tst : null, cd: sm ? sm.cd : null }); if (hit !== null) { P.record(S, x.key, x.pRaw, hit); P.record(S, 'C_' + x.key, x.p, hit); P.ctrAdd(S, ev, x.key, x.pRaw, hit); } });
-  if (lam.known) { const top = mk.exact[0][0], t3 = mk.exact.slice(0, 3).map(x => x[0]), res = ev.hs + '-' + ev.as; P.record(S, 'EX1', mk.exact[0][1], res === top); P.record(S, 'EX3', mk.ex3, t3.indexOf(res) >= 0); }
+  { const age = Date.now() - new Date(ev.date).getTime(); if (age < 5 * 864e5) { const l0 = lamPreOf(ev); if (l0) { S.preLam = S.preLam || {}; S.preLam[ev.id] = [l0[0], l0[1], new Date(ev.date).getTime()]; } } } if (sm && sm.events && sm.events.length) { const yh = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.home)).length, ya = sm.events.filter(e => /Yellow|Red Card/i.test(e.type) && teamIs(e.team, ev.away)).length;
+  if (sm.events.some(e => /Yellow|Red Card/i.test(e.type)) || sm.events.length > 6) { P.tcAdd(S, ev.home, yh, ya); P.tcAdd(S, ev.away, ya, yh); } } if (ev.done && !(S.snap && S.snap[ev.id]) && !S.seen[ev.id] && Date.now() - new Date(ev.date) < 3 * 864e5) rebuildSnap(ev, sm, 'pre'); /* solo partite recenti: lo storico vecchio riempiva l'archivio e cancellava i pre-pronostici delle partite di domani */ const lam0 = P.lambdas(S, SEED, ev), LP = lamPreOf(ev), lam = LP ? Object.assign({}, lam0, { lh: LP[0], la: LP[1] }) : lam0, mk = P.markets(lam.lh, lam.la), lst = P.marketList(S, mk, lam.lh, lam.la, SEED, ev), fav = lam.lh >= lam.la, honest = !!(LP && lam0.known);
+  if (honest) lst.forEach(x => { const hit = P.resolveMarket(x.key, { favHome: fav }, { hs: ev.hs, as: ev.as, ht: sm ? sm.ht : null, cor: sm ? sm.cor : null, tst: sm ? sm.tst : null, cd: sm ? sm.cd : null }); if (hit !== null) { P.record(S, x.key, x.pRaw, hit); P.record(S, 'C_' + x.key, x.p, hit); P.ctrAdd(S, ev, x.key, x.pRaw, hit); } });
+  if (honest) { const top = mk.exact[0][0], t3 = mk.exact.slice(0, 3).map(x => x[0]), res = ev.hs + '-' + ev.as; P.record(S, 'EX1', mk.exact[0][1], res === top); P.record(S, 'EX3', mk.ex3, t3.indexOf(res) >= 0); }
   P.updateElo(S, SEED, ev); if (sm && sm.tst) P.tsAdd(S, ev, sm.tst); S.seen[ev.id] = 1; S.hist = S.hist || {}; const dd = String(ev.date || '').slice(0, 16); if (!S.hist.lastMatch || dd > S.hist.lastMatch) S.hist.lastMatch = dd; }
 // ---- storico: tutte le partite internazionali dal 2024 (archivio pubblico GitHub, CORS aperto) ----
 async function importIntl(say) {
@@ -3476,18 +3507,18 @@ async function trainLoop() {
       if (document.hidden || training) { await zz(15000); continue; }
       if (S.tg && S.tg.token && Date.now() - (TL.tgT || 0) > 5 * 60e3) { TL.tgT = Date.now(); TL.step = 'messaggi Telegram dei tipster'; await tgStep(); }
       else if (Date.now() - (TL.ytT || 0) > (Object.values((S.yt || {}).v || {}).some(v => !v.ok && v.date && Date.now() - new Date(v.date) < 2 * 864e5) ? 30 * 60e3 : 2 * 3600e3)) { TL.ytT = Date.now(); TL.step = 'video dei tipster (YouTube)'; await ytStep(); }
-      else if (Date.now() - (TL.taT || 0) > 5 * 60e3) { TL.step = 'percentuali dei tipster'; TL.taT = Date.now(); await taStep(15); }
-      else if (Date.now() - (TL.palT || 0) > 30 * 60e3) { TL.palT = Date.now(); TL.step = 'pre-pronostico di tutto il palinsesto di oggi e domani'; await palinsestoStep([0, 1], 0); }
-      else if (Date.now() - (TL.wsT || 0) > 3 * 3600e3) { TL.wsT = Date.now(); TL.step = 'siti con dati dettagliati (Transfermarkt, FootyStats, WhoScored)'; await siteStep(); }
-      else if ((events || []).some(e => sqWanted(e)) && Date.now() - (TL.sqT || 0) > 8000) { TL.step = 'dati delle partite in arrivo'; TL.sqT = Date.now(); await squadStep(3); }
-      else if ((events || []).filter(e => e.done && !(S.fmSeen || {})[e.id]).length >= 3 && Date.now() - (TL.xgT || 0) > 90000) { TL.step = 'xG delle partite finite'; TL.xgT = Date.now(); await xgStep(); }
-      else if (!S.lastTrain || Date.now() - S.lastTrain > 6 * 3600 * 1000) { TL.step = 'recupero ultimi giorni'; await train(S.lastTrain ? 3 : 14, 40); TL.today = Date.now(); }
+      else if (Date.now() - (TL.taT || 0) > (cloudFresh() ? 20 : 5) * 60e3) { TL.step = 'percentuali dei tipster'; TL.taT = Date.now(); await taStep(cloudFresh() ? 6 : 15); }
+      else if (!cloudFresh() && Date.now() - (TL.palT || 0) > 30 * 60e3) { TL.palT = Date.now(); TL.step = 'pre-pronostico di tutto il palinsesto di oggi e domani'; await palinsestoStep([0, 1], 0); }
+      else if (!cloudFresh() && Date.now() - (TL.wsT || 0) > 3 * 3600e3) { TL.wsT = Date.now(); TL.step = 'siti con dati dettagliati (Transfermarkt, FootyStats, WhoScored)'; await siteStep(); }
+      else if ((events || []).some(e => sqWanted(e)) && Date.now() - (TL.sqT || 0) > (cloudFresh() ? 60000 : 8000)) { TL.step = 'dati delle partite in arrivo'; TL.sqT = Date.now(); await squadStep(3); }
+      else if (!cloudFresh() && (events || []).filter(e => e.done && !(S.fmSeen || {})[e.id]).length >= 3 && Date.now() - (TL.xgT || 0) > 90000) { TL.step = 'xG delle partite finite'; TL.xgT = Date.now(); await xgStep(); }
+      else if (!cloudFresh() && (!S.lastTrain || Date.now() - S.lastTrain > 6 * 3600 * 1000)) { TL.step = 'recupero ultimi giorni'; await train(S.lastTrain ? 3 : 14, 40); TL.today = Date.now(); }
       else if ((!S.hist || !S.hist.intl || Date.now() - S.hist.intl.t > 864e5) && Date.now() - (TL.intlFail || 0) > 30 * 60000) { TL.step = 'storico nazionali'; try { await importIntl(m => TL.msg = m); } catch (e) { TL.intlFail = Date.now(); log('Storico nazionali non raggiungibile ora: riprovo tra 30 minuti, intanto continuo con il resto.'); } }
-      else if (Date.now() - TL.today > 4 * 60000) { TL.step = 'partite appena finite e audit'; await train(0, 40); TL.today = Date.now(); }
+      else if (Date.now() - TL.today > (cloudFresh() ? 15 : 4) * 60000) { TL.step = 'partite appena finite e audit'; await train(0, cloudFresh() ? 12 : 40); TL.today = Date.now(); }
       else if (!cloudFresh() && lgPending() && Date.now() - (TL.lgT || 0) > 3000 && (TL.lgFlip = !TL.lgFlip)) { TL.step = 'campionati principali: tutte le partite della stagione'; TL.lgT = Date.now(); await leagueStep(10); }
       else if (!cloudFresh() && (!S.rp || S.rp.day < new Date(Date.now() - 864e5).toISOString().slice(0, 10)) && Date.now() - (TL.rpT || 0) > 120000) { TL.step = 'ripasso delle stagioni 2025-26 e 2026-27'; TL.rpT = Date.now(); await replayStep(4); }
       else if (!cloudFresh() && (TL.flip = !TL.flip) && (S.histDays || 14) < 420) { TL.step = 'storico campionati ' + ((S.histDays || 14) + 1) + '-' + ((S.histDays || 14) + 12) + ' giorni fa'; await histStep(); }
-      else if ((events || []).some(e => e.done && !(S.fmSeen || {})[e.id])) { TL.step = 'xG delle partite finite'; await xgStep(); }
+      else if (!cloudFresh() && (events || []).some(e => e.done && !(S.fmSeen || {})[e.id])) { TL.step = 'xG delle partite finite'; await xgStep(); }
       else if ((events || []).some(ev => !ev.done && ev.state === 'pre' && ev.g365id && !(S.refOf || {})[ev.id])) { TL.step = 'arbitri designati di oggi'; await refDayStep(); }
       else if (!cloudFresh() && (P.RDB.back || 0) < 365) { TL.step = 'archivio arbitri'; await refStep(); }
       else { TL.step = 'in attesa di nuove partite finite'; await zz(30000); }
@@ -3618,9 +3649,9 @@ let updReady = 0;
 // ================= ADDESTRAMENTO 24 SU 24 NEL CLOUD: il telefono scarica il modello addestrato e lo unisce al suo =================
 const CLOUDURL = 'https://raw.githubusercontent.com/thor457/pronostici/main/state/';
 const CL_LOCAL = ['wt', 'lsOut', 'settings', 'log', 'yt', 'tg', 'sofaSt', 'olbg', 'luT', 'luSt', 'store', 'v', 'cloud'];
-const CL_UNION = ['snap', 'snapPre', 'ver', 'lu', 'luSrc', 'fmIng', 'seen', 'resolvedIds', 'refOf', 'cp', 'fmSeen', 'fmTeamT'];
+const CL_UNION = ['lamPre', 'snap', 'snapPre', 'ver', 'lu', 'luSrc', 'fmIng', 'seen', 'resolvedIds', 'refOf', 'cp', 'fmSeen', 'fmTeamT'];
 const trScore = X => Object.values((X && X.tracker) || {}).reduce((a, t) => a + (t.n || 0), 0);
-function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C);
+function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C), force = !!(C && C.fixLeak1 && !S.fixLeak1); /* 28/11: il cloud ha tolto le registrazioni contaminate, quindi ha MENO casi ma giusti: si prendono i suoi */
   Object.keys(C).forEach(k => { const v = C[k];
     // pagine web lette dal cloud con un browser vero (es. MondoPengwin, che dal telefono può non rispondere)
     if (k === 'ytv' && v) { const Y = ytState(); Object.keys(v).forEach(id => { const a = Y.v[id], b = v[id]; if (!b) return; if (!a) { Y.v[id] = b; n++; } else { if (b.dm && (!a.dmT || b.dmT > a.dmT)) { a.dm = b.dm; a.dmT = b.dmT; a.descN = b.descN; } if (b.tr && !a.tr) { a.tm = b.tm; a.tr = 1; a.nseg = b.nseg; a.dur = b.dur; } const tm = a.tm || [], key = x => P.norm(x.h) + '|' + P.norm(x.a), hv = new Set(tm.map(key)); a.m = tm.concat((a.dm || []).filter(x => !hv.has(key(x)))); a.ok = a.m.length ? 1 : 0; n++; } }); return; }
@@ -3636,14 +3667,14 @@ function cloudMerge(C) { let n = 0; const mine = trScore(S), theirs = trScore(C)
     if (k === 'tsrc' && v) { S.tsrc = S.tsrc || {}; Object.keys(v).forEach(c => { const a = S.tsrc[c], b = v[c]; if (b && b.ok && (!a || !a.ok || b.t > a.t)) { S.tsrc[c] = Object.assign({}, b, { via: 'cloud' }); n++; } }); if (S.tsrc.OLBG) S.olbg = S.tsrc.OLBG; return; }
     if (k === 'tipA' && v) { S.tipA = S.tipA || {}; Object.keys(v).forEach(id => { const a = S.tipA[id], b = v[id]; if (b && (!a || (b.t || 0) > (a.t || 0))) { S.tipA[id] = Object.assign({}, b, a && a.sf && !b.sf ? { sf: a.sf } : {}); n++; } }); return; }
     if (CL_UNION.indexOf(k) >= 0 && v && typeof v === 'object' && !Array.isArray(v)) { S[k] = S[k] || {}; Object.keys(v).forEach(id => { if (S[k][id] === undefined) { S[k][id] = v[id]; n++; } }); return; }
-    if (theirs >= mine || S[k] === undefined) { S[k] = v; n++; } });
+    if (force || theirs >= mine || S[k] === undefined) { S[k] = v; n++; } }); if (force) S.fixLeak1 = 1;
   if (P.pidxClear) P.pidxClear(); return { n, mine, theirs }; }
 async function cloudSync(force) { S.cloud = S.cloud || {}; if (!force && S.cloud.chk && Date.now() - S.cloud.chk < 50 * 60e3) return; S.cloud.chk = Date.now();
   try { const m = await (await fetch(CLOUDURL + 'meta.json?t=' + Date.now(), { cache: 'no-store' })).json(); S.cloud.last = m; 
     if (m.mk && (!window.FDM || window.FDM.t < m.mk)) { try { const rm = await fetch(CLOUDURL + 'markets.json?t=' + m.mk, { cache: 'no-store' }); if (rm.ok) { window.FDM = await rm.json(); window.FDX = null; await idbSet('fdm', window.FDM); log('Statistiche ufficiali di ' + window.FDM.partite + ' partite e verifica di ' + Object.keys(window.FDM.eval || {}).length + ' mercati scaricate dal cloud.'); } } catch (x) { } }
 if (!m || !m.t || (S.cloud.got && S.cloud.got >= m.t && !force)) return;
-    const r = await fetch(CLOUDURL + 'state.json?t=' + m.t, { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status); const C = await r.json(); const res = cloudMerge(C); S.cloud.got = m.t; S.cloud.res = res;
-    [].concat(events || [], QM.list || []).forEach(e => { if (!e.done && e.lam) { try { delete e.lam; prepEv(e); } catch (x) { } } });
+    let r = m.ph ? await fetch(CLOUDURL + 'phone.json?t=' + m.t, { cache: 'no-store' }).catch(() => null) : null; if (!r || !r.ok) r = await fetch(CLOUDURL + 'state.json?t=' + m.t, { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status); const C = await r.json(); const res = cloudMerge(C); S.cloud.got = m.t; S.cloud.res = res;
+    { const RL = [].concat(events || [], QM.list || []).filter(e => !e.done && e.lam); RL.forEach(e => { delete e.lam; }); for (let i = 0; i < RL.length; i++) { try { prepEv(RL[i]); } catch (x) { } if (i % 25 === 24) await new Promise(r => setTimeout(r, 0)); } }
     save(true); log('Modello addestrato nel cloud scaricato (' + new Date(m.t).toLocaleString('it-IT') + '): ' + res.n + ' parti aggiornate, controlli ' + res.theirs + ' contro ' + res.mine + ' del telefono.'); }
   catch (e) { S.cloud.err = String(e.message || e).slice(0, 80); } }
 setTimeout(async () => { try { const f = await idbGet('fdm'); if (f && f.teams && (!window.FDM || window.FDM.t < f.t)) { window.FDM = f; window.FDX = null; } } catch (e) { } cloudSync(); }, 15000); setInterval(() => { if (!document.hidden) cloudSync(); }, 10 * 60e3);
@@ -3651,7 +3682,7 @@ async function updCheck(force) { S.settings = S.settings || {}; const u = (S.set
   if (!force && S.settings.updT && Date.now() - S.settings.updT < 2 * 3600e3) return;
   S.settings.updT = Date.now();
   try { const r = await fetch(u + (u.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return; const t = await r.text();
-    const m = t.match(/__BUILT=(\d+)/); if (!m) return; const ver = +m[1];
+    const m = t.match(/__BUILT=1795862108(\d+)/); if (!m) return; const ver = +m[1];
     if (ver <= BUILT || t.length < 50000 || t.indexOf('window.SEED=') < 0) return;
     await idbSet('bundle', { ver, html: t, t: Date.now() }); updReady = ver; save();
     const d = document.createElement('div'); d.className = 'updb'; d.innerHTML = 'Nuova versione pronta (' + new Date(ver * 1000).toLocaleString('it-IT') + ') <button class="btn" id="updgo">Riavvia ora</button>';
@@ -3674,7 +3705,7 @@ function vUpd() {
     S.settings = S.settings || {}; S.settings.updUrl = url; save();
     out.innerHTML = '<div class="card"><div class="sm">Sto scaricando…</div></div>';
     try { const r = await fetch(url + (url.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now(), { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status);
-      const t = await r.text(); const m = t.match(/__BUILT=(\d+)/); if (!m || t.indexOf('window.SEED=') < 0 || t.indexOf('id="app"') < 0) throw new Error('il file non sembra una versione di Pronostici Pro');
+      const t = await r.text(); const m = t.match(/__BUILT=1795862108(\d+)/); if (!m || t.indexOf('window.SEED=') < 0 || t.indexOf('id="app"') < 0) throw new Error('il file non sembra una versione di Pronostici Pro');
       const ver = +m[1]; if (ver <= BUILT) { out.innerHTML = '<div class="card"><div class="ok">Sei già alla versione più recente (' + new Date(ver * 1000).toLocaleString('it-IT') + ').</div></div>'; return; }
       if (t.length < 50000) throw new Error('file incompleto');
       await idbSet('bundle', { ver, html: t, t: Date.now() });
