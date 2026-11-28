@@ -220,5 +220,23 @@
    }
   ],
   "nota": "Torino-Lazio: resta la consegna delle 10:15 (1-2, alt 0-1); il modello mette 1-1 al 12,8%"
+ },
+ "due_piu_solidi_14_05": {
+  "issued_at": "2026-11-28T12:59:10.854823+00:00",
+  "lista": [
+   {
+    "m": "PSV Eindhoven - Go Ahead Eagles",
+    "ora": "18:45",
+    "label": "Over 1.5",
+    "p": 90.5
+   },
+   {
+    "m": "Real Madrid - Alavés",
+    "ora": "21:00",
+    "label": "Over 1.5",
+    "p": 87.8
+   }
+  ],
+  "doppia": 79.5
  }
 }
