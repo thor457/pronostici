@@ -166,5 +166,59 @@
    }
   ],
   "esclusi": "Mbappé (Alavés 9° per gol subiti), Lautaro (Genoa 10° e ballottaggio), Dembélé (Lorient 0,82 subiti)"
+ },
+ "esatti_piu_solidi_14_00": {
+  "issued_at": "2026-11-28T12:54:03.288169+00:00",
+  "lista": [
+   {
+    "m": "Moreirense - Santa Clara",
+    "ora": "16:30",
+    "esatto": "1-1",
+    "p": 14.0,
+    "alt": "0-1",
+    "dir": "X2 + Under 2,5"
+   },
+   {
+    "m": "Le Mans - Lille",
+    "ora": "20:45",
+    "esatto": "1-1",
+    "p": 13.1,
+    "alt": "0-1",
+    "dir": "X2"
+   },
+   {
+    "m": "Málaga - Athletic Club",
+    "ora": "16:15",
+    "esatto": "1-1",
+    "p": 12.7,
+    "alt": "0-1",
+    "dir": "X2 + Under 3,5"
+   },
+   {
+    "m": "Leeds United - Coventry City",
+    "ora": "16:00",
+    "esatto": "2-0",
+    "p": 11.2,
+    "alt": "1-0",
+    "dir": "1X + Under 3,5"
+   },
+   {
+    "m": "Paris Saint-Germain - Lorient",
+    "ora": "20:45",
+    "esatto": "2-0",
+    "p": 11.7,
+    "alt": "1-0",
+    "dir": "1 + Under 3,5"
+   },
+   {
+    "m": "Elche - Atlético Madrid",
+    "ora": "18:30",
+    "esatto": "0-2",
+    "p": 10.9,
+    "alt": "0-1",
+    "dir": "X2"
+   }
+  ],
+  "nota": "Torino-Lazio: resta la consegna delle 10:15 (1-2, alt 0-1); il modello mette 1-1 al 12,8%"
  }
 }
