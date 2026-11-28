@@ -343,5 +343,24 @@
   "esatto": "2-1",
   "alt": "2-0",
   "dir": "1 + Over 1,5"
+ },
+ "frosinone_parma_14_42_dati_completi": {
+  "issued_at": "2026-11-28T13:37:50.514846+00:00",
+  "fonte": "FotMob statistiche stagione Serie A di tutti i 22 titolari e panchine",
+  "ammoniti_o_sostituto": [
+   "Gabriele Bracaglia",
+   "Mariano Troilo",
+   "Ilario Monterisi"
+  ],
+  "riserve": [
+   "Anthony Oyono",
+   "Patrizio Masini"
+  ],
+  "marcatori_o_sostituto": [
+   "Giacomo Calò",
+   "Farès Ghedjemis",
+   "Giorgi Kvernadze"
+  ],
+  "motivo_cambio_ordine": "Calò 5 gol (1 rigore), xG 2,94: dato nuovo"
  }
 }
