@@ -154,6 +154,8 @@ async def main():
         try: await asyncio.wait_for(lu_task, 300)
         except Exception: pass
         print('  formazioni ufficiali prese in questo giro:', await ev("Object.keys(window.__S().lu||{}).length"))
+        g = await ev("JSON.stringify(window.__T.guardStep())", 60)
+        print('6. guardia contro la contaminazione della taratura:', g)
         out = await pg.evaluate("""(L)=>{const S=window.__S(),o={};Object.keys(S).forEach(k=>{if(L.indexOf(k)<0)o[k]=S[k]}); if(S.yt&&S.yt.w)o.ytw=S.yt.w; if(S.yt&&S.yt.v)o.ytv=S.yt.v;
           // archivi per id: solo gli ultimi 10 giorni
           const cut=Date.now()-10*864e5, cut2=Date.now()-36*3600e3, V=S.ver||{}; ['snap','snapPre'].forEach(k=>{if(o[k]){const x={};Object.keys(o[k]).forEach(id=>{const v=o[k][id];if(!v||!v.kick)return; const kt=new Date(v.kick); if(kt>cut&&(!V[id]||kt>cut2))x[id]=v});o[k]=x}});
@@ -179,7 +181,7 @@ async def main():
     try:
         ph = phone_slim(json.loads(out)); open(os.path.join(ROOT, 'state', 'phone.json'), 'w').write(ph)
     except Exception as e: print('   versione telefono non creata:', e)
-    meta = {'t': int(time.time() * 1000), 'score': score, 'verificate': nver, 'size': len(out), 'ph': len(ph) if ph else 0, 'minuti': round((time.time() - t0) / 60, 1), 'mk': mk}
+    meta = {'t': int(time.time() * 1000), 'guardia': (json.loads(g).get('bad') if g else None), 'score': score, 'verificate': nver, 'size': len(out), 'ph': len(ph) if ph else 0, 'minuti': round((time.time() - t0) / 60, 1), 'mk': mk}
     open(os.path.join(ROOT, 'state', 'meta.json'), 'w').write(json.dumps(meta))
     print('FATTO', json.dumps(meta))
 

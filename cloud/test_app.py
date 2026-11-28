@@ -86,6 +86,19 @@ async def main():
                 rep('live: '+nm+' aperta in %.1fs, schede '%(topen)+','.join(tabs),bool(tabs) and not bad and len(errs)==n0,('problemi '+','.join(bad)+' '+'; '.join(errs[n0:])) if bad or len(errs)>n0 else '')
             else: rep('live: nessuna partita in corso',True)
         except Exception as e: rep('live centro',False,str(e)[:200])
+        # ADDESTRAMENTO PULITO (28/11): mai imparare da gol attesi ricalcolati dopo il risultato; guardia che si blocca da sola
+        try:
+            r = await pg.evaluate("""()=>{const T=window.__T,S=window.__S(),k='FAV_NOLOSE',n=()=>((S.tracker||{})[k]||{}).n||0,kick=new Date(Date.now()-864e5).toISOString();
+              const mk=id=>({id,league:'ita.1',home:'Internazionale',away:'Genoa',date:kick,done:true,state:'post',hs:2,as:0});
+              const g0=S.guard; delete S.guard; const a0=n(); T.learnEvent(mk('TSTLEAK1'),null); const a1=n();
+              S.lamPre=S.lamPre||{}; S.lamPre['TSTLEAK2']=[1.6,0.9,Date.now()-30*3600e3,new Date(kick).getTime()]; T.learnEvent(mk('TSTLEAK2'),null); const a2=n();
+              const now=Date.now(),v={}; ['FAV_NOLOSE','FAV_WIN','FAV_SEGNA','OVER25','UNDER35','EX3'].forEach(q=>{const t=S.tracker[q]||{n:0,hits:0,sumP:0},b=S.tracker['PRE_'+q]||{n:0,hits:0,sumP:0}; v[q]=[(t.n||0)-400,(t.hits||0)-400*0.95,(t.sumP||0)-400*0.80,b.n||0,b.hits||0,b.sumP||0];});
+              S.guard={h:[{t:now-21*3600e3,v}]}; const G=T.guardStep(); S.lamPre['TSTLEAK3']=[1.6,0.9,Date.now()-30*3600e3,new Date(kick).getTime()]; T.learnEvent(mk('TSTLEAK3'),null); const a3=n();
+              const blocked=!!(S.guard&&S.guard.block); if(g0) S.guard=g0; else delete S.guard; ['TSTLEAK1','TSTLEAK2','TSTLEAK3'].forEach(id=>{delete S.lamPre[id]; if(S.seen) delete S.seen[id]; if(S.snap) delete S.snap[id];});
+              return {senza_pre:a1-a0, con_pre:a2-a1, bloccata:blocked, dopo_blocco:a3-a2, bad:G.bad}}""")
+            ok = r['senza_pre']==0 and r['con_pre']==1 and r['bloccata'] and r['dopo_blocco']==0
+            rep('addestramento pulito e guardia automatica', ok, json.dumps(r))
+        except Exception as e: rep('addestramento pulito e guardia automatica', False, str(e)[:200])
         # tasto indietro
         try:
             await pg.go_back(); await pg.wait_for_timeout(1500); rep('tasto indietro',True,(await pg.inner_text('#app'))[:40].replace('\n',' '))
