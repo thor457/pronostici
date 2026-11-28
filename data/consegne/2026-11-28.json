@@ -81,5 +81,48 @@
    "1-0",
    "1-1"
   ]
+ },
+ "marcatori_o_sostituto_13_45": {
+  "issued_at": "2026-11-28T12:36:59.448334+00:00",
+  "lista": [
+   {
+    "m": "Real Betis - Rayo Vallecano",
+    "ora": "14:00",
+    "nome": "Cucho Hernández",
+    "p": 63,
+    "xi": "ufficiale"
+   },
+   {
+    "m": "PSV Eindhoven - Go Ahead Eagles",
+    "ora": "18:45",
+    "nome": "Sven Mijnans",
+    "p": 66,
+    "xi": "probabile"
+   },
+   {
+    "m": "Real Madrid - Alavés",
+    "ora": "21:00",
+    "nome": "Kylian Mbappé",
+    "p": 67,
+    "xi": "probabile"
+   },
+   {
+    "m": "Internazionale - Genoa",
+    "ora": "20:45",
+    "nome": "Lautaro Martínez",
+    "p": 63,
+    "xi": "solo se titolare ufficiale"
+   }
+  ],
+  "alternative": [
+   {
+    "nome": "Jude Bellingham",
+    "p": 60
+   },
+   {
+    "nome": "Ivan Perisic",
+    "p": 59
+   }
+  ]
  }
 }
