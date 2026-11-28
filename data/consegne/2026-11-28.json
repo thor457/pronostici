@@ -238,5 +238,70 @@
    }
   ],
   "doppia": 79.5
- }
+ },
+ "schedine_28": [
+  {
+   "nome": "Quota 100 campionati principali 14:05",
+   "issued_at": "2026-11-28T13:03:36.858235+00:00",
+   "quota_giusta": 122,
+   "prob": 0.82,
+   "sistema_8_su_9": 6.1,
+   "gambe": [
+    {
+     "m": "Frosinone - Parma",
+     "t": "15:00",
+     "label": "1 + Over 1.5",
+     "p": 59.7
+    },
+    {
+     "m": "Leeds United - Coventry City",
+     "t": "16:00",
+     "label": "Corner Leeds United Over 4.5",
+     "p": 61.3
+    },
+    {
+     "m": "Málaga - Athletic Club",
+     "t": "16:15",
+     "label": "Corner Athletic Club Over 4.5",
+     "p": 52.9
+    },
+    {
+     "m": "Torino - Lazio",
+     "t": "18:00",
+     "label": "Tiri in porta Lazio Over 3.5",
+     "p": 65.7
+    },
+    {
+     "m": "Elche - Atlético Madrid",
+     "t": "18:30",
+     "label": "2 + Over 1.5",
+     "p": 53.7
+    },
+    {
+     "m": "PSV Eindhoven - Go Ahead Eagles",
+     "t": "18:45",
+     "label": "PSV Eindhoven Over 2.5 gol",
+     "p": 57.7
+    },
+    {
+     "m": "Internazionale - Genoa",
+     "t": "20:45",
+     "label": "1 + Over 2.5",
+     "p": 55.1
+    },
+    {
+     "m": "Paris Saint-Germain - Lorient",
+     "t": "20:45",
+     "label": "Tiri in porta Paris Saint-Germain Over 5.5",
+     "p": 64.8
+    },
+    {
+     "m": "Real Madrid - Alavés",
+     "t": "21:00",
+     "label": "Real Madrid Over 2.5 gol",
+     "p": 58.3
+    }
+   ]
+  }
+ ]
 }
