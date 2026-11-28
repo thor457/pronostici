@@ -303,5 +303,45 @@
     }
    ]
   }
- ]
+ ],
+ "frosinone_parma_14_45": {
+  "issued_at": "2026-11-28T13:32:04.382372+00:00",
+  "xi": "ufficiali FotMob",
+  "arbitro": "Kevin Bonacina",
+  "ammoniti_o_sostituto": [
+   {
+    "nome": "Gabriele Bracaglia",
+    "p": 20.7
+   },
+   {
+    "nome": "Mariano Troilo",
+    "p": 17.2
+   },
+   {
+    "nome": "Ilario Monterisi",
+    "p": 15.4
+   }
+  ],
+  "riserve_cartellini": [
+   "Patrizio Masini",
+   "Giovanni Fabbian"
+  ],
+  "marcatori_o_sostituto": [
+   {
+    "nome": "Farès Ghedjemis",
+    "p": 45
+   },
+   {
+    "nome": "Giacomo Calò",
+    "p": 44
+   },
+   {
+    "nome": "Giorgi Kvernadze",
+    "p": 42
+   }
+  ],
+  "esatto": "2-1",
+  "alt": "2-0",
+  "dir": "1 + Over 1,5"
+ }
 }
