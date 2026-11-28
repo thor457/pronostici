@@ -1,0 +1,85 @@
+{
+ "giornata": "Serie A 13ª, 28-29/11/2026",
+ "issued_at": "2026-11-28T09:00:04.051069+00:00",
+ "xi": "PRE_XI (probabili Sky, Di Marzio, DAZN, WH News del 27/11)",
+ "schedine_serie_a": [
+  {
+   "nome": "Serie A 28-29/11 alta quota",
+   "quota_giusta": 68,
+   "gambe": [
+    {
+     "m": "Frosinone - Parma",
+     "t": "15:00",
+     "label": "1 + Over 1.5",
+     "p": 59.9
+    },
+    {
+     "m": "Torino - Lazio",
+     "t": "18:00",
+     "label": "X2 + Over 1.5",
+     "p": 52.4
+    },
+    {
+     "m": "Internazionale - Genoa",
+     "t": "20:45",
+     "label": "1 + Over 2.5",
+     "p": 55.1
+    },
+    {
+     "m": "Udinese - Fiorentina",
+     "t": "12:30",
+     "label": "Goal",
+     "p": 56.3
+    },
+    {
+     "m": "Sassuolo - Napoli",
+     "t": "15:00",
+     "label": "2",
+     "p": 58.2
+    },
+    {
+     "m": "AS Roma - Monza",
+     "t": "18:00",
+     "label": "1 + Malen segna",
+     "p": 51.9
+    },
+    {
+     "m": "Como - Juventus",
+     "t": "20:45",
+     "label": "1X + Under 3.5",
+     "p": 50.1
+    }
+   ]
+  }
+ ],
+ "esatti": {
+  "Frosinone - Parma": [
+   "2-1",
+   "2-0"
+  ],
+  "Torino - Lazio": [
+   "1-2",
+   "0-1"
+  ],
+  "Internazionale - Genoa": [
+   "2-0",
+   "3-1"
+  ],
+  "Udinese - Fiorentina": [
+   "1-1",
+   "1-2"
+  ],
+  "Sassuolo - Napoli": [
+   "1-2",
+   "0-2"
+  ],
+  "AS Roma - Monza": [
+   "3-0",
+   "2-0"
+  ],
+  "Como - Juventus": [
+   "1-0",
+   "1-1"
+  ]
+ }
+}
