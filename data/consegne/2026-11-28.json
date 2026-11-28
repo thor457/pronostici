@@ -124,5 +124,47 @@
     "p": 59
    }
   ]
+ },
+ "marcatori_o_sostituto_criterio_utente": {
+  "issued_at": "2026-11-28T12:41:17.375748+00:00",
+  "criterio": "squadra favorita (>=60%) contro difesa tra le peggiori del campionato (gol subiti a partita)",
+  "lista": [
+   {
+    "m": "PSV Eindhoven - Go Ahead Eagles",
+    "ora": "18:45",
+    "nome": "Sven Mijnans",
+    "p": 66,
+    "difesa_avversaria": "2,15 gol subiti a partita"
+   },
+   {
+    "m": "Real Betis - Rayo Vallecano",
+    "ora": "14:00",
+    "nome": "Cucho Hernández",
+    "p": 63,
+    "difesa_avversaria": "1,83"
+   },
+   {
+    "m": "PSV Eindhoven - Go Ahead Eagles",
+    "ora": "18:45",
+    "nome": "Ivan Perisic",
+    "p": 59,
+    "difesa_avversaria": "2,15"
+   },
+   {
+    "m": "Mainz - 1. FC Union Berlin",
+    "ora": "15:30",
+    "nome": "Phillip Tietz",
+    "p": 50,
+    "difesa_avversaria": "2,6"
+   },
+   {
+    "m": "Leeds United - Coventry City",
+    "ora": "16:00",
+    "nome": "Dominic Calvert-Lewin",
+    "p": 48,
+    "difesa_avversaria": "1,91"
+   }
+  ],
+  "esclusi": "Mbappé (Alavés 9° per gol subiti), Lautaro (Genoa 10° e ballottaggio), Dembélé (Lorient 0,82 subiti)"
  }
 }
